@@ -2,79 +2,79 @@ export const gordos = {
   "Pink Gordo": {
     name: "Pink Gordo",
     food: "Fruit, Veggie, and Meat",
-    position: [66.33824942287396, 87.4122368048343],
+    position: [67.663, 87.403],
     image: "iconGordoPink.png"
   },
   "Cotton Gordo": {
     name: "Cotton Gordo",
     food: "Veggie",
-    position: [62.471129033699675, 89.73241431404023],
+    position: [62.173, 89.723],
     image: "iconGordoCotton.png"
   },
   "Phosphor Gordo": {
     name: "Phosphor Gordo",
     food: "Fruit",
-    position: [64.69658841522373, 99.78651685393258],
+    position: [65.276, 99.777],
     image: "iconGordoPhosphor.png"
   },
   "Hunter Gordo": {
     name: "Hunter Gordo",
     food: "Meat",
-    position: [44.23257852645497, 81.9984892833538],
+    position: [40.376, 81.989],
     image: "iconGordoHunter.png"
   },
   "Tabby Gordo": {
     name: "Tabby Gordo",
     food: "Meat",
-    position: [71.62808948770012, 40.31263336795393],
+    position: [76.145, 40.303],
     image: "iconGordoTabby.png"
   },
   "Angler Gordo": {
     name: "Angler Gordo",
     food: "Meat",
-    position: [39.173662945242064, 101.7199981116042],
+    position: [35.039, 101.711],
     image: "iconGordoAngler.png"
   },
   "Rock Gordo": {
     name: "Rock Gordo",
     food: "Veggie",
-    position: [68.43851429149237, 57.945982437919],
+    position: [70.865, 57.937],
     image: "iconGordoRock.png"
   },
   "Batty Gordo": {
     name: "Batty Gordo",
     food: "Fruit",
-    position: [66.52664618556747, 34.589528845245965],
+    position: [67.943, 34.58],
     image: "iconGordoBatty.png"
   },
   "Flutter Gordo": {
     name: "Flutter Gordo",
     food: "Nectar",
-    position: [36.47871298724966, 89.73241431404023],
+    position: [32.271, 89.723],
     image: "iconGordoFlutter.png"
   },
   "Ringtail Gordo": {
     name: "Ringtail Gordo",
     food: "Fruit, Veggie, and Meat",
-    position: [41.028340686434674, 98.62642809932962],
+    position: [36.973, 98.617],
     image: "iconGordoRingtail.png"
    },
   "Boom Gordo": {
     name: "Boom Gordo",
     food: "Meat",
-    position: [67.89202300593327, 21.2871777924653],
+    position: [70.014, 21.278],
     image: "iconGordoBoom.png"
   },
   "Honey Gordo": {
     name: "Honey Gordo",
     food: "Fruit",
-    position: [52.0152889333061, 92.5939665753942],
+    position: [49.071, 92.585],
     image: "iconGordoHoney.png"
   },
   "Crystal Gordo": {
     name: "Crystal Gordo",
     food: "Veggie",
-    position: [69.87850309638175, 43.56088188084222],
+    position: [73.176, 43.551],
     image: "iconGordoCrystal.png"
   },
 }

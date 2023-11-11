@@ -115,8 +115,9 @@ def transform(pos):
 
     # 85.051 deg lat puts within one pixel resolution of the height of the original map.png picture when on the map
     # map_actual_y_bounds = (0, 85.051 / 90)
-    map_actual_y_bounds = (0, LATMAX / 90)  # range [0, < 0.95)
+    map_actual_y_bounds = (0, LATMAX / 90)  # range [0, ~< 0.95)
     map_pixel_y_bounds = (ZOOM_PIXEL_BOUND / 2, ZOOM_PIXEL_BOUND)
+    map_lat_y_bounds = (laty_to_coordy(-LATMAX), laty_to_coordy(LATMAX))
 
     # map1_x_absrange = (1, 8192)
     # map1_y_absrange = (2401, 10592)
@@ -129,6 +130,11 @@ def transform(pos):
     map2_x_absrange = (0, 10591)
     map2_y_absrange = (0, 10591)
 
+    # print(laty_to_coordy(-LATMAX))  # barely above 2   (or pixel bound)
+    # print(laty_to_coordy(0))        # 1                (or half of pixel bound)
+    # print(laty_to_coordy(LATMAX))   # barely below 0
+    # exit()
+
 
     # convert y from latitude [0, 90+] to [0, 1]
     # y = min(y, 90)  # cap to 90
@@ -136,9 +142,10 @@ def transform(pos):
     # y = max(y, 0)  # undercap to 0
     # y = laty_to_coord01y(y)  # [0, 90] -> [0, 1]
     # y = laty_to_coordy(y)  # [0, 85.051...] -> [0, 1]
-    # assert 0 <= y <= 1
-    y = laty_to_coordy(-y)  # [ 85.051..., - 85.051...] -> [0, pixelbound=2]
-    assert ZOOM_PIXEL_BOUND / 2 <= y <= ZOOM_PIXEL_BOUND, f'coord y unexpected value {y}'
+    # assert 0 <= y <= LATMAX
+    # y = laty_to_coordy(-y)  # [ 85.051..., - 85.051...] -> [0, pixelbound=2]
+    y = laty_to_coordy(y)  # [ 85.051..., - 85.051...] -> [0, pixelbound=2]
+    # assert ZOOM_PIXEL_BOUND / 2 -1e-15 <= y <= 1e-15 + ZOOM_PIXEL_BOUND, f'coord y unexpected value {y}'
     # y *= 200  # [0,1] -> [0,200]
     # y = renorm(y, 0, 1, *mapcontainer_y_max_bounds) # [0,1] -> [200,0]
     # y *= 90  # [0,1] -> [0,90]
@@ -148,17 +155,22 @@ def transform(pos):
     x_m = renorm(x, *mapcontainer_x_max_bounds, *map1_x_absrange)
     # y_m = renorm(y, *mapcontainer_y_max_bounds, *map1_y_absrange)
     # y_m = renorm(y, *map_actual_y_bounds, *map1_y_absrange)
-    y_m = renorm(y, *map_actual_y_bounds, *map1_y_absrange)
+    # y_m = renorm(y, *map_pixel_y_bounds, *map1_y_absrange)
+    y_m = renorm(y, *map_lat_y_bounds, *map1_y_absrange)
     # transform from the map 1's bounds to the map 2's bounds (relative to map 2 topleft)
     # x_m = renorm(x_m, *map1_x_absrange, *map2_x_absrange)
     # y_m = renorm(y_m, *map1_y_absrange, *map2_y_absrange)
     # offset the x_m and y_m
-    x_m += map1_x_offset
-    y_m += map1_y_offset
+    x_m += map1_x_offset /2
+    y_m += map1_y_offset /2
+    # x_m -= map1_x_offset
+    # y_m -= map1_y_offset
     # transform raw now assumed to be within map 2's bounds back to the mapcontainer coordinate bounds
     x = renorm(x_m, *map2_x_absrange, *mapcontainer_x_max_bounds)
     # y = renorm(y_m, *map2_y_absrange, *mapcontainer_y_max_bounds)
-    y = renorm(y_m, *map2_y_absrange, *map_actual_y_bounds)
+    # y = renorm(y_m, *map2_y_absrange, *map_actual_y_bounds)
+    # y = renorm(y_m, *map2_y_absrange, *map_pixel_y_bounds)
+    y = renorm(y_m, *map2_y_absrange, *map_lat_y_bounds)
 
 
     # convert y back into latitude [0, 1] -> [0, 90]
@@ -167,12 +179,18 @@ def transform(pos):
     # y = renorm(y, *mapcontainer_y_max_bounds, 0, 1)
     # y /= 90
     # y = coord01y_to_laty(y) # [0, 1] -> [0, 90] and therefore no more than 90
-    y = coordy_to_laty(y)  # [ 85.051..., - 85.051...] -> [0, pixelbound=2]
+    # y =  - coordy_to_laty(y)  # [0, pixelbound=2] -> [ 85.051..., - 85.051...]
+    y = coordy_to_laty(y)  # [0, pixelbound=2] -> [ 85.051..., - 85.051...]
     # y *= 2
 
-    assert 0 <= x <= 200
+    # assert 0 <= x <= 200
+    assert 0 <= y <= LATMAX, f'y = {y}, latmax is {LATMAX}'
+    if not 0 <= y <= LATMAX:
+        print(f'WARN: y = {y}, latmax is {LATMAX}')
+        # input('waiting for keypress to continue...')
 
-    return type(pos)((y, x))
+    # return type(pos)((y, x))
+    return type(pos)((round(y,3), round(x,3)))
 
 
 def reformat(line: str):

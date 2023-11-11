@@ -1,263 +1,263 @@
 const data = [
   {
     type: 'PrimordyOil',
-    position: [71.45837609354214, 40.39770654329147],
+    position: [75.848, 40.388],
   },
   {
     type: 'PrimordyOil',
-    position: [70.79488190285859, 41.14016334623738],
+    position: [74.706, 41.131],
   },
   {
     type: 'PrimordyOil',
-    position: [69.78917375688667, 42.7720215277122],
+    position: [73.03, 42.763],
   },
   {
     type: 'PrimordyOil',
-    position: [70.39780215287101, 46.37603059201208],
+    position: [74.037, 46.367],
   },
   {
     type: 'PrimordyOil',
-    position: [70.30860084710433, 50.77663393447267],
+    position: [73.888, 50.767],
   },
   {
     type: 'PrimordyOil',
-    position: [68.98423985119854, 48.819950901709],
+    position: [71.729, 48.811],
   },
   {
     type: 'PrimordyOil',
-    position: [68.58520303575413, 48.990097252384096],
+    position: [71.096, 48.981],
   },
   {
     type: 'PrimordyOil',
-    position: [67.68791549624565, 59.18341044282881],
+    position: [69.7, 59.174],
   },
   {
     type: 'PrimordyOil',
-    position: [66.6576555368632, 44.87564913605892],
+    position: [68.139, 44.866],
   },
   {
     type: 'PrimordyOil',
-    position: [65.65769762041285, 36.44567085261071],
+    position: [66.662, 36.436],
   },
   {
     type: 'PrimordyOil',
-    position: [68.3488439429382, 31.279408932112172],
+    position: [70.724, 31.27],
   },
   {
     type: 'PrimordyOil',
-    position: [67.5817386371699, 27.57485884241337],
+    position: [69.537, 27.565],
   },
   {
     type: 'PrimordyOil',
-    position: [66.96045852437382, 26.66225568879237],
+    position: [68.593, 26.653],
   },
   {
     type: 'LavaDust',
-    position: [66.69858762852853, 26.66225568879237],
+    position: [68.2, 26.653],
   },
   {
     type: 'LavaDust',
-    position: [67.89202300593327, 25.200543857992635],
+    position: [70.014, 25.191],
   },
   {
     type: 'LavaDust',
-    position: [67.67974903758336, 29.88730242658861],
+    position: [69.687, 29.878],
   },
   {
     type: 'LavaDust',
-    position: [67.09133232125879, 29.80222925125106],
+    position: [68.79, 29.793],
   },
   {
     type: 'LavaDust',
-    position: [66.46112632578036, 29.299524124256443],
+    position: [67.846, 29.29],
   },
   {
     type: 'LavaDust',
-    position: [65.82178319485685, 30.3513379284298],
+    position: [66.902, 30.342],
   },
   {
     type: 'LavaDust',
-    position: [65.61666668075509, 31.843985459352275],
+    position: [66.602, 31.835],
   },
   {
     type: 'LavaDust',
-    position: [68.53631294803127, 35.9893692758002],
+    position: [71.019, 35.98],
   },
   {
     type: 'LavaDust',
-    position: [68.38960574627139, 38.71171088660183],
+    position: [70.788, 38.702],
   },
   {
     type: 'LavaDust',
-    position: [67.85937279387134, 35.94296572561609],
+    position: [69.964, 35.934],
   },
   {
     type: 'LavaDust',
-    position: [66.62490700351711, 36.94064205457464],
+    position: [68.09, 36.931],
   },
   {
     type: 'LavaDust',
-    position: [66.706773569664, 35.54853554905108],
+    position: [68.212, 35.539],
   },
   {
     type: 'SilkySand',
-    position: [64.94322106087759, 55.502062128222065],
+    position: [65.628, 55.493],
   },
   {
     type: 'SilkySand',
-    position: [65.98580736199249, 44.28787083372675],
+    position: [67.143, 44.278],
   },
   {
     type: 'SilkySand',
-    position: [65.780767541889, 46.20588424133698],
+    position: [66.842, 46.196],
   },
   {
     type: 'SilkySand',
-    position: [65.84639074483795, 48.363649324898496],
+    position: [66.938, 48.354],
   },
   {
     type: 'SilkySand',
-    position: [66.27270063625497, 52.09913511472005],
+    position: [67.566, 52.09],
   },
   {
     type: 'SilkySand',
-    position: [66.64946864170261, 56.15944575583042],
+    position: [68.126, 56.15],
   },
   {
     type: 'SilkySand',
-    position: [68.58520303575413, 55.888758379756396],
+    position: [71.096, 55.879],
   },
   {
     type: 'SilkySand',
-    position: [68.69111035587821, 53.95527712208478],
+    position: [71.263, 53.946],
   },
   {
     type: 'SilkySand',
-    position: [68.99237912543177, 57.11071853460486],
+    position: [71.742, 57.101],
   },
   {
     type: 'JellyStone',
-    position: [68.48741669600965, 125.37807478047398],
+    position: [70.942, 125.369],
   },
   {
     type: 'JellyStone',
-    position: [65.76436020753509, 127.28062033802286],
+    position: [66.818, 127.271],
   },
   {
     type: 'JellyStone',
-    position: [63.67579061973921, 97.14924841846852],
+    position: [63.835, 97.14],
   },
   {
     type: 'JellyStone',
-    position: [64.58144799459477, 91.91338117269379],
+    position: [65.111, 91.904],
   },
   {
     type: 'JellyStone',
-    position: [66.33005637285211, 94.90641015956945],
+    position: [67.651, 94.897],
   },
   {
     type: 'JellyStone',
-    position: [66.64128158772287, 91.52668492115949],
+    position: [68.114, 91.517],
   },
   {
     type: 'JellyStone',
-    position: [63.519185292442465, 86.40682655084505],
+    position: [63.616, 86.397],
   },
   {
     type: 'JellyStone',
-    position: [64.02179083121261, 85.18486639599661],
+    position: [64.32, 85.175],
   },
   {
     type: 'JellyStone',
-    position: [65.46071445995561, 86.68524785194977],
+    position: [66.375, 86.676],
   },
   {
     type: 'JellyStone',
-    position: [66.10878493758187, 88.33257388348596],
+    position: [67.324, 88.323],
   },
   {
     type: 'JellyStone',
-    position: [65.95300746118296, 85.39368237182514],
+    position: [67.094, 85.384],
   },
   {
     type: 'JellyStone',
-    position: [65.75615631060226, 127.18007931262392],
+    position: [66.806, 127.171],
   },
   {
     type: 'DeepBrine',
-    position: [67.59807535532745, 123.59153809838543],
+    position: [69.562, 123.582],
   },
   {
     type: 'DeepBrine',
-    position: [68.3488439429382, 109.75554621848738],
+    position: [70.724, 109.746],
   },
   {
     type: 'DeepBrine',
-    position: [64.40868385677894, 102.14536398829195],
+    position: [64.866, 102.136],
   },
   {
     type: 'DeepBrine',
-    position: [66.67402885051541, 98.34027287319421],
+    position: [68.163, 98.331],
   },
   {
     type: 'DeepBrine',
-    position: [66.15796619084185, 100.343359456142],
+    position: [67.396, 100.334],
   },
   {
     type: 'DeepBrine',
-    position: [66.84591016982739, 93.61484467944481],
+    position: [68.421, 93.605],
   },
   {
     type: 'DeepBrine',
-    position: [65.89560169417966, 92.08352752336891],
+    position: [67.01, 92.074],
   },
   {
     type: 'DeepBrine',
-    position: [63.47796500079597, 88.88941648569539],
+    position: [63.559, 88.88],
   },
   {
     type: 'DeepBrine',
-    position: [62.03311199996272, 80.08820980077425],
+    position: [61.578, 80.079],
   },
   {
     type: 'DeepBrine',
-    position: [66.88682390602276, 85.05338967047493],
+    position: [68.482, 85.044],
   },
   {
     type: 'DeepBrine',
-    position: [66.55121352698552, 86.71618355207252],
+    position: [67.98, 86.707],
   },
   {
     type: 'RadiantOre',
-    position: [68.25915302735532, 44.36521008403361],
+    position: [70.584, 44.356],
   },
   {
     type: 'RadiantOre',
-    position: [68.31623144038812, 47.32730337078652],
+    position: [70.673, 47.318],
   },
   {
     type: 'RadiantOre',
-    position: [67.76957096652166, 47.25769804551034],
+    position: [69.825, 47.248],
   },
   {
     type: 'RadiantOre',
-    position: [70.74628385237044, 42.70241620243602],
+    position: [74.624, 42.693],
   },
   {
     type: 'RadiantOre',
-    position: [48.64627521453564, 95.31630818619583],
+    position: [45.222, 95.307],
   },
   {
     type: 'RadiantOre',
-    position: [46.19628657375215, 82.70227646114624],
+    position: [42.508, 82.693],
   },
   {
     type: 'RadiantOre',
-    position: [46.246834409150345, 79.40762439807384],
+    position: [42.563, 79.398],
   },
   {
     type: 'RadiantOre',
-    position: [35.97399625507616, 95.41684921159475],
+    position: [31.758, 95.407],
   },
 ];
 

@@ -25,7 +25,7 @@ export const researchDrones = {
       run off to look for plants and mushrooms.
       Maybe I would have been closer to them...`,
     ],
-    position: [66.74770088644468, 111.15538664904163],
+    position: [68.273, 111.146],
   },
   "research_2": {
     name: "Research Drone 12",
@@ -44,7 +44,7 @@ export const researchDrones = {
       thoughts I had to share back then?`,
     ],
     archive: [`Ugh, I forgot my fork. Looks like it's hand noodles again...`],
-    position: [67.52455493235593, 112.00611840241717],
+    position: [69.449, 111.997],
   },
   "research_3": {
     name: "Research Drone 13",
@@ -74,7 +74,7 @@ export const researchDrones = {
       that. Being fearless and just diving into
       new adventures. I guess this is my chance.`,
     ],
-   position: [68.57705511637786, 124.6897554527429],
+   position: [71.083, 124.68],
   },
   "research_4": {
     name: "Research Drone 11",
@@ -104,7 +104,7 @@ export const researchDrones = {
       `I'm sorry mom and dad. I'm sorry grandma.
       But I really want this.`,
     ],
-    position: [64.28524182022583, 133.27441223680486],
+    position: [64.691, 133.265],
   },
   "research_5": {
     name: "Research Drone 10",
@@ -127,7 +127,7 @@ export const researchDrones = {
       `... ...`,
       `I bet dad would have laughed at that one.`,
     ],
-    position: [61.89253818776979, 116.41445566990842],
+    position: [61.389, 116.405],
   },
   "research_6": {
     name: "Research Drone 2",
@@ -150,7 +150,7 @@ export const researchDrones = {
       recent memory?`,
       `It's all too good to be true!`,
     ],
-    position: [65.41145503110785, 91.27146539514682],
+    position: [66.304, 91.262],
   },
   "research_7": {
     name: "Research Drone 3",
@@ -177,7 +177,7 @@ export const researchDrones = {
       glad this world still has its mysteries to
       share.`,
     ],
-    position: [63.716994155225066, 86.10520347464828],
+    position: [63.892, 86.096],
   },
   "research_8": {
     name: "Research Drone 4",
@@ -209,7 +209,7 @@ export const researchDrones = {
       important part of the ecosystem. I hope
       that's ok with you.`,
     ],
-    position: [64.95965851740274, 57.775836087243896],
+    position: [65.652, 57.766],
   },
   "research_9": {
     name: "Research Drone 5",
@@ -221,7 +221,7 @@ export const researchDrones = {
       splash like the old days...`,
     ],
     archive: [`YAAAAAHOOOOOOOOOOO!`],
-    position: [67.86753559710478, 49.19891322821263],
+    position: [69.976, 49.189],
   },
   "research_10": {
     name: "Research Drone 7",
@@ -249,7 +249,7 @@ export const researchDrones = {
       `I suppose those feelings are the same ones
       that brought me here in the first place.`,
     ],
-    position: [65.97760761850279, 38.65757341138703],
+    position: [67.131, 38.648],
   },
   "research_11": {
     name: "Research Drone 8",
@@ -279,7 +279,7 @@ export const researchDrones = {
       here... that I'm not ready to be on my
       own.`,
     ],
-    position: [66.56759096375741, 29.28405627419507],
+    position: [68.004, 29.275],
   },
   "research_12": {
     name: "Research Drone 9",
@@ -309,7 +309,7 @@ export const researchDrones = {
       like a truly amazing scientific and historical
       discovery. I need to make some calls!`,
     ],
-    position: [67.90018514173883, 19.864135586818996],
+    position: [70.027, 19.855],
   },
   "research_13": {
     name: "Research Drone 6",
@@ -338,7 +338,7 @@ export const researchDrones = {
       `I hope they're ok. And I hope that some
       day they'll say they're proud of me.`,
     ],
-    position: [71.65232733231151, 41.65060239826268],
+    position: [76.187, 41.641],
   },
   "research_14": {
     name: "Research Drone 14",
@@ -361,7 +361,7 @@ export const researchDrones = {
       and on the other, deep, verdant greens.
       It's extraordinary!`,
     ],
-    position: [51.26841420508977, 80.63731847795297],
+    position: [48.205, 80.628],
   },
   "research_15": {
     name: "Research Drone 16",
@@ -389,7 +389,7 @@ export const researchDrones = {
       and listen. And I have a whole lifetime on
       this island to do just that.`,
     ],
-    position: [50.957759785729266, 92.22273817392124],
+    position: [47.847, 92.213],
   },
   "research_16": {
     name: "Research Drone 17",
@@ -418,7 +418,7 @@ export const researchDrones = {
       `I wonder who else this tree will meet? I
       wonder if it will tell them about me?`,
     ],
-    position: [48.2424026525012, 88.44858275894627],
+    position: [44.77, 88.439],
   },
   "research_17": {
     name: "Research Drone 15",
@@ -440,7 +440,7 @@ export const researchDrones = {
       `I'm going to call it Mega Mushroom Pizza
       and I'm going to eat it every day.`,
     ],
-    position: [43.4484706107838, 81.14775752997828],
+    position: [39.535, 81.138],
   },
   "research_18": {
     name: "Research Drone 18",
@@ -465,7 +465,7 @@ export const researchDrones = {
       statue that-`,
       `YOU HAVE GOT TO BE KIDDING ME!`,
     ],
-    position: [45.319951093087155, 101.53438391086773],
+    position: [41.552, 101.525],
   },
   "research_19": {
     name: "Research Drone 19",
@@ -492,6 +492,6 @@ export const researchDrones = {
       my discoveries. I feel very good. And
       excited!`,
     ],
-    position: [35.88989969359729, 89.29931451232179],
+    position: [31.672, 89.29],
   },
 };
