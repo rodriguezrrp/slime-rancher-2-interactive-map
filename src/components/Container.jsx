@@ -14,7 +14,7 @@ import PinSelector from "./PinSelector";
 import Markers from "./Markers";
 import SaveButton from "./SaveButton";
 import PinButton from "./PinButton";
-import Map from "../assets/map.png";
+import Map from "../assets/mapv2_square.png";
 import IslandInfo from "./IslandInfo";
 
 import {

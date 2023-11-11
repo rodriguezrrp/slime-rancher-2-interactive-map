@@ -1,14 +1,14 @@
 export const regions = {
   rainbowFields: {
     name: "Rainbow Fields",
-    position: [75.00494000767517, 124.00152946885723],
+    position: [65.52223184508104, 95.92073721833722],
   },
   emberValley: {
     name: "Ember Valley",
-    position: [77.59884823753002, 58.85972271456027],
+    position: [67.64614087920285, 45.54055223821766],
   },
   starlightStrand: {
     name: "Starlight Strand",
-    position: [56.29215668507645, 111.87803031129886],
+    position: [49.95145491581887, 86.54451385892257],
   },
 };
