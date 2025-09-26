@@ -149,7 +149,7 @@ const meats: Resource[] = [
     { name: "Roostro", type: "Meat" },
     { name: "Sea Hen", type: "Meat" },
     { name: "Stony Hen", type: "Meat" },
-    { name: "Thundercluck", type: "Meat" },
+    { name: "Thundercluck Hen", type: "Meat" },
     { name: "Candied Hen", type: "Meat" },
 ];
 
@@ -298,13 +298,13 @@ export const plotTypes: PlotOptions[] = [
                 return {
                     name,
                     type,
-                    icon: `icons/foods/meats/${(name.charAt(0).toLowerCase() + name.slice(1)).replace(
+                    icon: `icons/foods/${(name.charAt(0).toLowerCase() + name.slice(1)).replace(
                         /\s/g,
                         ""
                     )}.png`,
                 };
             }),
-            { name: "Mixed Meats", type: "Meat", icon: "icons/foods/meats/mixedMeats.png" },
+            { name: "Mixed Meats", type: "Meat", icon: "icons/foods/mixedMeats.png" },
         ],
         optionsBName: "Yolky Slime",
         optionsB: [{ ...yolkySlime, icon: `icons/slimes/iconSlime${yolkySlime.name}.png` }],
@@ -325,7 +325,7 @@ export const plotTypes: PlotOptions[] = [
                 return {
                     name,
                     type,
-                    icon: `icons/foods/fruits/${(name.charAt(0).toLowerCase() + name.slice(1)).replace(
+                    icon: `icons/foods/${(name.charAt(0).toLowerCase() + name.slice(1)).replace(
                         /\s/g,
                         ""
                     )}.png`,
@@ -335,7 +335,7 @@ export const plotTypes: PlotOptions[] = [
                 return {
                     name,
                     type,
-                    icon: `icons/foods/veggies/${(name.charAt(0).toLowerCase() + name.slice(1)).replace(
+                    icon: `icons/foods/${(name.charAt(0).toLowerCase() + name.slice(1)).replace(
                         /\s/g,
                         ""
                     )}.png`,
