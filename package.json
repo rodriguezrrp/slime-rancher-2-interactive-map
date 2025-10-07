@@ -9,6 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
+  "subPackages": [
+    "datadump-merging"
+  ],
   "dependencies": {
     "@turf/bezier-spline": "^7.2.0",
     "@turf/helpers": "^7.2.0",

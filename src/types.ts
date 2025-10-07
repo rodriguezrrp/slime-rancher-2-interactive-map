@@ -34,6 +34,8 @@ export interface MapNode {
 }
 
 export interface TreasurePod {
+    internalId: string,
+    internalName?: string,
     contents: string[];
     description: string;
     pos: Vec2;
