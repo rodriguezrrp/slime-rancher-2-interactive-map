@@ -179,8 +179,8 @@ async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingTyp
             internalName: /*existingData?.internalName ??*/ internalName,
             contents: existingData?.contents ?? ["Todo: Specify contents of this pod"],
             description: existingData?.description ?? "Todo: insert a description for this pod",
-            // In-game position is at 90 degrees to our map; swap x and y axes.
-            pos: /*existingData?.pos ??*/ { x: position.z, y: position.x },
+            // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+            pos: /*existingData?.pos ??*/ { x: -position.z, y: position.x },
             dimension: existingData?.dimension ?? "MapType.overworld",
             _otherLines: existingData?._otherLines,
         };

@@ -4,6 +4,9 @@ assetsFileIdMapping.json
 # because copyright concerns
 _ripped_unityproj/*
 
+# because soooo many files and it's a temporary export location anyway
+map_*/*
+
 # other
 
 node_modules

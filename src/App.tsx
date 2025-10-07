@@ -1,5 +1,5 @@
 import { CurrentMapContext, MapType } from "./CurrentMapContext";
-import { LatLngBoundsExpression, LatLngExpression, LatLngTuple, icon } from "leaflet";
+import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, icon } from "leaflet";
 import { LayerGroup, LayersControl, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { LocalStoragePin, Pin } from "./types";
 import { useContext, useEffect, useState } from "react";
@@ -16,10 +16,13 @@ import { StabilizingGateIcons } from "./components/StabilizingGateIcon";
 import { TeleportLineIcons } from "./components/TeleportLineIcon";
 import { TreasurePodIcons } from "./components/TreasurePodIcon";
 import { icon_template } from "./globals";
+import { ScaledSimpleCRS } from "./data/map_crs_settings";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
-    [MapType.overworld]: [30, 30],
+    // [MapType.overworld]: [30, 30],
+    // [MapType.overworld]: [0, 0],
+    [MapType.overworld]: [-320, 525],
     [MapType.labyrinth]: [-16, -60],
     [MapType.sr1]: [70, -80]
 };
@@ -27,8 +30,10 @@ const map_center: { [key in MapType]: LatLngTuple } = {
 // TODO: This ties in with the `center` property.
 const map_bounds: { [key in MapType]: L.LatLngBoundsExpression } = {
     [MapType.overworld]: [
-        [-70, -230],
-        [85, 50]
+        // [-70, -230],
+        // [85, 50]
+        [-3200,-3200],
+        [3200,3200]
     ],
     [MapType.labyrinth]: [
         [200, -200],
@@ -231,13 +236,14 @@ function App() {
             <MapContainer
                 center={map_center[current_map]}
                 zoom={3.5}
-                maxZoom={6}
+                maxZoom={7}
                 minZoom={3}
                 zoomSnap={0.5}
                 zoomDelta={0.5}
                 scrollWheelZoom={true}
                 maxBounds={map_bounds[current_map]}
                 style={{ height: "100vh", width: "100%", zIndex: 1 }}
+                crs={ScaledSimpleCRS}
             >
                 <ConfigureMapOptions />
                 {advanced_infos && <CursorCoordinates />}
@@ -286,7 +292,7 @@ function App() {
                 <TileLayer
                     url={`${current_map}/{z}/{x}/{y}.png`}
                     noWrap={true}
-                    maxZoom={6}
+                    maxZoom={7}
                     minZoom={3}
                 />
             </MapContainer>

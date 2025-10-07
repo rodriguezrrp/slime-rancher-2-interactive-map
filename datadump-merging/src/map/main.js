@@ -3,7 +3,7 @@ import { extractCoordsOfMapTextures } from "./process_map_tex_coords.js";
 import { stitchMapTextures } from "./stitch_map_texs.js";
 import { convertToTilemap } from "./convert_stitched_to_tilemap.js";
 import { PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER } from "../../asset_paths.js";
-import { cp, existsSync, rm } from "node:fs";
+import { cp, cpSync, existsSync, rm, rmSync } from "node:fs";
 
 // eslint-disable-next-line no-undef
 const args = minimist(process.argv.slice(2));
@@ -26,6 +26,16 @@ const { mapSpriteGUIDtoAssetJSONs, mapSpriteShortNameToGUIDs, partPositionsRI, p
 
 await stitchMapTextures(mapSpriteGUIDtoAssetJSONs, mapSpriteShortNameToGUIDs, partPositionsRI, partPositionsLabyrinth);
 
+try {
+    if(existsSync("./map_RI")) {
+        console.log("  clearing tilemap location for gdal...");
+        /*await rm*/rmSync("./map_RI", { recursive: true, force: true }, () => { });
+    }
+}
+catch(e) {
+    console.log('when removing existing tilemap location ./map_RI for gdal, encountered error ', e)
+}
+
 await convertToTilemap("./data_out/stitchedMapRainbowIsland.png", "./map_RI", pythonCLIname);
 
 if(!(dontCopyTilemap && dontCopyTilemap.toLowerCase?.() !== "false")) {
@@ -34,11 +44,11 @@ if(!(dontCopyTilemap && dontCopyTilemap.toLowerCase?.() !== "false")) {
     try {
         if(existsSync(PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER)) {
             console.log("  removing existing...");
-            await rm(PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER, { recursive: true, force: true });
+            /*await rm*/rmSync(PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER, { recursive: true, force: true }, () => { });
         }
         
         console.log("  copying new...");
-        await cp("./map_RI", PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER, (e)=>{});
+        /*await cp*/cpSync("./map_RI", PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER, { recursive: true }, (err) => { if(err) throw err; });
 
         console.log(`Copied new Rainbow Island tilemap to "${PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER}".`);
     }

@@ -4,31 +4,39 @@ import sharp from "sharp";
 import { basename } from "node:path";
 
 
-
-
 export async function stitchMapTextures(
     mapSpriteGUIDtoAssetJSONs,
     mapSpriteShortNameToGUIDs,
     partPositionsRI,
-    partPositionsLabyrinth
+    partPositionsLabyrinth,
+    // unitToTexPixelScale,
+    // gameMapWidthUnits,
+    // gameMapHeightUnits
 ) {
 
+    // TODO read from the parent RectTransform, pass in as params
     const SCALE = 4;
+    const gameMapWidthUnits = 6400;
+    const gameMapHeightUnits = 6400;
 
-    const overallRIOffsetMin = { x: 1e40, y: 1e40 };
-    const overallRIOffsetMax = { x: -1e40, y: -1e40 };
+    // const overallRIOffsetMin = { x: 1e40, y: 1e40 };
+    // const overallRIOffsetMax = { x: -1e40, y: -1e40 };
 
-    Object.values(partPositionsRI).forEach(poses => {
-        const { x: minx, y: miny } = poses.offsetMin;
-        const { x: maxx, y: maxy } = poses.offsetMax;
-        overallRIOffsetMin.x = Math.min(overallRIOffsetMin.x, minx);
-        overallRIOffsetMin.y = Math.min(overallRIOffsetMin.y, miny);
-        overallRIOffsetMax.x = Math.max(overallRIOffsetMax.x, maxx);
-        overallRIOffsetMax.y = Math.max(overallRIOffsetMax.y, maxy);
-    });
+    // Object.values(partPositionsRI).forEach(poses => {
+    //     const { x: minx, y: miny } = poses.offsetMin;
+    //     const { x: maxx, y: maxy } = poses.offsetMax;
+    //     overallRIOffsetMin.x = Math.min(overallRIOffsetMin.x, minx);
+    //     overallRIOffsetMin.y = Math.min(overallRIOffsetMin.y, miny);
+    //     overallRIOffsetMax.x = Math.max(overallRIOffsetMax.x, maxx);
+    //     overallRIOffsetMax.y = Math.max(overallRIOffsetMax.y, maxy);
+    // });
 
-    const widthRI = overallRIOffsetMax.x - overallRIOffsetMin.x;
-    const heightRI = overallRIOffsetMax.y - overallRIOffsetMin.y;
+    // const widthRI = overallRIOffsetMax.x - overallRIOffsetMin.x;
+    // const heightRI = overallRIOffsetMax.y - overallRIOffsetMin.y;
+    const widthRI = gameMapWidthUnits;
+    const heightRI = gameMapWidthUnits;
+    const overallRIOffsetMin = { x: -Math.floor(gameMapWidthUnits/2), y: -Math.floor(gameMapHeightUnits/2) };
+    const overallRIOffsetMax = { x: Math.ceil(gameMapWidthUnits/2), y: Math.ceil(gameMapHeightUnits/2) };
 
     console.log(widthRI, "x", heightRI);
     console.log(SCALE * widthRI, "x", SCALE * heightRI);
@@ -51,8 +59,8 @@ export async function stitchMapTextures(
         width: SCALE * widthRI,
         height: SCALE * heightRI,
         channels: 4,
-        background: { r:0, g:0, b:0, alpha:0 }
-    } })
+        background: { r:0, g:0, b:0, alpha:0 },
+    }, limitInputPixels: 25600*25600 })
     .composite(Object.entries(partPositionsRI).map(([shortName, offsets]) => {
         console.log(shortName, offsets);
         const upsideDownTop = offsets.offsetMin.y;
@@ -65,6 +73,8 @@ export async function stitchMapTextures(
             input: shortNamesToFilepaths[shortName],
             top: SCALE * (rightSideUpTop - overallRIOffsetMin.y),
             left: SCALE * (offsets.offsetMin.x - overallRIOffsetMin.x),
+            // top: SCALE * gameMapHeightUnits,
+            // left: SCALE * gameMapWidthUnits,
         };
     })) //;
     // pipeline.clone()
