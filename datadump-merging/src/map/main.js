@@ -1,6 +1,6 @@
 import minimist from "minimist";
 import { extractCoordsOfMapTextures } from "./process_map_tex_coords.js";
-import { stitchMapTextures } from "./combine_map_texs.js";
+import { stitchMapTextures } from "./stitch_map_texs.js";
 
 // eslint-disable-next-line no-undef
 const args = minimist(process.argv.slice(2));
