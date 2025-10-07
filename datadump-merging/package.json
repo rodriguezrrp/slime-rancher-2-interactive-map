@@ -2,7 +2,7 @@
   "type": "module",
   "name": "sr2-map-extract-assets",
   "version": "1.0.2",
-  "description": "extract important data from assetripper-extracted assets of Slime Rancher 2 game",
+  "description": "Extract important data from assets of Slime Rancher 2 game",
   "scripts": {
     "map": "node ./src/map/main.js",
     "nodes": "node ./src/nodes/main.js"

@@ -6,10 +6,14 @@ import sharp from "sharp";
 
 const _pathToGdal2Tiles = 'gdal2tiles-leaflet/gdal2tiles.py';
 
-const _pythonCLIname = (process.platform === 'win32' ? 'py' : process.platform === 'linux' ? 'python3' : 'python');
+const defaultPythonCLIname = (process.platform === 'win32' ? 'py' : process.platform === 'linux' ? 'python3' : 'python');
+
+const tileSizePx = 256;  // Could read this from tilemapresource.xml for reducing hardcoded values, although this value is not expected to change
 
 
-export function convertToTilemap(mapFilePath = 'map.png', outDirPath = 'map', _pythonCLIname = _pythonCLIname) {
+export function convertToTilemap(mapFilePath = 'map.png', outDirPath = 'map', _pythonCLIname) {
+
+    _pythonCLIname ||= defaultPythonCLIname;
 
     const _inFileArg = mapFilePath;
     const _outDirArg = outDirPath;
@@ -109,11 +113,8 @@ export function convertToTilemap(mapFilePath = 'map.png', outDirPath = 'map', _p
     })
     .catch((reason) => console.error(`Converting to tilemap failed! \nCode: ${reason.code}, signal: ${reason.signal}`));
 
-
     // TODO optimize the pngs?
 }
-
-const tileSizePx = 256;  // Could read this from tilemapresource.xml for reducing hardcoded values, although this value is not expected to change
 
 function tilesForSideLengthForZoomLevel(imgWidthPx, maxz, z) {
     return Math.ceil(imgWidthPx / (tileSizePx * Math.pow(2, (maxz - z))));
