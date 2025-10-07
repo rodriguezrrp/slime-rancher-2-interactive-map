@@ -1,4 +1,9 @@
-
-_ripped_unityproj/*
-node_modules
+# because it's very large, ~ 680 MB
 assetsFileIdMapping.json
+
+# because copyright concerns
+_ripped_unityproj/*
+
+# other
+
+node_modules

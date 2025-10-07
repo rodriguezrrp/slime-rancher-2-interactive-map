@@ -139,7 +139,7 @@ async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingTyp
 
     console.log(`Parsed ${Object.keys(existingPodTSDataByPodKey).length} existing treasure pod data entries.`);
 
-    /** @type {{ [tsDataPodKey: string]: { contents: string[], _internalId: string, _internalName: string, description: string, pos: { x: number, y: number } } }} */
+    /** @type {{ [tsDataPodKey: string]: { contents: string[], internalId: string, internalName: string, description: string, pos: { x: number, y: number } } }} */
     const mergedPodTSData = { };
 
     console.log("Merging existing and extracted treasure pod data");
@@ -169,13 +169,14 @@ async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingTyp
             existingPodTSDataByPodKey[oldPodId]
             || existingPodTSDataByPodKey[internalPodId]
             || existingPodTSDataByPodKey[tsDataKey]
+            || Object.values(existingPodTSDataByPodKey).find(data => data.internalId === internalPodId)
         );
 
         // console.log(existingData);
     
         mergedPodTSData[tsDataKey] = {
-            _internalId: internalPodId,
-            _internalName: /*existingData?._internalName ??*/ internalName,
+            internalId: internalPodId,
+            internalName: /*existingData?.internalName ??*/ internalName,
             contents: existingData?.contents ?? ["Todo: Specify contents of this pod"],
             description: existingData?.description ?? "Todo: insert a description for this pod",
             // In-game position is at 90 degrees to our map; swap x and y axes.
@@ -200,14 +201,14 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
     
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
-    /** @type {{ [tsDataPodKey: string]: { contents: string[], _internalId: string | undefined, _internalName: string | undefined, description: string, pos: { x: number, y: number }, dimension: MapType, _otherLines: string[] } }} */
+    /** @type {{ [tsDataPodKey: string]: { contents: string[], internalId: string | undefined, internalName: string | undefined, description: string, pos: { x: number, y: number }, dimension: MapType, _otherLines: string[] } }} */
     const existingPodTSDataByPodKey = { };
 
     const groupCommentLineRegex = /^ *\/\/ *(the conservatory|rainbow fields|ember valley|starlight strand|powderfall bluffs) *$/i;
     const endFileDataLineRegex = /^};? *$/;
 
     const dataStartLineRegex = /^ *([a-zA-Z0-9_]+|".+") *: *{ *$/;
-    // const dataParamLineRegex = /^ *(_internalId|_internalName|contents|description|pos|dimension) *: *(?:(\[ *(?:"(?:[^\\"]|\\.)*",? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})),? *$/;
+    // const dataParamLineRegex = /^ *(internalId|internalName|contents|description|pos|dimension) *: *(?:(\[ *(?:"(?:[^\\"]|\\.)*",? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})),? *$/;
     const dataParamLineRegex = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(?:(\[ *(?:"(?:[^\\"]|\\.)*",? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})|(MapType.[a-zA-Z_][a-zA-Z_0-9]*)),? *$/;
     const dataEndLineRegex = /^ +},? *$/;
 
@@ -231,7 +232,7 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
             linesForReconstruction.push(line);  // push the comment that started the group
         }
         else if(dataStartExecRes) {
-            let dataObjKeyWithAreaName = /^"?treasure_+([a-z](?:[a-z_]*[a-z])?)_+[0-9]+"?$/i
+            let dataObjKeyWithAreaName = /^"?treasure_+([a-z](?:[a-z_]*[a-z])?)_+[a-z0-9]+"?$/i
                 .exec(dataStartExecRes[1]);
             if(dataObjKeyWithAreaName) {
                 // denote for reconstruction that this data object just encountered is part of a specific group
@@ -265,7 +266,7 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
             }
             else if(dataParamExecRes) {
                 const [, key, list, str, xyobj, mapTypeEnumVal] = dataParamExecRes;
-                if(key === "description" || key === "_internalName" || key === "_internalId") {
+                if(key === "description" || key === "internalName" || key === "internalId") {
                     dataObj[key] = JSON.parse(str);
                 }
                 else if(key === "contents") {
@@ -289,7 +290,7 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
     
     // console.log(linesForReconstruction);
 
-    const fnWritePodsBackToFile = (/** @type {{ [tsDataPodKey: string]: { _internalName: string, _internalId: string, contents: string[], description: string, pos: { x: number, y: number }, dimension: MapType, _otherLines?: string[] } }} */ mergedPodTSData) => {
+    const fnWritePodsBackToFile = (/** @type {{ [tsDataPodKey: string]: { internalName: string, internalId: string, contents: string[], description: string, pos: { x: number, y: number }, dimension: MapType, _otherLines?: string[] } }} */ mergedPodTSData) => {
         const reconstructedLines = [];
 
         // console.log(mergedPodTSData);
@@ -307,11 +308,11 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
             // console.log("processing pod data");
             // console.log(tsDataPodKey);
             // console.log(tsPodData);
-            const { _internalId, _internalName, contents, description, pos, dimension, _otherLines } = tsPodData;
+            const { internalId, internalName, contents, description, pos, dimension, _otherLines } = tsPodData;
             reconstructedLines.push(
                 `    "${tsDataPodKey}": {`
-            + `\n        internalId: ${JSON.stringify(_internalId)},`
-            + `\n        internalName: ${JSON.stringify(_internalName)},`
+            + `\n        internalId: ${JSON.stringify(internalId)},`
+            + `\n        internalName: ${JSON.stringify(internalName)},`
             + `\n        contents: [${contents.map(JSON.stringify).join(", ")}],`
             + `\n        description: ${JSON.stringify(description)},`
             + `\n        pos: { x: ${pos.x.toFixed(4)/*.replace(/0+$/,"")*/}, y: ${pos.y.toFixed(4)/*.replace(/0+$/,"")*/} },`
@@ -345,7 +346,7 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
                 const podDataInGroup = Object.entries(mergedPodTSData)
                     .filter(([, podData]) => {
                         // do a bit of processing to loosen comparison
-                        const internalGroup = podGroupOfPodId(podData._internalId, cacheOpts)?.toLowerCase().replaceAll(/(^the | the | )/, "")
+                        const internalGroup = podGroupOfPodId(podData.internalId, cacheOpts)?.toLowerCase().replaceAll(/(^the | the | )/, "")
                         const commentedGroup = commentGroupLbl.toLowerCase().replaceAll(/(^the | the | )/, "");
                         return (
                             internalGroup === commentedGroup
@@ -356,7 +357,8 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
                             || (internalGroup === "powderfallbluffs" && commentedGroup === "powderfallbluffs")
                         );
                     })
-                    .sort((a, b) => a[0].localeCompare(b[0]));
+                    // .sort((a, b) => a[0].localeCompare(b[0], { numeric: true }));
+                    .sort((a, b) => sortStringsWithNumbers(a[0], b[0]));
 
                 console.log(podDataInGroup);
 
@@ -370,7 +372,8 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
         }
 
         // process any remaining (unprocessed) pod data objects
-        for (const tsDataPodKey of Object.keys(mergedPodTSData).sort()) {
+        // for (const tsDataPodKey of Object.keys(mergedPodTSData).sort((a, b) => a.localeCompare(b, { numeric: true }))) {
+        for (const tsDataPodKey of Object.keys(mergedPodTSData).sort(sortStringsWithNumbers)) {
             const tsPodData = mergedPodTSData[tsDataPodKey];
             _processPodDataObj(tsDataPodKey, tsPodData);
         }
@@ -399,6 +402,7 @@ const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMappin
 
         console.log(`[Treasure Pod ${assetJSON.props["_id"]}]: Determining position of pod`);
         
+        /*
         const podGameObj = assetsMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];
         if(!podGameObj || podGameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, podGameObj = ${JSON.stringify(podGameObj)}`);
 
@@ -455,6 +459,9 @@ const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMappin
             position.z += p.z;
 
         }
+        */
+
+        const { podGameObj, transformChainChildToParent, position } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
 
         console.log(`[Treasure Pod ${assetJSON.props["_id"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(position)}`);
 
@@ -462,6 +469,72 @@ const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMappin
 
     }
 );
+
+export function followMonoBehaviourGameObjectTransformChain(
+    /** @type {AssetsMappingType} */ assetsMapping,
+    /** @type {AssetJSONType} */ assetJSON,
+    transformTypeName = "Transform"
+) {
+    
+    const podGameObj = assetsMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];
+    if(!podGameObj || podGameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, podGameObj = ${JSON.stringify(podGameObj)}`);
+
+    let curTransform = null;
+
+    for(const componentRef of podGameObj.props["m_Component"]) {
+        
+        const componentObj = assetsMapping[podGameObj.fileKey + "&" + componentRef["component"]["fileID"]];
+        if(!componentObj) throw new Error(`componentRef = ${JSON.stringify(componentRef)},\npodGameObj = ${JSON.stringify(podGameObj, undefined, 4)}`);
+
+        if(componentObj.typeName === transformTypeName) {
+            curTransform = componentObj;
+            break;
+        }
+
+    }
+    
+    let transformChainChildToParent = [];
+    
+    while(curTransform) {
+        
+        if(!curTransform || curTransform.typeName !== transformTypeName) throw new Error(`curTransform = ${JSON.stringify(curTransform)}`);
+        
+        transformChainChildToParent.push(curTransform);
+
+        const fatherTransformFileId = curTransform.props["m_Father"]["fileID"];
+        
+        if(fatherTransformFileId.toString() !== "0") {
+            curTransform = assetsMapping[curTransform.fileKey + "&" + fatherTransformFileId];
+        }
+        else {
+            curTransform = null;
+        }
+
+    }
+
+    const position = {x: 0, y: 0, z: 0};
+
+    for (let i = transformChainChildToParent.length - 1; i >= 0; i--) {
+
+        const transformObj = transformChainChildToParent[i];
+        
+        // example properties of interest:
+        //   m_LocalRotation: {x: -0.032494184, y: -0.3587241, z: 0.047845565, w: 0.9316501}
+        //   m_LocalPosition: {x: 25.309, y: 23.31, z: 0.379}
+        //   m_LocalScale: {x: 0.667, y: 0.667, z: 0.667}
+
+        const p = transformObj.props["m_LocalPosition"];
+
+        if(!p) throw new Error(`transform.props = ${JSON.stringify(transformObj.props)}`);
+
+        position.x += p.x;
+        position.y += p.y;
+        position.z += p.z;
+
+    }
+
+    return { podGameObj, transformChainChildToParent, position };
+}
 
 /** old to internal @type {{ [oldId: string]: string }} */
 let _podIdMap = null;
@@ -525,7 +598,7 @@ export async function extractScenesToAssetsJSON(/** @type {CacheOpts} */ cacheOp
 
         console.log(`Processing scene ${sceneFile}`);
 
-        parseUnityFileYamlIntoAssetsMapping(sceneFile, assetsMapping, v => /^(MonoBehaviou?r|GameObject|Transform)$/i.test(v));
+        parseUnityFileYamlIntoAssetsMapping(sceneFile, assetsMapping, n => /^(MonoBehaviou?r|GameObject|Transform)$/i.test(n));
 
     }
 
@@ -600,7 +673,7 @@ function extractPodIdGroupsToCache(/** @type {CacheOpts} */ cacheOpts) {
     return podIdGroups;
 }
 
-function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMappingToModify, filterObjTypeName) {
+export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMappingToModify, filterObjTypeName) {
     
     // const fileKey = path.basename(sceneFilePath);
     const fileKey = sceneFilePath;
@@ -683,6 +756,24 @@ function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMappingToModif
 
 }
 
+/** adapted from https://stackoverflow.com/a/53888894 */
+function sortStringsWithNumbers (/**@type {string}*/ a, /**@type {string}*/ b) {
+  a = a.toUpperCase().split(/(\d+)/g);
+  b = b.toUpperCase().split(/(\d+)/g);
+
+  const length = Math.min(a.length, b.length);
+
+  for (let i = 0; i < length; i++) {
+    const cmp = (i % 2)
+      ? a[i] - b[i]
+      : -(a[i] < b[i]) || +(a[i] > b[i]);
+
+    if (cmp) return cmp;
+  }
+
+  return a.length - b.length;
+}
+
 function dumpMassiveHeckinBigObjectToJSON(filePath, object, /** @type { boolean | undefined } */ recurse, _stream) {
     assert(typeof object === "object" && !Array.isArray(object));
     /** @type { WriteStream } */
@@ -711,144 +802,6 @@ function dumpMassiveHeckinBigObjectToJSON(filePath, object, /** @type { boolean 
             fileStream.close();
     }
 }
-
-// function readMassiveHeckinBigObjectFromJSON(filePath, _stream, _str) {
-// /** @type { ReadStream } */
-// const fileStream = _stream ?? createReadStream(filePath, { encoding: "utf-8" });
-// try {
-//     let str = _str || '';
-//     /** @type { null | string } */
-//     let b;
-//     while(b !== '}' && b !== '{') {
-//         b = fileStream.read(1);
-//         if(b === null)
-//             throw new Error('Failed to decode; EOF while looking for next object open/close parenthesis');
-//         str += b;
-//     }
-// }
-// finally {
-//     if(!_stream)
-//         fileStream.close();
-// }
-// }
-
-/*
-function readMassiveHeckinBigObjectFromJSON(filePath) {
-    return new Promise((resolve, reject) => {
-        const fileStream = createReadStream(filePath, { encoding: 'utf-8' });
-        let buffer = '';
-        let stack = [];
-        let current = null;
-        let key = null;
-
-        function processBuffer() {
-            while (buffer.length) {
-                if (buffer[0] === '{') {
-                    const newObj = {};
-                    if (current) {
-                        if (Array.isArray(current)) {
-                            current.push(newObj);
-                        } else {
-                            current[key] = newObj;
-                        }
-                        stack.push([current, key]);
-                    }
-                    current = newObj;
-                    buffer = buffer.slice(1);
-                    continue;
-                }
-
-                if (buffer[0] === '[') {
-                    const newArr = [];
-                    if (current) {
-                        if (Array.isArray(current)) {
-                            current.push(newArr);
-                        } else {
-                            current[key] = newArr;
-                        }
-                        stack.push([current, key]);
-                    }
-                    current = newArr;
-                    buffer = buffer.slice(1);
-                    continue;
-                }
-
-                if (buffer[0] === '}' || buffer[0] === ']') {
-                    if (stack.length) {
-                        [current, key] = stack.pop();
-                    }
-                    buffer = buffer.slice(1);
-                    continue;
-                }
-
-                if (buffer[0] === '"') {
-                    const match = /^"([^"\\]*(?:\\.[^"\\]*)*)"/.exec(buffer);
-                    if (match) {
-                        const value = JSON.parse(match[0]);
-                        if (Array.isArray(current)) {
-                            current.push(value);
-                        } else if (key === null) {
-                            key = value;
-                        } else {
-                            current[key] = value;
-                            key = null;
-                        }
-                        buffer = buffer.slice(match[0].length);
-                        continue;
-                    }
-                }
-
-                if (/^-?\d+(?:\.\d+)?/.test(buffer)) {
-                    const match = /^-?\d+(?:\.\d+)?/.exec(buffer);
-                    if (match) {
-                        const value = Number(match[0]);
-                        if (Array.isArray(current)) {
-                            current.push(value);
-                        } else {
-                            current[key] = value;
-                            key = null;
-                        }
-                        buffer = buffer.slice(match[0].length);
-                        continue;
-                    }
-                }
-
-                if (/^[\s,:]/.test(buffer)) {
-                    buffer = buffer.slice(1);
-                    continue;
-                }
-
-                if (/^(true|false|null)/.test(buffer)) {
-                    const match = /^(true|false|null)/.exec(buffer);
-                    if (match) {
-                        const value = JSON.parse(match[0]);
-                        if (Array.isArray(current)) {
-                            current.push(value);
-                        } else {
-                            current[key] = value;
-                            key = null;
-                        }
-                        buffer = buffer.slice(match[0].length);
-                        continue;
-                    }
-                }
-            }
-        }
-
-        fileStream.on('data', chunk => {
-            buffer += chunk;
-            processBuffer();
-        });
-
-        fileStream.on('error', error => reject(error));
-
-        fileStream.on('end', () => {
-            processBuffer();
-            resolve(current);
-        });
-    });
-}
-*/
 
 async function readMassiveHeckinBigObjectFromJSON(filePath) {
     const fileStream = createReadStream(filePath, { encoding: "utf-8" });
