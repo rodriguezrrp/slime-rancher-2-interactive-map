@@ -1,4 +1,4 @@
-export const GLOB_TO_MAP_IMGS = "./_ripped_map_imgs/Map_*.png"
+export const GLOB_TO_MAP_TEXTURES = "./_ripped_mapimgs/Map_*.png"
 
 // for files like environmentGorge.unity
 export const GLOBS_TO_INTERESTING_SCENES = [
