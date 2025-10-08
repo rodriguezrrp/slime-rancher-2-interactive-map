@@ -4,7 +4,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_1": {
         position: { x: -27.3, y: -113.7 },
         description: "Found in a small cave in the waterworks area, on higher ground.",
-        unlocks: ["Wall Lightning"],
+        unlocks: ["Wall Lighting"],
         amount_required: 25,
     },
     "shadowdoor_2": {

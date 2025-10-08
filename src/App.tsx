@@ -236,7 +236,7 @@ function App() {
             <MapContainer
                 center={map_center[current_map]}
                 zoom={3.5}
-                maxZoom={7}
+                maxZoom={8}
                 minZoom={3}
                 zoomSnap={0.5}
                 zoomDelta={0.5}
@@ -292,7 +292,8 @@ function App() {
                 <TileLayer
                     url={`${current_map}/{z}/{x}/{y}.png`}
                     noWrap={true}
-                    maxZoom={7}
+                    maxZoom={8}
+                    maxNativeZoom={7}
                     minZoom={3}
                 />
             </MapContainer>
