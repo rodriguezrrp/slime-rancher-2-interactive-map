@@ -62,9 +62,10 @@ async function getOrExtractScenesAssetsMapping(/** @type {CacheOpts} */ cacheOpt
         if(cacheOpts.useCache) {
             try {
                 console.log("Reading cached asset JSON...");
-                assetsMapping = await readMassiveHeckinBigObjectFromJSON("./data_cache/assetsFileIdMapping.json");
+                const multiFile = true;  // TODO see if directory exists first?
+                assetsMapping = await readMassiveHeckinBigObjectFromJSON("./data_cache/assetsFileIdMapping.json", multiFile);
             } catch(e) {
-                console.log(`Failed to read cached asset JSON -- ${e}`);
+                console.error(`Failed to read cached asset JSON -- ${e}`);
                 console.log("Extracting anew instead.");
             }
         }
@@ -886,7 +887,7 @@ function shadowDepoIdInternalToOld(/** @type {string} */ internalId) {
     if(_shadowDepoIdMap === null) {
         _shadowDepoIdMap = JSON.parse(readFileSync("./id_mappings/shadowDepoIdMap.json"));
     }
-    return _shadowDepoIdMap[oldId];
+    return _shadowDepoIdMap[internalId];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -936,18 +937,20 @@ export async function extractScenesToAssetsJSON(/** @type {CacheOpts} */ cacheOp
 
     const g = new Glob(globParam, {  });
 
-    for await (const sceneFile of g) {
+    // for await (const sceneFile of g) {
+    await Promise.all(Array.from(g).map(async sceneFile => {
 
         console.log(`Processing scene ${sceneFile}`);
 
-        parseUnityFileYamlIntoAssetsMapping(sceneFile, assetsMapping, n => /^(MonoBehaviou?r|GameObject|Transform)$/i.test(n));
+        parseUnityFileYamlIntoAssetsMapping(sceneFile, assetsMapping, n => /^(MonoBehaviou?r|GameObject|(?:Rect)?Transform)$/i.test(n));
 
-    }
+    // }
+    }));
 
     if(cacheOpts.exportToCache) {
         const _export = () => {
             // fs.writeFile('./data_cache/assetsFileIdMapping.json', JSON.stringify(assetsMapping));
-            dumpMassiveHeckinBigObjectToJSON("./data_cache/assetsFileIdMapping.json", assetsMapping);
+            dumpMassiveHeckinBigObjectToJSON("./data_cache/assetsFileIdMapping.json", assetsMapping, 50_000_000);
             console.log("Exported assets JSON to cache.");
         };
         if(cacheOpts.exportToCache === "sync") {

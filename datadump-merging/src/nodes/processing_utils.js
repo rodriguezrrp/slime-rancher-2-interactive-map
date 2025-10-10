@@ -6,9 +6,15 @@ import assert from "node:assert";
 import {
     createWriteStream, createReadStream, readFileSync, writeFileSync,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- because WriteStream is used in a @type jsdoc
-    WriteStream
+    WriteStream,
+    readdirSync,
+    mkdirSync,
+    existsSync,
+    rmSync,
+    unlinkSync,
+    statSync
 } from "node:fs";
-import { basename } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { Quaternion } from "quaternion";
 import _pkg_streamjson from "stream-json";
 const { parser } = _pkg_streamjson;
@@ -100,9 +106,9 @@ export function followMonoBehaviourGameObjectTransformChain(
         };
         intermproduct = q.rotateVector(intermproduct);
 
-        console.log('q.norm:', q.norm());
+        // console.log('q.norm:', q.norm());
         if(Math.abs(q.norm() - 1) > 0.00001)
-            throw Error("Quaternion magnitude was not approx. 1?" + q.norm().toString() + " , q:", q.toString());
+            throw Error("Quaternion magnitude was not approx. 1? " + q.norm().toString() + " , q:" + q.toString());
 
         position.x = intermproduct.x + p.x;
         position.y = intermproduct.y + p.y;
@@ -214,50 +220,170 @@ export function sortStringsWithNumbers (/**@type {string}*/ a, /**@type {string}
   return a.length - b.length;
 }
 
-export function dumpMassiveHeckinBigObjectToJSON(filePath, object, /** @type { boolean | undefined } */ recurse, _stream) {
+export function dumpMassiveHeckinBigObjectToJSON(
+    filePath,
+    object,
+    /** @type { number | undefined } */ splitFilesMaxSize,
+    /** @type { boolean | undefined } */ recurse,
+    /** @type { WriteStream } */ _stream
+) {
     assert(typeof object === "object" && !Array.isArray(object));
-    /** @type { WriteStream } */
-    const fileStream = _stream ?? createWriteStream(filePath, { encoding: "utf-8" });
-    try {
-        fileStream.write("{");
-        let wasFirst = true;
-        for(const [k, v] of Object.entries(object)) {
-            if(!wasFirst) {
-                fileStream.write(",");
+
+    if(splitFilesMaxSize && splitFilesMaxSize > -1) {
+        const ks = Object.keys(object);
+        console.log(`Dumping ${ks.length} entries to split JSON files (<= ${splitFilesMaxSize}).`);
+
+        if(existsSync(filePath)) {
+            console.log(`  deleting existing contents found in output filepath directory "${filePath}"`);
+            // clear out anything there
+            try {
+                rmSync(filePath, { recursive: true });
+                mkdirSync(filePath, { recursive: true });
             }
-            wasFirst = false;
-            fileStream.write(JSON.stringify(k));
-            fileStream.write(":");
-            if(recurse && typeof v === "object" && !Array.isArray(v)) {
-                dumpMassiveHeckinBigObjectToJSON(filePath, v, recurse, fileStream);
+            catch(e) {
+                if(!e.message.toLowerCase().includes("ebusy: resource busy or locked"))
+                    throw e;
+                // then hope it's only the encompassing folder, and try to individually remove the contents
+                for(const file of readdirSync(filePath)) {
+                    const fp = join(filePath, file);
+                    const st = statSync(fp);
+                    if(st.isDirectory()) {
+                        rmSync(fp, { recursive: true });
+                    } else {
+                        unlinkSync(fp);
+                    }
+                }
             }
-            else {
-                fileStream.write(JSON.stringify(v));
+        } else {
+            mkdirSync(filePath, { recursive: true });
+        }
+
+        let filestr = "{";
+        let filestrContainsKVs = false;
+        let fileCtr = 1;
+
+        for(const k of ks) {
+            const v = object[k];
+
+            let nextKVstr = "";
+            let introComma = filestrContainsKVs ? "," : "";
+            nextKVstr += JSON.stringify(k) + ":" + JSON.stringify(v);
+
+            const estimatedLength = introComma.length + filestr.length + nextKVstr.length + "}".length;
+            if(estimatedLength <= splitFilesMaxSize) {
+                // there's room to put this kv string into the file
+                filestr += introComma + nextKVstr;
+                filestrContainsKVs = true;
+            } else {
+                // adding this kv string would push the file size over the limit;
+                // need to split if possible.
+
+                let dumpedThisKVstr = false;
+
+                if(!filestrContainsKVs) {
+                    // dump this kv str anyway; need to make progress somehow!
+                    console.warn(`Adding just one KV into this file is putting filesize ${estimatedLength - splitFilesMaxSize} characters (${Math.round((estimatedLength/splitFilesMaxSize - 1)*1e4)/1e2}%) over limit (${estimatedLength} > ${splitFilesMaxSize}). Doing so anyway.`);
+                    filestr += introComma + nextKVstr;
+                    filestrContainsKVs = true;
+                    dumpedThisKVstr = true;
+                }
+
+                // split to the next file
+                filestr += "}";
+                writeFileSync(join(filePath, fileCtr.toString().padStart(3, "0") + ".json"), filestr);
+                filestr = "{";
+                filestrContainsKVs = false;
+                fileCtr++;
+
+                if(!dumpedThisKVstr) {
+                    // file was split before dumping nextKVstr;
+                    //   go ahead and dump nextKVstr into the next file's string
+                    //  (note there's no intro comma for the start of the new file)
+                    filestr += nextKVstr;
+                    filestrContainsKVs = true;
+                }
             }
         }
-        fileStream.write("}");
+        // dump last filestr contents to last file
+        filestr += "}";
+        writeFileSync(join(filePath, fileCtr.toString().padStart(3, "0") + ".json"), filestr);
+        filestr = null;
+        fileCtr++;
+        console.log(`Dumped ${ks.length} entries to ${fileCtr - 1} split JSON files (<= ${splitFilesMaxSize}).`);
     }
-    finally {
-        if(!_stream)
-            fileStream.close();
+    else {
+        
+        const fileStream = _stream ?? createWriteStream(filePath, { encoding: "utf-8" });
+        try {
+            fileStream.write("{");
+            let wasFirst = true;
+            for(const [k, v] of Object.entries(object)) {
+                if(!wasFirst) {
+                    fileStream.write(",");
+                }
+                wasFirst = false;
+                fileStream.write(JSON.stringify(k));
+                fileStream.write(":");
+                if(recurse && typeof v === "object" && !Array.isArray(v)) {
+                    dumpMassiveHeckinBigObjectToJSON(filePath, v, splitFilesMaxSize, recurse, fileStream);
+                }
+                else {
+                    fileStream.write(JSON.stringify(v));
+                }
+            }
+            fileStream.write("}");
+        }
+        finally {
+            if(!_stream)
+                // no stream was passed into this function; stream was created inside this function
+                //   and should therefore be fully handled by this function
+                fileStream.close();
+        }
+
     }
 }
 
-export async function readMassiveHeckinBigObjectFromJSON(filePath) {
-    const fileStream = createReadStream(filePath, { encoding: "utf-8" });
-
-    let pipeline = fileStream.pipe(parser());
-    pipeline = pipeline.pipe(streamObject());
-
-    // https://github.com/uhop/stream-json/wiki#streamers
-
-    /** @type {{ [k: string]: unknown }} */
-    const obj = { };
-    for await (const { key, value } of pipeline) {
-        obj[key] = value;
+export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { boolean | undefined } */ multiFile) {
+    if(multiFile) {
+        /** @type {{ [k: string]: unknown }} */
+        const obj = { };
+        const files = readdirSync(filePath).filter(f => /^\d+\.json$/.test(f));
+        // for(const file of files) {
+        await Promise.all(files.map(async file => {
+            const fp = join(filePath, file);
+            let contents;
+            try {
+                contents = JSON.parse(readFileSync(fp));
+            }
+            catch(e) {
+                console.error(`Encountered error reading or parsing file path ${fp}`);
+                throw e;
+            }
+            for(const k of Object.keys(contents)) {
+                obj[k] = contents[k];
+            }
+        // }
+        }));
+        console.log(`Read ${Object.keys(obj).length} entries from ${files.length} split JSON files.`);
+        return obj;
     }
-    // await Promise.all(pipeline.map(async ({ key, value }) => {
-    //     obj[key] = value;
-    // }))
-    return obj;
+    else {
+        //
+        const fileStream = createReadStream(filePath, { encoding: "utf-8" });
+
+        let pipeline = fileStream.pipe(parser());
+        pipeline = pipeline.pipe(streamObject());
+
+        // https://github.com/uhop/stream-json/wiki#streamers
+
+        /** @type {{ [k: string]: unknown }} */
+        const obj = { };
+        for await (const { key, value } of pipeline) {
+            obj[key] = value;
+        }
+        // await Promise.all(pipeline.map(async ({ key, value }) => {
+        //     obj[key] = value;
+        // }))
+        return obj;
+    }
 }
