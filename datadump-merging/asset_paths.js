@@ -30,5 +30,7 @@ export const GLOBS_TO_SHADOW_DEPO_COUNTER_LIST_ASSETS = [
 ];
 
 export const PATH_TO_PODS_DATA_FILE = "../src/data/treasure_pods.ts";
+export const PATH_TO_SHADOW_DEPOS_DATA_FILE = "../src/data/shadow_doors.ts";
 
 export const PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER = "../public/map_overworld";
+export const PATH_TO_LABYRINTH_TILEMAP_FOLDER = "../public/map_labyrinth";

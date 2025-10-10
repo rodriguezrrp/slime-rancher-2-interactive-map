@@ -2,7 +2,7 @@ import { CurrentMapContext, MapType } from "./CurrentMapContext";
 import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, icon } from "leaflet";
 import { LayerGroup, LayersControl, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { LocalStoragePin, Pin } from "./types";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FaCode } from "react-icons/fa6";
 import { GordoIcons } from "./components/GordoIcon";
 import { LockedDoorIcons } from "./components/LockedDoorIcon";
@@ -32,17 +32,31 @@ const map_bounds: { [key in MapType]: L.LatLngBoundsExpression } = {
     [MapType.overworld]: [
         // [-70, -230],
         // [85, 50]
-        [-3200,-3200],
-        [3200,3200]
+        // [-3200,-3200],
+        // [3200,3200]
+        // The y bounds needed to be shoved up by a texture-height (1024 units) due to y being flipped from game coordinates to stitching.
+        // Then I added 400 units of margin all around for extra convenience.
+        [ -1282 - 400, -819 - 1024 - 400 ].reverse() as [number, number],
+        [ 947 + 400, 2048 - 1024 + 400 ].reverse() as [number, number],
     ],
     [MapType.labyrinth]: [
-        [200, -200],
-        [-70, 60]
+        // [200, -200],
+        // [-70, 60]
+        // [-3200,-3200],
+        // [3200,3200]
+        [-6400,-6400],
+        [6400,6400]
     ],
     [MapType.sr1]: [
         [100, -150],
         [20, 60]
     ]
+};
+
+const map_maxNativeZoom: { [key in MapType]: number } = {
+    [MapType.overworld]: 7,
+    [MapType.labyrinth]: 6,
+    [MapType.sr1]: 6
 };
 
 function CursorCoordinates() {
@@ -94,6 +108,7 @@ function CursorCoordinates() {
                 <div>{`Center: Lat ${centerCoordinates[0].toFixed(4)}, Lng ${centerCoordinates[1].toFixed(4)}`}</div>
             )}
             <div>{`Map center: ${map_center[current_map]}, Map boundaries: ${map_bounds[current_map]}`}</div>
+            <div>{`Tileset maxNativeZoom: ${map_maxNativeZoom[current_map]}`}</div>
         </div>
     );
 }
@@ -115,20 +130,39 @@ function ConfigureMapOptions() {
   */
 function MapUpdater({
     center,
-    maxBounds
+    maxBounds,
+    maxZoom,
+    tileLayerOpts
 }: {
     center: LatLngExpression;
-    maxBounds: LatLngBoundsExpression
+    maxBounds: LatLngBoundsExpression,
+    maxZoom: number,
+    tileLayerOpts: L.TileLayerOptions & { url: string }
 }) {
     const map = useMap();
 
     useEffect(() => {
-        map.setView(center, 4);
+        map.setView(center, 5);
     }, [center, map]);
 
     useEffect(() => {
         map.setMaxBounds(maxBounds);
     }, [maxBounds, map]);
+
+    useEffect(() => {
+        map.setMaxZoom(maxZoom);
+    }, [maxZoom, map]);
+
+    let tileLayer = useRef<L.TileLayer>();
+
+    useEffect(() => {
+        if(tileLayer.current)
+            map.removeLayer(tileLayer.current);
+
+        tileLayer.current = L.tileLayer(tileLayerOpts.url, tileLayerOpts);
+
+        map.addLayer(tileLayer.current!);
+    }, [tileLayerOpts, map]);
 
     return null;
 }
@@ -236,8 +270,8 @@ function App() {
             <MapContainer
                 center={map_center[current_map]}
                 zoom={3.5}
-                maxZoom={8}
-                minZoom={3}
+                maxZoom={map_maxNativeZoom[current_map] + 1}
+                // minZoom={3}
                 zoomSnap={0.5}
                 zoomDelta={0.5}
                 scrollWheelZoom={true}
@@ -247,7 +281,17 @@ function App() {
             >
                 <ConfigureMapOptions />
                 {advanced_infos && <CursorCoordinates />}
-                <MapUpdater center={map_center[current_map]} maxBounds={map_bounds[current_map]} />
+                <MapUpdater
+                    center={map_center[current_map]}
+                    maxBounds={map_bounds[current_map]}
+                    maxZoom={map_maxNativeZoom[current_map] + 1}
+                    tileLayerOpts={{
+                        url: `${current_map}/{z}/{x}/{y}.png`,
+                        noWrap: true,
+                        maxZoom: map_maxNativeZoom[current_map] + 1,
+                        maxNativeZoom: map_maxNativeZoom[current_map]
+                    }}
+                />
 
                 {selected_pin &&
                     <MapUserPins
@@ -289,13 +333,14 @@ function App() {
                         <LayerGroup>{user_pin_list}</LayerGroup>
                     </LayersControl.Overlay>
                 </LayersControl>
-                <TileLayer
+                {/* {tileLayer} */}
+                {/* <TileLayer
                     url={`${current_map}/{z}/{x}/{y}.png`}
                     noWrap={true}
-                    maxZoom={8}
-                    maxNativeZoom={7}
+                    maxZoom={map_maxNativeZoom[current_map] + 1}
+                    maxNativeZoom={map_maxNativeZoom[current_map]}
                     minZoom={3}
-                />
+                /> */}
             </MapContainer>
         </div >
     );

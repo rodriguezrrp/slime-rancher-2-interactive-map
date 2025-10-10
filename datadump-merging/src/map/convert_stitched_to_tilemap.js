@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs, { existsSync } from "fs";
 import path from "path";
 import { spawn } from 'child_process';
 import sharp from "sharp";
@@ -12,6 +12,11 @@ const tileSizePx = 256;  // Could read this from tilemapresource.xml for reducin
 
 
 export function convertToTilemap(mapFilePath = 'map.png', outDirPath = 'map', _pythonCLIname) {
+
+    if(!existsSync(_pathToGdal2Tiles)) {
+        throw new Error(`Unable to find gdal2tiles repository script at "${_pathToGdal2Tiles}".`
+            + `Did you forget to initialize the git submodule? (e.g., "git submodule update --init --recursive")`);
+    }
 
     _pythonCLIname ||= defaultPythonCLIname;
 

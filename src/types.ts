@@ -141,6 +141,7 @@ export interface StabilizingGate {
 }
 
 export interface ShadowDoor {
+    internalId: string;
     position: Vec2;
     description: string;
     amount_required: number;

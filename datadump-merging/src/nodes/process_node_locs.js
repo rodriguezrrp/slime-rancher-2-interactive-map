@@ -1,25 +1,15 @@
-import { GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_PODS_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE } from "../../asset_paths.js";
 
 import { Glob } from "glob";
-import yaml from "js-yaml";
 import assert from "node:assert";
-import {
-    createWriteStream, createReadStream, readFileSync, writeFileSync,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- because WriteStream is used in a @type jsdoc
-    WriteStream
-} from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import _pkg_streamjson from "stream-json";
-const { parser } = _pkg_streamjson;
-import _pkg2_streamjson_StreamObject from "stream-json/streamers/StreamObject.js";
-const { streamObject } = _pkg2_streamjson_StreamObject;
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain } from "./processing_utils.js";
 
 
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
 /** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
 /** @typedef {{ useCache?: boolean, exportToCache?: "sync" | "async" | boolean }} CacheOpts */
-
-const defaultCacheSettings = { useCache: true, exportToCache: "async" };
 
 
 export async function exportNodeCoordsFromScenesJSON(
@@ -53,6 +43,11 @@ export async function exportNodeCoordsFromScenesJSON(
     await exportPodCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
+    // Shadow Plort Depos
+
+    await exportShadowPlortDepoCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+
+    //===============
     // Research Drones
 
     //...
@@ -82,10 +77,6 @@ async function getOrExtractScenesAssetsMapping(/** @type {CacheOpts} */ cacheOpt
     }
 
     return assetsMapping;
-}
-
-function getOrExtractPodCoords() {
-    //
 }
 
 async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
@@ -196,6 +187,404 @@ async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingTyp
     fnWritePodsBackToFile(mergedPodTSData);
 
 }
+
+async function exportShadowPlortDepoCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+    
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ fileId: string, assetJSON: AssetJSONType, depoGameObj: AssetJSONType, position: { x: number, y: number, z: number } }[]} */
+    let ingameShDepoPositions;
+
+    // if(cacheOpts.useCache && existsSync("./data_cache/shdepoPositions.json")) {
+    if(false) {  // for debugging
+        
+        console.log("Reading cached shadow plort depo coordinates...");
+
+        ingameShDepoPositions = JSON.parse(readFileSync("./data_cache/shdepoPositions.json"));
+
+        console.log(`Read (${ingameShDepoPositions.length}) shadow plort depo coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting shadow plort depo coordinates from assets JSON...");
+
+        // assert(typeof assetsMapping[0] === "undefined" || assetsMapping[0] === null, `Why was there a value for fileId 0? ${assetsMapping[0]}`);
+
+        const depoIdMonoBehavioursEntries = Object.entries(assetsMapping)
+            .filter(([, assetJSON]) => {
+            
+                const depoId = assetJSON.props["_id"];
+            
+                if(!depoId) return false;
+
+                if(!/^plortdepo[0-9]+$/.test(depoId)) return false;
+
+                assert(assetJSON.typeName === "MonoBehaviour", "found asset with a shadow plort depo id in \"_id\" prop, but it was not a MonoBehaviour?");
+
+                return true;
+
+            });
+
+        console.log(`Retrieved ${depoIdMonoBehavioursEntries.length} shadow plort depo id MonoBehaviour entries.`);
+
+        ingameShDepoPositions = await Promise.all(depoIdMonoBehavioursEntries.map(mapFnDetermineShDepoPosition(assetsMapping)));
+
+        console.log(`Determined ${ingameShDepoPositions.length} shadow plort depo positions.`);
+        // console.log('shdepoPositions:', shdepoPositions);
+
+        // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        for(const d of ingameShDepoPositions) {
+            const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+            d.transformChainChildToParent = transformChainChildToParent.map(c => {
+                const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+                return { ...c, gameObject: gameObj };
+            });
+        }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/shdepoPositions.json", JSON.stringify(ingameShDepoPositions));
+                console.log("Exported shadow plort depo positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting shadow plort depo positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+    // assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+    // for(const d of ingameShDepoPositions) {
+    //     let _debugExtraDesc = "\n" + basename(d.assetJSON.fileKey);
+    //     const {podGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+    //     for(const c of transformChainChildToParent) {
+    //         _debugExtraDesc += " \n ---- &" + c.fileId + " - " + assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]]?.props["m_Name"];
+    //         _debugExtraDesc += " \n - S: " + JSON.stringify(c.props["m_LocalScale"]);
+    //         _debugExtraDesc += " \n - R: " + JSON.stringify(c.props["m_LocalRotation"]);
+    //         _debugExtraDesc += " \n - P: " + JSON.stringify(c.props["m_LocalPosition"]);
+    //     }
+    //     d._debugExtraDesc = _debugExtraDesc;
+    // }
+
+    console.log("Parsing existing shadow plort depo data in the map data files...")
+
+    const { fnWriteShDeposBackToFile, existingShDepoTSDataByDepoKey } = readExistingShadowPlortDepoTSData(cacheOpts);
+
+    console.log(`Parsed ${Object.keys(existingShDepoTSDataByDepoKey).length} existing shadow plort depo data entries.`);
+
+    /** @type {{ [tsDataShDepoKey: string]: ExistingShDepoDataType }} */
+    const mergedShDepoTSData = { ...existingShDepoTSDataByDepoKey };
+
+    console.log("Merging existing and extracted shadow plort depo data");
+    
+    // merge existing and extracted shadow depo data
+    
+    for(const { assetJSON, depoGameObj: depoGameObjJSON, position, transformChainChildToParent, _debugExtraDesc } of ingameShDepoPositions) {
+        /** @type {string} */
+        const internalDepoId = assetJSON.props["_id"];
+
+        // /** @type {string} */
+        // const internalName = depoGameObjJSON.props["m_Name"];
+
+        const amountRequired = assetJSON.props["_fillAmount"];
+
+        const oldDepoId = shadowDepoIdInternalToOld(internalDepoId);
+
+        // let areaNameForKey;
+        // if(!oldDepoId) {
+        //     areaNameForKey = groupOfDepoId(internalDepoId, cacheOpts)?.toLowerCase().replace(" ","")
+        //         ?? "undeterminedarea";
+        // }
+        // const tsDataKey = oldDepoId ?? (`shadowdoor_${areaNameForKey}_${internalDepoId}`);
+        const tsDataKey = oldDepoId ?? (`shadowdoor_${internalDepoId}`);
+
+        // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+        /** @type {undefined | existingShDepoTSDataByDepoKey[keyof existingShDepoTSDataByDepoKey]} */
+        const existingData = (
+            existingShDepoTSDataByDepoKey[oldDepoId]
+            || existingShDepoTSDataByDepoKey[internalDepoId]
+            || existingShDepoTSDataByDepoKey[tsDataKey]
+            || Object.values(existingShDepoTSDataByDepoKey).find(data => data.internalId === internalDepoId)
+        );
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        for(const [k, v] of Object.entries(existingShDepoTSDataByDepoKey)) {
+            if(v === existingData) {
+                delete existingShDepoTSDataByDepoKey[k];
+                break;
+            }
+        }
+
+        mergedShDepoTSData[tsDataKey] = {
+            internalId: internalDepoId,
+            // internal name on the game object was always "TriggerActivate"
+            // internalName: /*existingData?.internalName ??*/ internalName,
+            // actually, the father transform's game object seems to have a meaningful name (in most cases)
+            internalName: transformChainChildToParent[1]["gameObject"].props["m_Name"],
+            unlocks: existingData?.unlocks ?? ["Todo: Specify unlocks of this shadow door"],
+            description: existingData?.description ?? "Todo: insert a description for this shadow door " + internalDepoId,
+            // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+            // position: { x: -position.z, y: position.x },
+            // position: { x: position.x, y: position.z },
+            position: { x: -position.x, y: -position.z },
+            _otherLines: existingData?._otherLines,
+            // amount_required: amountRequired ?? existingData?.amount_required ?? "\"Todo: specify amount required\"",
+            amount_required: _debugExtraDesc && JSON.stringify(_debugExtraDesc) || amountRequired,
+        };
+
+        if(existingData)
+            console.log(`Merged extracted shadow plort depo ${internalDepoId} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted shadow plort depo ${internalDepoId} data to ${tsDataKey} data`)
+    }
+
+    console.log("Writing shadow plort depo data back to map data file");
+
+    fnWriteShDeposBackToFile(mergedShDepoTSData);
+}
+
+/** @typedef {{ unlocks: string[], internalId?: string, internalName?: string, description: string, position: { x: number, y: number }, amount_required: number, _otherLines?: string[] }} ExistingShDepoDataType */
+
+function readExistingShadowPlortDepoTSData(/** @type {CacheOpts} */ cacheOpts) {
+    
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ [tsDataDepoKey: string]: ExistingShDepoDataType }} */
+    const existingShDepoTSDataByDepoKey = { };
+
+    // const groupCommentLineRegex = /^ *\/\/ *(the conservatory|rainbow fields|ember valley|starlight strand|powderfall bluffs) *$/i;
+    const endFileDataLineRegex = /^};? *$/;
+
+    const dataStartLineRegex = /^ *([a-zA-Z0-9_]+|".+") *: *{ *$/;
+    const dataParamLineRegex = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(?:(\[ *(?:"(?:[^\\"]|\\.)*",? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})|([\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*))|(undefined)),? *$/;
+    const dataEndLineRegex = /^ +},? *$/;
+
+    const linesForReconstruction = [];
+
+    const fileLines = readFileSync(PATH_TO_SHADOW_DEPOS_DATA_FILE, { encoding: "utf-8" }).split(/[\r\n]+/);
+
+    // console.log(fileLines);
+
+    // let curGroup = null;
+
+    let dataObj, dataObjDepoKey;
+
+    for(const line of fileLines) {
+        
+        let dataStartExecRes = dataStartLineRegex.exec(line);
+
+        // if(groupCommentLineRegex.test(line)) {
+        //     curGroup = line;
+        //     // denote for reconstruction that a new group has started
+        //     linesForReconstruction.push(line);  // push the comment that started the group
+        // }
+        // else if(dataStartExecRes) {
+        //     let dataObjKeyWithAreaName = /^"?treasure_+([a-z](?:[a-z_]*[a-z])?)_+[a-z0-9]+"?$/i
+        //         .exec(dataStartExecRes[1]);
+        //     if(dataObjKeyWithAreaName) {
+        //         // denote for reconstruction that this data object just encountered is part of a specific group
+        //         curGroup = dataObjKeyWithAreaName[1];
+        //     } else {
+        //         throw Error(`Was not in a denoted area group for reconstruction, but encountered a data object whose key did not specify its area. Throwing error to prevent unexpected data loss. Line with the unexpected start of data object: ${JSON.stringify(line)}`);
+        //     }
+        // }
+        // else if(endFileDataLineRegex.test(line)) {
+        //     // reached end of important data in file
+        //     curGroup = null;
+        //     // line will be pushed in the next if(!inGroup) statement.
+        // }
+
+        // if(!curGroup) {
+        //     // push all lines that aren't in a denoted group
+        //     linesForReconstruction.push(line);
+        // }
+        // else {
+            // don't push lines inside a denoted group; these lines will be regenerated upon reconstruction
+            // instead, parse them
+            let dataParamExecRes = dataParamLineRegex.exec(line);
+
+            if(dataStartExecRes) {
+                let key = dataStartExecRes[1];
+                dataObjDepoKey = JSON.parse(key);
+                dataObj = { };
+            }
+            else if(dataEndLineRegex.test(line)) {
+                existingShDepoTSDataByDepoKey[dataObjDepoKey] = dataObj;
+            }
+            else if(dataParamExecRes) {
+                const [ , key, list, str, xyobj, num, undef ] = dataParamExecRes;
+                if(key === "description" || key === "internalName" || key === "internalId") {
+                    dataObj[key] = undef ? undefined : JSON.parse(str);
+                }
+                else if(key === "unlocks") {
+                    dataObj[key] = JSON.parse(list);
+                }
+                else if(key === "position") {
+                    dataObj[key] = JSON.parse(xyobj.replace("x", "\"x\"").replace("y", "\"y\""));
+                }
+                else if(key === "amount_required") {
+                    dataObj[key] = parseFloat(num);
+                    // console.log('debug: dataObj:', dataObj);
+                }
+                else if(undef) {
+                    dataObj[key] = undefined;
+                }
+                else {
+                    // console.warn(`WARNING: DISCARDING parameter line ${JSON.stringify(line)}; unexpected data key (${JSON.stringify(key)}) and/or value.`);
+                    dataObj._otherLines ||= [];
+                    dataObj._otherLines.push(line);
+                }
+            }
+            else {
+                linesForReconstruction.push(line);
+            }
+        // }
+
+    }
+    
+    // console.log(linesForReconstruction);
+
+    const fnWriteShDeposBackToFile = (/** @type {{ [tsDataDepoKey: string]: { internalName: string, internalId: string, unlocks: string[], description: string, position: { x: number, y: number }, amount_required: number, _otherLines?: string[] } }} */ mergedShDepoTSData) => {
+        const reconstructedLines = [];
+
+        // console.log(mergedShDepoTSData);
+
+        // shallow copy for mutation purposes
+        mergedShDepoTSData = { ...mergedShDepoTSData };
+
+        const _processDepoDataObj = (
+            /** @type {string} */ tsDataDepoKey,
+            /** @type {mergedShDepoTSData[keyof mergedShDepoTSData]} */ tsDepoData
+        ) => {
+            // remove entry from depo data to insert now that it's processed
+            delete mergedShDepoTSData[tsDataDepoKey];
+
+            // console.log("processing shadow depo data");
+            // console.log(tsDataDepoKey);
+            // console.log(tsDepoData);
+            const { internalId, internalName, unlocks, description, position, amount_required, _otherLines } = tsDepoData;
+            reconstructedLines.push(
+                `    "${tsDataDepoKey}": {`
+            + `\n        internalId: ${JSON.stringify(internalId)},`
+            + (!internalName ? "" : `\n        internalName: ${JSON.stringify(internalName)},`)
+            + `\n        position: { x: ${position.x.toFixed(4)/*.replace(/0+$/,"")*/}, y: ${position.y.toFixed(4)/*.replace(/0+$/,"")*/} },`
+            + `\n        description: ${JSON.stringify(description)},`
+            + `\n        unlocks: [${unlocks.map(JSON.stringify).join(", ")}],`
+            + `\n        amount_required: ${amount_required},`
+            + (typeof _otherLines === "undefined"
+                ? ""
+                : _otherLines.map(l => "\n        " + l.trimStart()).join(""))
+            + "\n    },"
+            );
+        }
+        
+        let reconstructionIndex = 0;
+
+        while(reconstructionIndex < linesForReconstruction.length) {
+            // const line = linesForReconstruction[reconstructionIndex];
+            // if(endFileDataLineRegex.test(line))
+            //     // we will resume inserting the remaining lines after processing any remaining data objects
+            //     break;
+            // reconstructionIndex++;
+            // // console.log(line);
+
+            // const commentGroupLbl = groupCommentLineRegex.exec(line)?.[1];
+            
+            // if(!commentGroupLbl) {
+            //     reconstructedLines.push(line);
+            // }
+            // else {
+            //     // landed in a denoted group. fill in data
+            //     reconstructedLines.push(line);  // push the comment that started the group
+
+            //     const podDataInGroup = Object.entries(mergedShDepoTSData)
+            //         .filter(([, podData]) => {
+            //             // do a bit of processing to loosen comparison
+            //             const internalGroup = podGroupOfPodId(podData.internalId, cacheOpts)?.toLowerCase().replaceAll(/(^the | the | )/, "")
+            //             const commentedGroup = commentGroupLbl.toLowerCase().replaceAll(/(^the | the | )/, "");
+            //             return (
+            //                 internalGroup === commentedGroup
+            //                 || (internalGroup === "conservatory" && commentedGroup === "conservatory")
+            //                 || (internalGroup === "rainbowfields" && commentedGroup === "rainbowfields")
+            //                 || (internalGroup === "luminousstrand" && commentedGroup === "starlightstrand")
+            //                 || (internalGroup === "rumblinggorge" && commentedGroup === "embervalley")
+            //                 || (internalGroup === "powderfallbluffs" && commentedGroup === "powderfallbluffs")
+            //             );
+            //         })
+            //         // .sort((a, b) => a[0].localeCompare(b[0], { numeric: true }));
+            //         .sort((a, b) => sortStringsWithNumbers(a[0], b[0]));
+
+            //     console.log(podDataInGroup);
+
+            //     for (const entry of podDataInGroup) {
+            //         const [ tsDataDepoKey, tsPodData ] = entry;
+            //         _processDepoDataObj(tsDataDepoKey, tsPodData);
+            //     }
+
+            //     reconstructedLines.push("");  // push an empty line for spacing
+            // }
+            
+            const line = linesForReconstruction[reconstructionIndex];
+            if(endFileDataLineRegex.test(line))
+                // we will resume inserting the remaining lines after processing any remaining data objects
+                break;
+            reconstructionIndex++;
+            reconstructedLines.push(line);
+        }
+
+        // process shadow depo data objects
+        for (const tsDataDepoKey of Object.keys(mergedShDepoTSData).sort(sortStringsWithNumbers)) {
+            const tsPodData = mergedShDepoTSData[tsDataDepoKey];
+            _processDepoDataObj(tsDataDepoKey, tsPodData);
+        }
+
+        // finish any remaining lines in the file
+        while(reconstructionIndex < linesForReconstruction.length) {
+            const line = linesForReconstruction[reconstructionIndex];
+            reconstructionIndex++;
+            reconstructedLines.push(line);
+        }
+
+        writeFileSync(PATH_TO_SHADOW_DEPOS_DATA_FILE, reconstructedLines.join("\n"));
+    }
+
+    return {
+        fnWriteShDeposBackToFile,
+        existingShDepoTSDataByDepoKey
+    }
+}
+
+// outer function with (assetsMapping) param is just for providing assetsMapping to the returned async function,
+// leaving the returned async function still structured to be passable to .map().
+const mapFnDetermineShDepoPosition = (/** @type {AssetsMappingType} */ assetsMapping) => (
+
+    async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+        console.log(`[Shadow Plort Depo ${assetJSON.props["_id"]}]: Determining position of shadow depo`);
+
+        const { podGameObj: depoGameObj, transformChainChildToParent, position } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+        for(const child of transformChainChildToParent) {
+            console.log(child.typeName);
+            console.log(child.fileKey);
+            console.log(child.fileId);
+            console.log(child.props["m_LocalPosition"]);
+            console.log(child.props["m_LocalRotation"]);
+            console.log(child.props["m_LocalScale"]);
+        }
+
+        console.log(`[Shadow Plort Depo ${assetJSON.props["_id"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(position)}`);
+
+        return {fileId, assetJSON, depoGameObj, position};
+
+    }
+);
 
 function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
     
@@ -470,79 +859,13 @@ const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMappin
     }
 );
 
-export function followMonoBehaviourGameObjectTransformChain(
-    /** @type {AssetsMappingType} */ assetsMapping,
-    /** @type {AssetJSONType} */ assetJSON,
-    transformTypeName = "Transform"
-) {
-    
-    const podGameObj = assetsMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];
-    if(!podGameObj || podGameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, podGameObj = ${JSON.stringify(podGameObj)}`);
-
-    let curTransform = null;
-
-    for(const componentRef of podGameObj.props["m_Component"]) {
-        
-        const componentObj = assetsMapping[podGameObj.fileKey + "&" + componentRef["component"]["fileID"]];
-        if(!componentObj) throw new Error(`componentRef = ${JSON.stringify(componentRef)},\npodGameObj = ${JSON.stringify(podGameObj, undefined, 4)}`);
-
-        if(componentObj.typeName === transformTypeName) {
-            curTransform = componentObj;
-            break;
-        }
-
-    }
-    
-    let transformChainChildToParent = [];
-    
-    while(curTransform) {
-        
-        if(!curTransform || curTransform.typeName !== transformTypeName) throw new Error(`curTransform = ${JSON.stringify(curTransform)}`);
-        
-        transformChainChildToParent.push(curTransform);
-
-        const fatherTransformFileId = curTransform.props["m_Father"]["fileID"];
-        
-        if(fatherTransformFileId.toString() !== "0") {
-            curTransform = assetsMapping[curTransform.fileKey + "&" + fatherTransformFileId];
-        }
-        else {
-            curTransform = null;
-        }
-
-    }
-
-    const position = {x: 0, y: 0, z: 0};
-
-    for (let i = transformChainChildToParent.length - 1; i >= 0; i--) {
-
-        const transformObj = transformChainChildToParent[i];
-        
-        // example properties of interest:
-        //   m_LocalRotation: {x: -0.032494184, y: -0.3587241, z: 0.047845565, w: 0.9316501}
-        //   m_LocalPosition: {x: 25.309, y: 23.31, z: 0.379}
-        //   m_LocalScale: {x: 0.667, y: 0.667, z: 0.667}
-
-        const p = transformObj.props["m_LocalPosition"];
-
-        if(!p) throw new Error(`transform.props = ${JSON.stringify(transformObj.props)}`);
-
-        position.x += p.x;
-        position.y += p.y;
-        position.z += p.z;
-
-    }
-
-    return { podGameObj, transformChainChildToParent, position };
-}
-
 /** old to internal @type {{ [oldId: string]: string }} */
 let _podIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function podIdInternalToOld(/** @type {string} */ internalId) {
     if(_podIdMap === null) {
-        _podIdMap = JSON.parse(readFileSync("./podIdMap.json"));
+        _podIdMap = JSON.parse(readFileSync("./id_mappings/podIdMap.json"));
     }
     return Object.entries(_podIdMap).find(([, v]) => v === internalId)?.[0];
 }
@@ -550,9 +873,28 @@ function podIdInternalToOld(/** @type {string} */ internalId) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function podIdOldToInternal(/** @type {string} */ oldId) {
     if(_podIdMap === null) {
-        _podIdMap = JSON.parse(readFileSync("./podIdMap.json"));
+        _podIdMap = JSON.parse(readFileSync("./id_mappings/podIdMap.json"));
     }
     return _podIdMap[oldId];
+}
+
+/** old to internal @type {{ [oldId: string]: string }} */
+let _shadowDepoIdMap = null;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function shadowDepoIdInternalToOld(/** @type {string} */ internalId) {
+    if(_shadowDepoIdMap === null) {
+        _shadowDepoIdMap = JSON.parse(readFileSync("./id_mappings/shadowDepoIdMap.json"));
+    }
+    return _shadowDepoIdMap[oldId];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function shadowDepoIdOldToInternal(/** @type {string} */ oldId) {
+    if(_shadowDepoIdMap === null) {
+        _shadowDepoIdMap = JSON.parse(readFileSync("./id_mappings/shadowDepoIdMap.json"));
+    }
+    return Object.entries(_shadowDepoIdMap).find(([, v]) => v === internalId)?.[0];
 }
 
 let _podIdGroups = null;
@@ -673,157 +1015,12 @@ function extractPodIdGroupsToCache(/** @type {CacheOpts} */ cacheOpts) {
     return podIdGroups;
 }
 
-export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMappingToModify, filterObjTypeName) {
-    
-    // const fileKey = path.basename(sceneFilePath);
-    const fileKey = sceneFilePath;
-
-    let fileData = readFileSync(sceneFilePath, "utf-8");
-    // .then((fileData) => {
-    //     // try {
-    //     //     return yaml.load(fileData);
-    //     // } catch (e) {
-    //     //     console.log(e.message);
-    //     //     // console.log(e.reason);
-    //     //     if(!e.message.includes("unknown tag !<tag:unity3d.com,")) {
-    //     //         throw e;
-    //     //     }
-    //     // }
-    //     // return yaml.load(fileData.replace(/!<tag:unity3d.com,[\.:0-9]*>/g, ''));
-    // })
-    // .then((/** @type string */ doc) => {
-    //     console.log(doc.substring(0, 200));
-    // })
-    // fileData = fileData.replace(/!<tag:unity3d.com,[\.:0-9]*>/, '');
-    fileData = fileData.replace(/^%YAML 1.1[\r\n]+%TAG !u! tag:unity3d\.com,[0-9]{4}:/, "");
-
-    /** @type { {type: number, fileId: number, content: string}[] } */
-    const assetsYaml = fileData.split("\n--- !u")
-        .filter(assetData => assetData.length > 0)
-        .map(assetData => {
-            const _out = /^!([0-9]+) &([0-9]+) *[\r\n]+(.*)$/sg.exec(assetData);
-            // console.log(_out);
-            if(_out === null) {
-                throw new Error("Failed to parse assetYaml:\n", assetData);
-            // console.log(assetYaml.substring(0, 50));
-            // const enc = new TextEncoder().encode(assetYaml.substring(0, 50));
-            // console.log(enc);
-            // console.log(enc.map(b => b.toString(16)).join(' '));
-            // console.log(enc.map(b => (b >= 32 && b <= 126) ? String.fromCharCode(b) : '.').join(''));
-            }
-            // else
-            //     console.log('ok');
-            return _out;
-        })
-        .map(([, type, fileId, content]) => ({ type: Number(type), fileId: Number(fileId), content: content }));
-
-    // const assetsJSONmappingEntries = await Promise.all(
-    // await Promise.all(
-    // assetsYaml.map(async ({ type, fileId: fileId, content: assetYaml }) => {
-    assetsYaml.map(({ type, fileId: fileId, content: assetYaml }) => {
-
-        /** @type { {[objTypeName: string]: {[objProp: string]: unknown}} } */
-        const assetJSON = yaml.load(assetYaml);
-
-        // console.log(assetJSON);
-        // return { type, fileId, assetJSON };
-
-        const objKeys = Object.keys(assetJSON);
-        assert(objKeys.length === 1, `Did not find exactly one key in root object of assetJSON as expected. assetJSON: ${JSON.stringify(assetJSON, undefined, 4)}`);
-        const typeName = objKeys[0];
-        // return [fileId, { type: typeName, props: assetJSON[typeName] }];
-        assert(typeName, JSON.stringify(objKeys));
-
-        if(filterObjTypeName && !filterObjTypeName(typeName)) {
-        // skip this asset
-            return;
-        }
-
-        const fileKeyFileId = fileKey + "&" + fileId;
-        assert(!Object.hasOwn(assetsMappingToModify, fileKeyFileId), `There was already a fileKeyFileId ${fileKeyFileId} in mapping.\nTried to insert asset:\n${JSON.stringify(assetJSON, undefined, 4)}\nFound existing entry:\n${JSON.stringify(assetsMappingToModify[fileKeyFileId], undefined, 4)}`);
-        assetsMappingToModify[fileKeyFileId] = {
-            fileKey,
-            fileId,
-            typeId: type,
-            typeName: typeName,
-            props: assetJSON[typeName]
-        }
-
-    })
-    // )
-
-    assert(!Object.hasOwn(assetsMappingToModify, fileKey + "&0"), `Why was there a mapping for fileId 0 from scene ${sceneFilePath}? Found ${JSON.stringify(assetsMappingToModify[fileKey + "&0"], undefined, 4)}`);
-
-}
-
-/** adapted from https://stackoverflow.com/a/53888894 */
-function sortStringsWithNumbers (/**@type {string}*/ a, /**@type {string}*/ b) {
-  a = a.toUpperCase().split(/(\d+)/g);
-  b = b.toUpperCase().split(/(\d+)/g);
-
-  const length = Math.min(a.length, b.length);
-
-  for (let i = 0; i < length; i++) {
-    const cmp = (i % 2)
-      ? a[i] - b[i]
-      : -(a[i] < b[i]) || +(a[i] > b[i]);
-
-    if (cmp) return cmp;
-  }
-
-  return a.length - b.length;
-}
-
-function dumpMassiveHeckinBigObjectToJSON(filePath, object, /** @type { boolean | undefined } */ recurse, _stream) {
-    assert(typeof object === "object" && !Array.isArray(object));
-    /** @type { WriteStream } */
-    const fileStream = _stream ?? createWriteStream(filePath, { encoding: "utf-8" });
-    try {
-        fileStream.write("{");
-        let wasFirst = true;
-        for(const [k, v] of Object.entries(object)) {
-            if(!wasFirst) {
-                fileStream.write(",");
-            }
-            wasFirst = false;
-            fileStream.write(JSON.stringify(k));
-            fileStream.write(":");
-            if(recurse && typeof v === "object" && !Array.isArray(v)) {
-                dumpMassiveHeckinBigObjectToJSON(filePath, v, recurse, fileStream);
-            }
-            else {
-                fileStream.write(JSON.stringify(v));
-            }
-        }
-        fileStream.write("}");
-    }
-    finally {
-        if(!_stream)
-            fileStream.close();
-    }
-}
-
-async function readMassiveHeckinBigObjectFromJSON(filePath) {
-    const fileStream = createReadStream(filePath, { encoding: "utf-8" });
-
-    let pipeline = fileStream.pipe(parser());
-    pipeline = pipeline.pipe(streamObject());
-
-    // https://github.com/uhop/stream-json/wiki#streamers
-
-    /** @type {{ [k: string]: unknown }} */
-    const obj = { };
-    for await (const { key, value } of pipeline) {
-        obj[key] = value;
-    }
-    // await Promise.all(pipeline.map(async ({ key, value }) => {
-    //     obj[key] = value;
-    // }))
-    return obj;
-}
-
 
 // extractScenesToCacheJSON();
 // exportNodeCoordsFromScenesJSON(undefined, true);
 // extractPodIdGroupsToCache();
 // console.log(readExistingTreasurePodTSData().existingPodTSDataByPodKey);
+
+// const { fnWriteShDeposBackToFile, existingShDepoTSDataByDepoKey } = readExistingShadowPlortDepoTSData();
+// console.log(Object.values(existingShDepoTSDataByDepoKey).map(e => `(${e.position.x}, ${e.position.y})`).join(', '));
+exportShadowPlortDepoCoordinatesFromAssetsMapping();

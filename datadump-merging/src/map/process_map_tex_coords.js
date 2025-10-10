@@ -1,11 +1,12 @@
 import { globSync } from "glob";
-import { GLOBS_TO_MAP_SPRITE_ASSETS, PATH_TO_RAINBOW_ISLAND_MAP_PREFAB } from "../../asset_paths.js";
+import { GLOBS_TO_MAP_SPRITE_ASSETS, PATH_TO_LABYRINTH_MAP_PREFAB, PATH_TO_RAINBOW_ISLAND_MAP_PREFAB } from "../../asset_paths.js";
 import { readFile } from "node:fs/promises";
 import { followMonoBehaviourGameObjectTransformChain, parseUnityFileYamlIntoAssetsMapping } from "../nodes/process_node_locs.js";
 import { basename } from "node:path";
 
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
 /** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
+/** @typedef {{ x: number, y: number }} Vec2 */
 
 export async function extractCoordsOfMapTextures() {
 
@@ -13,7 +14,9 @@ export async function extractCoordsOfMapTextures() {
 
     const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
     
+    /** @type {{ [shortName: string]: string }} */
     const mapSpriteShortNameToGUIDs = { };
+    /** @type {{ [guid: string]: AssetJSONType }} */
     const mapSpriteGUIDtoAssetJSONs = { };
 
     await Promise.all(spriteAssetFilePaths.map(
@@ -45,10 +48,19 @@ export async function extractCoordsOfMapTextures() {
     const ingameRIMapAssetsMapping = { };
     parseUnityFileYamlIntoAssetsMapping(PATH_TO_RAINBOW_ISLAND_MAP_PREFAB, ingameRIMapAssetsMapping, n => /^(MonoBehaviou?r|GameObject|(?:Rect)?Transform)$/i.test(n));
 
+    /** @type {AssetsMappingType} */
+    const ingameLbMapAssetsMapping = { };
+    parseUnityFileYamlIntoAssetsMapping(PATH_TO_LABYRINTH_MAP_PREFAB, ingameLbMapAssetsMapping, n => /^(MonoBehaviou?r|GameObject|(?:Rect)?Transform)$/i.test(n));
+
+    /** @type {{ [shortName: string]: { sizeInUnits: Vec2, offsetMin: Vec2, offsetMax: Vec2 } }} */
     const partPositionsRI = { };
+    /** @type {{ [shortName: string]: { sizeInUnits: Vec2, offsetMin: Vec2, offsetMax: Vec2 } }} */
     const partPositionsLabyrinth = { };
 
-    for(const assetJSON of Object.values(ingameRIMapAssetsMapping)) {
+    for(const [sourceAssetMapping, targetPartPositionsObj, assetJSON] of [
+        ...Object.values(ingameRIMapAssetsMapping).map(assetJSON => [ingameRIMapAssetsMapping, partPositionsRI, assetJSON]),
+        ...Object.values(ingameLbMapAssetsMapping).map(assetJSON => [ingameLbMapAssetsMapping, partPositionsLabyrinth, assetJSON]),
+    ]) {
 
         const guid = assetJSON.props["m_Sprite"]?.["guid"];
         if(!guid || !guids.includes(guid))
@@ -70,8 +82,8 @@ export async function extractCoordsOfMapTextures() {
 
         console.log(shortName);
     
-        // const { podGameObj, transformChainChildToParent, position } = followMonoBehaviourGameObjectTransformChain(ingameRIMapAssetsMapping, assetJSON, "RectTransform");
-        // partPositionsRI[guid] = position;
+        // const {   transformChainChildToParent, position } = followMonoBehaviourGameObjectTransformChain(sourceAssetMapping, assetJSON, "RectTransform");
+        // targetPartPositionsObj[guid] = position;
         
         // transformChainChildToParent.forEach(t => {
         //     console.log(t.fileId);
@@ -80,16 +92,17 @@ export async function extractCoordsOfMapTextures() {
         //     console.log("m_AnchoredPosition: ", t.props["m_AnchoredPosition"]);
         //     console.log("m_SizeDelta:        ", t.props["m_SizeDelta"]);
         //     console.log("m_Pivot:            ", t.props["m_Pivot"]);
-        // });    
+        // });  
+        // continue;  
 
-        const podGameObj = ingameRIMapAssetsMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];        
+        const podGameObj = sourceAssetMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];        
         if(!podGameObj || podGameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, podGameObj = ${JSON.stringify(podGameObj)}`);
 
         let curTransform = null;
 
         for(const componentRef of podGameObj.props["m_Component"]) {
             
-            const componentObj = ingameRIMapAssetsMapping[podGameObj.fileKey + "&" + componentRef["component"]["fileID"]];
+            const componentObj = sourceAssetMapping[podGameObj.fileKey + "&" + componentRef["component"]["fileID"]];
             if(!componentObj) throw new Error(`componentRef = ${JSON.stringify(componentRef)},\npodGameObj = ${JSON.stringify(podGameObj, undefined, 4)}`);
 
             if(componentObj.typeName === "RectTransform") {
@@ -120,7 +133,7 @@ export async function extractCoordsOfMapTextures() {
         // console.log(shortName, guid, position);
         console.log(shortName, guid, offsetMin, offsetMax);
 
-        partPositionsRI[shortName] = { offsetMin, offsetMax };
+        targetPartPositionsObj[shortName] = { sizeInUnits: size, offsetMin, offsetMax };
 
     }
 
