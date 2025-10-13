@@ -5,9 +5,12 @@ import { AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { MapType } from "../CurrentMapContext";
-import { ResearchDrone } from "../types";
+import { ResearchDrone, TranslatedDronePage } from "../types";
 import { handleChecked } from "../util";
 import { research_drones } from "../data/research_drones";
+
+// TODO: move this to a configuration or settings area?
+const curLanguage = "en";
 
 export function ResearchDroneIcon({
     research_drone,
@@ -94,7 +97,7 @@ export function Log({
     setShowLog: React.Dispatch<React.SetStateAction<boolean>>,
 }) {
     const [showArchived, setShowArchived] = useState(false);
-    const textArray = !showArchived ? research_drone.log : research_drone.archive;
+    const translatedPages = !showArchived ? research_drone.log : research_drone.archive;
 
     return (
         <div className={`${!showArchived ? "border-[#0ba0fb] text-white" : "border-[#58faa4] text-[#58faa4]"} max-w-fit log`}>
@@ -108,7 +111,7 @@ export function Log({
                     />
                 </div>
                 <div className="flex flex-col gap-2">
-                    {textArray.map((text: string) => <p key={text} className="text-lg monospace-font">{text}</p>)}
+                    {translatedPages.flatMap((page: TranslatedDronePage) => page[curLanguage].map((text: string) => <p key={text} className="text-lg monospace-font">{text}</p>))}
                 </div>
             </div>
             <div className="flex justify-end">

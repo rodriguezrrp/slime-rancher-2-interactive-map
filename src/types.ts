@@ -42,10 +42,12 @@ export interface TreasurePod {
     dimension: MapType;
 }
 
+export type TranslatedDronePage = { [lang in "en"|"es"|"de"|"fr"|"jp"|"ko"|"pt"|"ru"|"zh"]: string[] };
+
 export interface ResearchDrone {
     name: string;
-    log: string[];
-    archive: string[];
+    log: TranslatedDronePage[];
+    archive: TranslatedDronePage[];
     pos: Vec2;
     description: string;
     dimension: MapType;

@@ -1,4 +1,4 @@
-import { GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_PODS_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE } from "../../asset_paths.js";
 
 import { Glob } from "glob";
 import yaml from "js-yaml";
@@ -116,7 +116,7 @@ export function followMonoBehaviourGameObjectTransformChain(
 
     }
 
-    return { podGameObj: gameObj, transformChainChildToParent, position };
+    return { gameObj, transformChainChildToParent, position };
 }
 
 export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMappingToModify, objTypeNameFilter) {
