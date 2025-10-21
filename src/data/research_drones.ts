@@ -108,7 +108,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "真希望我家里也有这样的东西。那样的话我就不用一直跑出去寻找植物和蘑菇了。说不定还能更接近它们……"
                 ]
             } ],
-        pos: { x: 282.08216233429295, y: -570.2147696561422 },
+        pos: { x: -426.795994, y: 536.428988 },
         description: "On top of the cliff over the tunnel entrance.",
         dimension: MapType.overworld
     },
@@ -209,7 +209,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "唉，忘带叉子了。又得吃手抓面了……"
                 ]
             } ],
-        pos: { x: -417.4525370825291, y: 561.5295663199227 },
+        pos: { x: -479.7180174, y: 552.2179869 },
         description: "On a ledge up a cliff near the tunnel entrance.",
         dimension: MapType.overworld
     },
@@ -319,7 +319,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我曾经梦想成为那样的人。无所畏惧，不停投身于新的冒险。我觉得这是我的机会。"
                 ]
             } ],
-        pos: { x: -159.6756332588015, y: -827.7408380973595 },
+        pos: { x: -567.2, y: 748.02 },
         description: "On top of a stone arch near a plot.",
         dimension: MapType.overworld
     },
@@ -438,7 +438,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "对不起爸爸妈妈。对不起姥姥。但我真的很想这样做。"
                 ]
             } ],
-        pos: { x: -407.14841779718745, y: 811.5495984849143 },
+        pos: { x: -267.391298, y: 885.04296 },
         description: "On the edge of an island next to a rock.",
         dimension: MapType.overworld
     },
@@ -531,7 +531,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "嗯不错，反正我一直在找能存放我所有巨型蘑菇的地方。\n……\n……\n我敢说，爸爸肯定会笑话的。"
                 ]
             } ],
-        pos: { x: -584.0178086525941, y: 187.2137883214762 },
+        pos: { x: -138.760006, y: 616.280006 },
         description: "On top of a mushroom growing on the side of the central pillar of a cave.",
         dimension: MapType.overworld
     },
@@ -650,7 +650,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我知道自己是新来的，所以并不想越界，但要是我重建这里，也许会有一些蜜蜂逗留，然后这个地方将成为生态系统的重要组成部分。希望你对此没意见。"
                 ]
             } ],
-        pos: { x: -243.15539769205714, y: 752.6003426439923 },
+        pos: { x: -234.66795000000002, y: -318.798089 },
         description: "On a rock next to a flower bed on the lower part of the ruins.",
         dimension: MapType.overworld
     },
@@ -742,7 +742,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "呀吼喔喔喔喔喔喔！"
                 ]
             } ],
-        pos: { x: -122.25270292165064, y: -630.452411116299 },
+        pos: { x: -508.624597, y: -442.935566 },
         description: "In the open at the edge of a ledge.",
         dimension: MapType.overworld
     },
@@ -843,7 +843,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "这些感觉和当初把我带到这里的感觉是一样的。"
                 ]
             } ],
-        pos: { x: -622.1705388893512, y: 235.4455172922772 },
+        pos: { x: -368.48994000000005, y: -603.556024 },
         description: "Underground in a cave on a ledge protruding off a central rock pillar.",
         dimension: MapType.overworld
     },
@@ -962,7 +962,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我有时担心自己在这里承担了太多……我还没有准备好独自一人来面对这些。"
                 ]
             } ],
-        pos: { x: 553.2620516309792, y: -696.8133900552111 },
+        pos: { x: -413.16400300000004, y: -757.7700070000001 },
         description: "On a ledge up a cliff underneath a large rock overhang.",
         dimension: MapType.overworld
     },
@@ -1081,7 +1081,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "无论如何我得休息一下，然后再回去。我开始觉得这着实是一个惊人的科学和历史发现。我得打几个电话！"
                 ]
             } ],
-        pos: { x: -748.3581621822507, y: -729.6152159362788 },
+        pos: { x: -499.738892, y: -921.439041 },
         description: "Inside the room past a Boom Gordo on a ruin stone.",
         dimension: MapType.overworld
     },
@@ -1191,7 +1191,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我希望他们一切都好。也希望有一天他们会以我为傲。"
                 ]
             } ],
-        pos: { x: -637.4723801871456, y: 754.8983465335506 },
+        pos: { x: -888.1036799999999, y: -559.33144 },
         description: "At the edge of the plateau island to the side of the Ember Valley Teleporter/Tabby Gordo.",
         dimension: MapType.overworld
     },
@@ -1246,7 +1246,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                 ]
             } ],
         archive: [ "" ],
-        pos: { x: 642.4761222254092, y: -1400.2180204496042 },
+        pos: { x: -1402.3200689999999, y: -675.456054 },
         description: "Underground on a small ledge next to a large cave opening.",
         dimension: MapType.overworld
     },
@@ -1292,7 +1292,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                 ]
             } ],
         archive: [ "" ],
-        pos: { x: 1555.9623903266154, y: -471.6075324922723 },
+        pos: { x: -1484.135, y: -822.54399 },
         description: "At the end of a side path near the edge of a cliff.",
         dimension: MapType.overworld
     },
@@ -1347,7 +1347,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                 ]
             } ],
         archive: [ "" ],
-        pos: { x: 274.3970341499592, y: -1538.384983563264 },
+        pos: { x: -1567.626953, y: -582.502012 },
         description: "Underground in a small alcove from the glowing flower cave.",
         dimension: MapType.overworld
     },
@@ -1411,7 +1411,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                 ]
             } ],
         archive: [ "" ],
-        pos: { x: -110.2726033598938, y: -1579.63099963737 },
+        pos: { x: -1591.10231, y: -568.4776489999999 },
         description: "On top of a snow pile at the very edge of a ledge over the water.",
         dimension: MapType.overworld
     },
@@ -1521,7 +1521,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "这一切都美好得令人难以置信！"
                 ]
             } ],
-        pos: { x: 46.474946595930184, y: 556.0926647291287 },
+        pos: { x: -286.295002, y: 280.6183282 },
         description: "On a small ledge next to a tree.",
         dimension: MapType.overworld
     },
@@ -1631,7 +1631,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我认为这真的很让人宽慰。我很高兴这个世界还有各种奥秘等待探索。"
                 ]
             } ],
-        pos: { x: -129.09715464170264, y: 234.3498853253781 },
+        pos: { x: -243.0272827, y: 140.7951279 },
         description: "Next to a cliff wall near a Refinery Link and a tunnel entrance.",
         dimension: MapType.overworld
     },
@@ -1723,7 +1723,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "多么迷人的地方！我以前从未见过植物群像这样分裂成两种不同的色彩变化。一边是美丽的、闪闪发光的橙色和金色，另一边是深邃、青翠的绿色。真是太不寻常了！"
                 ]
             } ],
-        pos: { x: 122.69000906499784, y: 201.31441146803112 },
+        pos: { x: 261.06001, y: 50.900002 },
         description: "On a small ledge at the end of a path next to the top of a waterfall.",
         dimension: MapType.overworld
     },
@@ -1833,7 +1833,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "如果坐下倾听，就能听到大自然中的乐声。在这座岛上，我有一辈子的时间来做这件事。"
                 ]
             } ],
-        pos: { x: -119.54118287200576, y: 335.4148880435634 },
+        pos: { x: 273.53998, y: 234.7479887 },
         description: "On a ledge past a rock arch near a waterfall.",
         dimension: MapType.overworld
     },
@@ -1943,7 +1943,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我想知道这棵树还会遇到谁？我想知道它会不会告诉他们关于我的事？"
                 ]
             } ],
-        pos: { x: 223.81283364956442, y: -331.5760023696584 },
+        pos: { x: 352.089985, y: 177.02999899999998 },
         description: "On a small ledge under a tree.",
         dimension: MapType.overworld
     },
@@ -2053,7 +2053,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我要叫它超级蘑菇披萨，天天吃。"
                 ]
             } ],
-        pos: { x: 202.89063503382278, y: 434.00159281136825 },
+        pos: { x: 476.58999876, y: 63.0509927 },
         description: "On a mushroom in the open",
         dimension: MapType.overworld
     },
@@ -2163,7 +2163,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "你一定是在跟我开玩笑！"
                 ]
             } ],
-        pos: { x: -338.49175070075296, y: 472.4550451452363 },
+        pos: { x: 432.3529813, y: 375.2920057 },
         description: "On a small ledge on top of a cliff next to a rock.",
         dimension: MapType.overworld
     },
@@ -2264,7 +2264,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "这感觉就像我小时候偷偷溜进树林一样。整个世界只有我和我的发现。这种感觉真好，而且让人兴奋！"
                 ]
             } ],
-        pos: { x: 673.4676750972079, y: -41.254604397733964 },
+        pos: { x: 649.6473804999999, y: 194.3368931 },
         description: "In the middle of the cave next to a rock and some equipment underneath the Flutter Gordo.",
         dimension: MapType.overworld
     }

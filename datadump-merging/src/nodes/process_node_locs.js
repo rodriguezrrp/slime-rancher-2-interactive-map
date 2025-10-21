@@ -1959,4 +1959,6 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
 // const { fnWriteShDeposBackToFile, existingShDepoTSDataByDepoKey } = readExistingShadowPlortDepoTSData();
 // console.log(Object.values(existingShDepoTSDataByDepoKey).map(e => `(${e.position.x}, ${e.position.y})`).join(', '));
 // exportShadowPlortDepoCoordinatesFromAssetsMapping();
-exportResearchDroneDepoCoordinatesFromAssetsMapping();
+exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false, exportToCache: false });
+// exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false });
+// exportResearchDroneDepoCoordinatesFromAssetsMapping();
