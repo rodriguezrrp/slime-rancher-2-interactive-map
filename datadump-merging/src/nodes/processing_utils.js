@@ -92,7 +92,7 @@ export function followMonoBehaviourGameObjectTransformChain(
 
         let q = new Quaternion(r);  // r is object of form { x: .., y: .., z: .., w: .. }
 
-        q = new Quaternion();
+        // q = new Quaternion();
 
         // let intermproduct = {
         //     x: position.x,
@@ -119,7 +119,7 @@ export function followMonoBehaviourGameObjectTransformChain(
     return { gameObj, transformChainChildToParent, position };
 }
 
-export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMappingToModify, objTypeNameFilter) {
+export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMappingToModify, objTypeNameFilter, extraFileTextPreproccessor) {
     
     // const fileKey = path.basename(sceneFilePath);
     const fileKey = sceneFilePath;
@@ -142,6 +142,8 @@ export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMapping
     // })
     // fileData = fileData.replace(/!<tag:unity3d.com,[\.:0-9]*>/, '');
     fileData = fileData.replace(/^%YAML 1.1[\r\n]+%TAG !u! tag:unity3d\.com,[0-9]{4}:/, "");
+
+    if(extraFileTextPreproccessor) fileData = extraFileTextPreproccessor(fileData);
 
     /** @type { {type: number, fileId: number, content: string}[] } */
     const assetsYaml = fileData.split("\n--- !u")
@@ -386,4 +388,53 @@ export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { b
         // }))
         return obj;
     }
+}
+
+
+/**
+ * Checks if a Set contains all specified items
+ * @template T
+ * @param {Set<T>} set - The Set to check
+ * @param {Iterable<T>} itemsContained - The items to check for containment
+ * @returns {boolean} True if the Set contains all specified items, false otherwise
+ */
+export function setContains(set, itemsContained) {
+    for (const item of itemsContained) {
+        if (!set.has(item)) return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if two arrays are equal by comparing elements
+ * @template T
+ * @param {T[]} a - First array to compare
+ * @param {T[]} b - Second array to compare 
+ * @returns {boolean} True if arrays are equal, false otherwise
+ */
+export function arraysEqual(a, b) {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}
+
+/**
+ * Checks if two Sets contain the same elements
+ * @template T
+ * @param {Set<T>} a - First Set to compare
+ * @param {Set<T>} b - Second Set to compare
+ * @returns {boolean} True if Sets contain the same elements, false otherwise
+ */
+export function setsEqual(a, b) {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    if (a.size !== b.size) return false;
+    for (const item of a) {
+        if (!b.has(item)) return false;
+    }
+    return true;
 }

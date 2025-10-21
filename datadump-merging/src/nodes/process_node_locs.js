@@ -5,8 +5,169 @@ import { Glob, globIterateSync, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, setsEqual, arraysEqual } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
+
+// get MapType in here for the eval.?() resolution
+// import { MapType } from "../../../src/CurrentMapContext.js";
+// import { MapType } from "../../../src/CurrentMapContext.tsx";
+const MapType = {
+    overworld: "map_overworld",
+    labyrinth: "map_labyrinth",
+    sr1: "map_sr1"
+};
+global.MapType = MapType;  // for indirect eval, global scoped
+
+function looseJsonParseWithEval(/** @type {string} */ str) {
+    return eval?.(`"use strict";(${str})`);
+}
+/**
+ * @template T, U, V
+ * @param {T} obj 
+ * @param {number | string | null} indent 
+ * @param {{
+ *  transformer?: (obj: any, key: string | number, keys: (string | number)[]) => ({ raw: true, val: string } | { raw?: false, val: U } | undefined),
+ *  shouldQuoteKey?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
+ *  shouldInlineObj?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
+ *  shouldSortKeys?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | ((a: string, b: string) => number) | undefined)
+ * }} transformingFns 
+ * @param {*} [_prevIndent] 
+ * @param {*} [_curIndent] 
+ * @param {(string | number)[]} [_prevKeysChain] 
+ * @returns string
+ */
+function looseJsonStringify(
+    obj,
+    indent = "    ",
+    transformingFns = undefined,
+    _prevIndent = "", _curIndent = "    ", _prevKeysChain = undefined
+) {
+    if(obj === null) {
+        return "null";
+    }
+    else if(typeof obj === "undefined") {
+        return "undefined";
+    }
+    
+    const { transformer, shouldQuoteKey, shouldInlineObj, shouldSortKeys } = (transformingFns ?? {});
+    
+    // try to treat obj as an expected enum value
+    // (note: could move this to an optional serializer parameter?)
+
+    // if(obj === MapType.overworld) return "MapType.overworld";
+    // if(obj === MapType.labyrinth) return "MapType.labyrinth";
+    // if(obj === MapType.sr1) return "MapType.sr1";
+    _prevKeysChain ??= [];
+    /** @type {T | U} */
+    let retypedObj;
+    const transformed = transformer?.(obj, _prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain);
+    if(typeof transformed !== "undefined") {
+        // console.debug(transformed);
+        // throw new Error();
+        if(transformed.raw) return transformed.val;
+        retypedObj = transformed.val;
+    }
+    else retypedObj = obj;
+    if(retypedObj === null) {
+        return "null";
+    }
+
+    // try to treat obj as a js type that is not a generic object
+    
+    if(typeof retypedObj === "string" || typeof retypedObj === "number") {
+        return JSON.stringify(retypedObj);
+    }
+    
+    // resolve indentation parameters
+    const _shouldInlineFnCallRes = shouldInlineObj?.(_prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain.length - 1, _prevKeysChain, retypedObj);
+    const shouldNewline = (
+        _shouldInlineFnCallRes !== false
+        && (
+            _shouldInlineFnCallRes === true
+            || (
+                // (_shouldInlineFnCallRes === null || typeof _shouldInlineFnCallRes === "undefined")
+                // &&
+                (typeof indent === "string" || typeof indent === "number")
+            )
+        )
+    );
+    if(typeof indent === "number") {
+        let tmp = "";
+        for(let i = 0; i < indent; i++)
+            tmp += " ";
+        indent = tmp;
+    }
+    // _curIndent ??= "";
+    // _curIndentLvl ??= 0;
+    const newlineIndent = shouldNewline ? "\n" + _curIndent : " ";
+    // if(_shouldInlineFnCallRes) {
+    //     console.debug(_prevKeysChain);
+    //     console.debug(shouldNewline);
+    //     console.debug(JSON.stringify(newlineIndent));
+    //     console.debug(JSON.stringify(_prevIndent));
+    //     throw new Error();
+    // }
+
+    // try to treat obj as an array object
+
+    if(Array.isArray(retypedObj)) {
+        // build serialized arr
+        let str = "[";
+        let prevIndexWasEmpty = false;
+        for(let i = 0; i < retypedObj.length; i++) {
+            const comma = i === retypedObj.length - 1 ? "" : ",";
+            if(Object.hasOwn(retypedObj, i)) {
+                //
+                str += newlineIndent + looseJsonStringify(retypedObj[i], indent, transformingFns, _curIndent, _curIndent + indent, [..._prevKeysChain, i]) + comma;
+                prevIndexWasEmpty = false;
+            } else {
+                if(!prevIndexWasEmpty)
+                    str += newlineIndent;
+                str += comma;
+                prevIndexWasEmpty = true;
+            }
+        }
+        str += (shouldNewline ? "\n" + _prevIndent : " ") + "]";
+        return str;
+    }
+
+    // else, try to treat obj as a generic js object
+
+    // build serialized obj
+    let str = "{";
+    const ks = Object.keys(retypedObj);
+    let sortFn = shouldSortKeys?.(_prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain.length, _prevKeysChain, retypedObj);
+    if(typeof sortFn !== "undefined" && sortFn !== false) {
+        if(sortFn === true) {
+            // set a default argument value
+            sortFn = sortStringsWithNumbers;
+        }
+        if(typeof sortFn !== "function") {
+            console.warn(`The object key sorting function passed via shouldSortKeys was not a function type, instead a ${typeof sortFn}. Trying to pass it to .sort() anyway.`);
+        }
+        ks.sort(sortFn);
+    }
+    ks.forEach((k, i) => {
+        const comma = i === ks.length - 1 ? "" : ",";
+        const updatedKeysChain = [..._prevKeysChain, k];
+        const _shouldQuote = shouldQuoteKey?.(k, updatedKeysChain.length - 1, updatedKeysChain, retypedObj);
+        let _keyStr = (
+            _shouldQuote !== false
+            && (
+                _shouldQuote === true
+                || (
+                    // (_shouldQuote === null || typeof _shouldQuote === "undefined")
+                    // &&
+                    !/[a-z_][a-z0-9_]*/i.test(k)
+                )
+            )
+        ) ? `"${k}": ` : `${k}: `;
+        str += newlineIndent + _keyStr + looseJsonStringify(retypedObj[k], indent, transformingFns, _curIndent, _curIndent + indent, updatedKeysChain) + comma;
+    })
+    str += (shouldNewline ? "\n" + _prevIndent : " ") + "}";
+
+    return str;
+}
 
 
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
@@ -514,15 +675,25 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
                 
                 /** @type {AssetsMappingType} */
                 const droneEntryAssetsMapping = { }
-                parseUnityFileYamlIntoAssetsMapping(assetpath, droneEntryAssetsMapping);
+                parseUnityFileYamlIntoAssetsMapping(assetpath, droneEntryAssetsMapping, undefined, (/** @type {string} */ fileData) => {
+                    // Because yaml library tries to parse the key id as number and loses precision. Surround it in quotes.
+                    return fileData.replaceAll(/(m_TableEntryReference:\s+m_KeyId:\s+)(\d+)(\s)/g, "$1\"$2\"$3");
+                });
                 if(Object.keys(droneEntryAssetsMapping).length !== 1) {
                     throw new Error("Expected only one asset to be in the drone asset file");
                 }
                 const droneEntryAssetJSON = Object.values(droneEntryAssetsMapping)[0];
 
                 mapDroneEntryGUIDtoAssetJSONs[guid] = droneEntryAssetJSON;
+
+                // if(/DroneGully/.test(assetpath)) {
+                //     console.log(assetpath.split(/[\\/]/g).slice(-4).join("\\"), `guid ${guid}`);
+                //     console.log(droneEntryAssetJSON.props["pages"]);
+                //     console.log(droneEntryAssetJSON.props["archivedEntry"]);
+                // }
             }
         ));
+        // throw new Error("temp");
 
         // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
         ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
@@ -596,12 +767,12 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
 
     console.log("Parsing existing research drone data in the map data files...")
 
-    const { fnWriteDronesBackToFile, existingDroneTSDataByDepoKey } = readExistingResearchDroneTSData(cacheOpts);
+    const { fnWriteDronesBackToFile, existingDroneTSDataByDroneKey } = readExistingResearchDroneTSData(cacheOpts);
 
-    console.log(`Parsed ${Object.keys(existingDroneTSDataByDepoKey).length} existing research drone data entries.`);
+    console.log(`Parsed ${Object.keys(existingDroneTSDataByDroneKey).length} existing research drone data entries.`);
 
     /** @type {{ [tsDataDroneKey: string]: ExistingDroneDataType }} */
-    const mergedDroneTSData = { ...existingDroneTSDataByDepoKey };
+    const mergedDroneTSData = { ...existingDroneTSDataByDroneKey };
 
     console.log("Merging existing and extracted research drone data");
     
@@ -615,8 +786,6 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
         // /** @type {string} */
         // const internalName = droneGameObjJSON.props["m_Name"];
 
-        // TODO just for testing
-        const droneIdInternalToOld = (x) => undefined;
         const oldDroneId = droneIdInternalToOld(internalDroneId);
 
         let areaNameForKey;
@@ -629,12 +798,12 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
 
         // console.log(internalPodId, internalName, oldPodId, tsDataKey);
 
-        /** @type {undefined | existingDroneTSDataByDepoKey[keyof existingDroneTSDataByDepoKey]} */
+        /** @type {undefined | existingDroneTSDataByDroneKey[keyof existingDroneTSDataByDroneKey]} */
         const existingData = (
-            existingDroneTSDataByDepoKey[oldDroneId]
-            || existingDroneTSDataByDepoKey[internalDroneId]
-            || existingDroneTSDataByDepoKey[tsDataKey]
-            || Object.values(existingDroneTSDataByDepoKey).find(data => data.internalId === internalDroneId)
+            existingDroneTSDataByDroneKey[oldDroneId]
+            || existingDroneTSDataByDroneKey[internalDroneId]
+            || existingDroneTSDataByDroneKey[tsDataKey]
+            || Object.values(existingDroneTSDataByDroneKey).find(data => data.internalId === internalDroneId)
         );
 
         // remove existingData object from the merged data mapping;
@@ -660,11 +829,12 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
             // name: existingData?.name ?? ["TODO retrieve name from translation table"],
             name: existingData?.name ?? "Research Drone",
             log: log ?? existingData?.log ?? [{"en":["Todo: insert the correct log for this research drone"]}],
-            archive: archive ?? existingData?.archive,
+            archive: archive ?? existingData?.archive ?? [],
             description: existingData?.description ?? "Todo: insert a description for this research drone " + internalDroneId,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             pos: { x: -pos.z, y: pos.x },
-            dimension: existingData?.dimension ?? "MapType.overworld",
+            // dimension: existingData?.dimension ?? "MapType.overworld",
+            dimension: existingData?.dimension ?? MapType.overworld,
             _otherLines: existingData?._otherLines,
         };
         // clear out all entries with undefined values
@@ -683,227 +853,322 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
     fnWriteDronesBackToFile(mergedDroneTSData);
 }
 
-/** @typedef {{ unlocks: string[], internalId?: string, internalName?: string, description: string, position: { x: number, y: number }, amount_required: number, _otherLines?: string[] }} ExistingShDepoDataType */
+/** @typedef {{ internalId?: string, internalName?: string, description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingDroneDataType */
 
 function readExistingResearchDroneTSData(/** @type {CacheOpts} */ cacheOpts) {
     
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
-    /** @type {{ [tsDataDepoKey: string]: ExistingShDepoDataType }} */
-    const existingDroneTSDataByDepoKey = { };
+    // /** @type {{ [tsDataDepoKey: string]: ExistingShDepoDataType }} */
+    // const existingDroneTSDataByDroneKey = { };
 
-    // const groupCommentLineRegex = /^ *\/\/ *(the conservatory|rainbow fields|ember valley|starlight strand|powderfall bluffs) *$/i;
-    const endFileDataLineRegex = /^};? *$/;
+    // // const groupCommentLineRegex = /^ *\/\/ *(the conservatory|rainbow fields|ember valley|starlight strand|powderfall bluffs) *$/i;
+    // const endFileDataLineRegex = /^};? *$/;
 
-    const dataStartLineRegex = /^ *([a-zA-Z0-9_]+|".+") *: *{ *$/;
-    const dataParamLineRegex = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(?:(\[ *(?:"(?:[^\\"]|\\.)*",? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})|([\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*))|(undefined)|(MapType.[a-zA-Z_][a-zA-Z_0-9]*)),? *$/;
-    // const dataParamLineRegex = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(?:(\[ *(?:(?:"(?:[^\\"]|\\.)*"|`(?:[^\\`]|\\.)*`),? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})|([\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*))|(undefined)|(MapType.[a-zA-Z_][a-zA-Z_0-9]*)),? *$/;
-    const dataEndLineRegex = /^ +},? *$/;
+    // const dataStartLineRegex = /^ *([a-zA-Z0-9_]+|".+") *: *{ *$/;
+    // const dataParamLineRegex = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(?:(\[ *(?:"(?:[^\\"]|\\.)*",? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})|([\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*))|(undefined)|(MapType.[a-zA-Z_][a-zA-Z_0-9]*)),? *$/;
+    // // const dataParamLineRegex = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(?:(\[ *(?:(?:"(?:[^\\"]|\\.)*"|`(?:[^\\`]|\\.)*`),? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})|([\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*))|(undefined)|(MapType.[a-zA-Z_][a-zA-Z_0-9]*)),? *$/;
+    // const dataEndLineRegex = /^ +},? *$/;
 
-    const dataParamStringListStartRegex = /^ *([a-zA-Z0-9_]+|".+") *: *\[ *(?:[`"]?[^`"\]]*)?$/;
-    const dataParamStringListEndRegex = /^[^`"\]]*[`"]? *\] *,? *$/;
+    // const dataParamStringListStartRegex = /^ *([a-zA-Z0-9_]+|".+") *: *\[ *(?:[`"]?[^`"\]]*)?$/;
+    // const dataParamStringListEndRegex = /^[^`"\]]*[`"]? *\] *,? *$/;
 
-    const linesForReconstruction = [];
+    // const linesForReconstruction = [];
 
-    const fileLines = readFileSync(PATH_TO_RESEARCH_DRONES_DATA_FILE, { encoding: "utf-8" }).split(/[\r\n]+/);
+    // const fileLines = readFileSync(PATH_TO_RESEARCH_DRONES_DATA_FILE, { encoding: "utf-8" }).split(/[\r\n]+/);
 
-    // console.log(fileLines);
+    // // console.log(fileLines);
 
-    // let curGroup = null;
+    // // let curGroup = null;
 
-    let dataObj, dataObjDepoKey;
+    // let dataObj, dataObjDepoKey;
 
-    for(let i = 0; i < fileLines.length; i++) {
+    // for(let i = 0; i < fileLines.length; i++) {
 
-        let line = fileLines[i];
+    //     let line = fileLines[i];
         
-        let dataStartExecRes;
-        let dataParamExecRes;
-        let dataParamStringListStartRes;
+    //     let dataStartExecRes;
+    //     let dataParamExecRes;
+    //     let dataParamStringListStartRes;
 
-        if(dataStartExecRes = dataStartLineRegex.exec(line)) {
-            let key = dataStartExecRes[1];
-            dataObjDepoKey = JSON.parse(key);
-            dataObj = { };
-        }
-        else if(dataEndLineRegex.test(line)) {
-            existingDroneTSDataByDepoKey[dataObjDepoKey] = dataObj;
-        }
-        else if(dataParamExecRes = dataParamLineRegex.exec(line)) {
-            const [ , key, list, str, xyobj, num, undef, mapTypeEnumVal ] = dataParamExecRes;
-            if(key === "description" || key === "name" || key === "internalId") {
-                dataObj[key] = undef ? undefined : JSON.parse(str);
-                // dataObj[key] = JSON.parse(str);
-            }
-            else if(key === "unlocks") {
-                dataObj[key] = JSON.parse(list);
-            }
-            else if(key === "pos") {
-                dataObj[key] = JSON.parse(xyobj.replace("x", "\"x\"").replace("y", "\"y\""));
-            }
-            else if(key === "dimension") {
-                dataObj[key] = mapTypeEnumVal;
-            }
-            // else if(key === "amount_required") {
-            //     dataObj[key] = parseFloat(num);
-            //     // console.log('debug: dataObj:', dataObj);
-            // }
-            else if(undef) {
-                dataObj[key] = undefined;
-            }
-            else {
-                dataObj._otherLines ||= [];
-                dataObj._otherLines.push(line);
-            }
-        }
-        else if(dataParamStringListStartRes = dataParamStringListStartRegex.exec(line)) {
-            let joinedline = line;
-            i++;
-            line = fileLines[i];
-            let dataParamStringListEndRes;
-            while(!(dataParamStringListEndRes = dataParamStringListEndRegex.exec(line))) {
-                // console.log(line);
-                // console.log(/^ *( .*)$/.exec(line)[1]);
-                joinedline += /^ *( .*)$/.exec(line)[1];
-                i++;
-                line = fileLines[i];
-            }
-            // console.log(line);
-            // console.log(/^ *( .*)$/.exec(line)[1]);
-            joinedline += /^ *( .*)$/.exec(line)[1];
-            console.log("joinedline:");
-            console.log(joinedline);
-            // throw new Error("temp for testing");
-            const joinedlineRes = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(\[(?:[^`"\]]|"(?:[^\\"]|\\.)*"|`(?:[^\\`]|\\.)*`)*\]) *,? *$/.exec(joinedline);
-            let /**@type {[, string, string]}*/ [ , k, v ] = joinedlineRes;
-            // if(v.startsWith("`") && v.endsWith("`"))
-            //     // quick and dirty escapement of backticks to convert multiline template string into normal string
-            //     v = `"${v.substring(1, v.length-2).replaceAll("`","\\`")}"`;
-            // a quicker and dirtier replacement of backticks
-            v = v.replaceAll("`", "\"");
-            // get rid of trailing comma in list notation
-            v = v.replace(/, +]/, "]");
-            dataObj[k] = JSON.parse(v);
-        }
-        else {
-            linesForReconstruction.push(line);
-        }
+    //     if(dataStartExecRes = dataStartLineRegex.exec(line)) {
+    //         let key = dataStartExecRes[1];
+    //         dataObjDepoKey = JSON.parse(key);
+    //         dataObj = { };
+    //     }
+    //     else if(dataEndLineRegex.test(line)) {
+    //         existingDroneTSDataByDroneKey[dataObjDepoKey] = dataObj;
+    //     }
+    //     else if(dataParamExecRes = dataParamLineRegex.exec(line)) {
+    //         const [ , key, list, str, xyobj, num, undef, mapTypeEnumVal ] = dataParamExecRes;
+    //         if(key === "description" || key === "name" || key === "internalId") {
+    //             dataObj[key] = undef ? undefined : JSON.parse(str);
+    //             // dataObj[key] = JSON.parse(str);
+    //         }
+    //         else if(key === "unlocks") {
+    //             dataObj[key] = JSON.parse(list);
+    //         }
+    //         else if(key === "pos") {
+    //             dataObj[key] = JSON.parse(xyobj.replace("x", "\"x\"").replace("y", "\"y\""));
+    //         }
+    //         else if(key === "dimension") {
+    //             dataObj[key] = mapTypeEnumVal;
+    //         }
+    //         // else if(key === "amount_required") {
+    //         //     dataObj[key] = parseFloat(num);
+    //         //     // console.log('debug: dataObj:', dataObj);
+    //         // }
+    //         else if(undef) {
+    //             dataObj[key] = undefined;
+    //         }
+    //         else {
+    //             dataObj._otherLines ||= [];
+    //             dataObj._otherLines.push(line);
+    //         }
+    //     }
+    //     else if(dataParamStringListStartRes = dataParamStringListStartRegex.exec(line)) {
+    //         let joinedline = line;
+    //         i++;
+    //         line = fileLines[i];
+    //         let dataParamStringListEndRes;
+    //         while(!(dataParamStringListEndRes = dataParamStringListEndRegex.exec(line))) {
+    //             // console.log(line);
+    //             // console.log(/^ *( .*)$/.exec(line)[1]);
+    //             joinedline += /^ *( .*)$/.exec(line)[1];
+    //             i++;
+    //             line = fileLines[i];
+    //         }
+    //         // console.log(line);
+    //         // console.log(/^ *( .*)$/.exec(line)[1]);
+    //         joinedline += /^ *( .*)$/.exec(line)[1];
+    //         console.log("joinedline:");
+    //         console.log(joinedline);
+    //         // throw new Error("temp for testing");
+    //         const joinedlineRes = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(\[(?:[^`"\]]|"(?:[^\\"]|\\.)*"|`(?:[^\\`]|\\.)*`)*\]) *,? *$/.exec(joinedline);
+    //         let /**@type {[, string, string]}*/ [ , k, v ] = joinedlineRes;
+    //         // if(v.startsWith("`") && v.endsWith("`"))
+    //         //     // quick and dirty escapement of backticks to convert multiline template string into normal string
+    //         //     v = `"${v.substring(1, v.length-2).replaceAll("`","\\`")}"`;
+    //         // a quicker and dirtier replacement of backticks
+    //         v = v.replaceAll("`", "\"");
+    //         // get rid of trailing comma in list notation
+    //         v = v.replace(/, +]/, "]");
+    //         dataObj[k] = JSON.parse(v);
+    //     }
+    //     else {
+    //         linesForReconstruction.push(line);
+    //     }
 
-    }
+    // }
     
-    // console.log(linesForReconstruction);
+    // // console.log(linesForReconstruction);
+
+    const fileText = readFileSync(PATH_TO_RESEARCH_DRONES_DATA_FILE, { encoding: "utf-8" });
+
+    // const [ , fileTextPrefix, dataObjAsInitText, fileTextPostfix ] = /^(.*research_drones.*?=\s*)({(?:.*)})(;?.*)$/s.exec(fileText);
+    const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*research_drones.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
+
+    const parsedObj = looseJsonParseWithEval(dataObjInJsCode);
+
+    const _objMatchesExpectedSchema = (
+        typeof parsedObj === "object"
+        && Object.keys(parsedObj).every(k => (
+            typeof parsedObj[k] === "object"
+            && setContains(new Set(Object.keys(parsedObj[k])), ["name", "pos", "log", "description", "dimension"])
+        ))
+    );
+
+    if(!_objMatchesExpectedSchema) {
+        console.log("dataObjAsInitText = ", dataObjInJsCode);
+        console.log("_obj = ", parsedObj);
+        for(const k of Object.keys(parsedObj)) {
+            if(!(
+                typeof parsedObj[k] === "object"
+                && setContains(new Set(Object.keys(parsedObj[k])), ["name", "pos", "log", "archive", "description", "dimension"])
+            )) {
+                console.log(k)
+            }
+        }
+        throw new Error("unexpected loose json parse result, did not match expected schema");
+    }
+
+
+    // const fnWriteDronesBackToFile = (/** @type {{ [tsDataDroneKey: string]: ExistingDroneDataType }} */ mergedDroneTSData) => {
+    //     const reconstructedLines = [];
+
+    //     // shallow copy for mutation purposes
+    //     mergedDroneTSData = { ...mergedDroneTSData };
+
+    //     const _processDepoDataObj = (
+    //         /** @type {string} */ tsDataDroneKey,
+    //         /** @type {mergedDroneTSData[keyof mergedDroneTSData]} */ tsDroneData
+    //     ) => {
+    //         // remove entry from drone data to insert now that it's processed
+    //         delete mergedDroneTSData[tsDataDroneKey];
+
+    //         const { internalId, pos, description, dimension, name, log, archive, _otherLines } = tsDroneData;
+    //         console.log(tsDroneData);
+    //         reconstructedLines.push(
+    //             `    "${tsDataDroneKey}": {`
+    //         + `\n        internalId: ${JSON.stringify(internalId)},`
+    //         // + (!internalName ? "" : `\n        internalName: ${JSON.stringify(internalName)},`)
+    //         + `\n        pos: { x: ${pos.x.toFixed(4)/*.replace(/0+$/,"")*/}, y: ${pos.y.toFixed(4)/*.replace(/0+$/,"")*/} },`
+    //         + `\n        description: ${JSON.stringify(description)},`
+    //         + `\n        dimension: ${dimension},`
+    //         + `\n        name: ${JSON.stringify(name)},`
+    //         + `\n        log: ${JSON.stringify(log, undefined, 4).replaceAll("\n","\n        ")},`
+    //         + `\n        archive: ${JSON.stringify(archive ?? [], undefined, 4).replaceAll("\n","\n        ")},`
+    //         + (!_otherLines ? "" : _otherLines.map(l => "\n        " + l.trimStart()).join(""))
+    //         + "\n    },"
+    //         );
+    //     }
+        
+    //     let reconstructionIndex = 0;
+
+    //     while(reconstructionIndex < linesForReconstruction.length) {
+    //         // const line = linesForReconstruction[reconstructionIndex];
+    //         // if(endFileDataLineRegex.test(line))
+    //         //     // we will resume inserting the remaining lines after processing any remaining data objects
+    //         //     break;
+    //         // reconstructionIndex++;
+    //         // // console.log(line);
+
+    //         // const commentGroupLbl = groupCommentLineRegex.exec(line)?.[1];
+            
+    //         // if(!commentGroupLbl) {
+    //         //     reconstructedLines.push(line);
+    //         // }
+    //         // else {
+    //         //     // landed in a denoted group. fill in data
+    //         //     reconstructedLines.push(line);  // push the comment that started the group
+
+    //         //     const podDataInGroup = Object.entries(mergedShDepoTSData)
+    //         //         .filter(([, podData]) => {
+    //         //             // do a bit of processing to loosen comparison
+    //         //             const internalGroup = podGroupOfPodId(podData.internalId, cacheOpts)?.toLowerCase().replaceAll(/(^the | the | )/, "")
+    //         //             const commentedGroup = commentGroupLbl.toLowerCase().replaceAll(/(^the | the | )/, "");
+    //         //             return (
+    //         //                 internalGroup === commentedGroup
+    //         //                 || (internalGroup === "conservatory" && commentedGroup === "conservatory")
+    //         //                 || (internalGroup === "rainbowfields" && commentedGroup === "rainbowfields")
+    //         //                 || (internalGroup === "luminousstrand" && commentedGroup === "starlightstrand")
+    //         //                 || (internalGroup === "rumblinggorge" && commentedGroup === "embervalley")
+    //         //                 || (internalGroup === "powderfallbluffs" && commentedGroup === "powderfallbluffs")
+    //         //             );
+    //         //         })
+    //         //         // .sort((a, b) => a[0].localeCompare(b[0], { numeric: true }));
+    //         //         .sort((a, b) => sortStringsWithNumbers(a[0], b[0]));
+
+    //         //     console.log(podDataInGroup);
+
+    //         //     for (const entry of podDataInGroup) {
+    //         //         const [ tsDataDroneKey, tsPodData ] = entry;
+    //         //         _processDepoDataObj(tsDataDroneKey, tsPodData);
+    //         //     }
+
+    //         //     reconstructedLines.push("");  // push an empty line for spacing
+    //         // }
+            
+    //         const line = linesForReconstruction[reconstructionIndex];
+    //         if(endFileDataLineRegex.test(line))
+    //             // we will resume inserting the remaining lines after processing any remaining data objects
+    //             break;
+    //         reconstructionIndex++;
+    //         reconstructedLines.push(line);
+    //     }
+
+    //     // process shadow depo data objects
+    //     for (const tsDataDroneKey of Object.keys(mergedDroneTSData).sort(sortStringsWithNumbers)) {
+    //         const tsDroneData = mergedDroneTSData[tsDataDroneKey];
+    //         // console.log(mergedDroneTSData);
+    //         // console.log(Object.keys(mergedDroneTSData));
+    //         // console.log(tsDataDroneKey);
+    //         // console.log(tsDroneData);
+    //         _processDepoDataObj(tsDataDroneKey, tsDroneData);
+    //     }
+
+    //     // finish any remaining lines in the file
+    //     while(reconstructionIndex < linesForReconstruction.length) {
+    //         const line = linesForReconstruction[reconstructionIndex];
+    //         reconstructionIndex++;
+    //         reconstructedLines.push(line);
+    //     }
+
+    //     writeFileSync(PATH_TO_RESEARCH_DRONES_DATA_FILE, reconstructedLines.join("\n"));
+    // }
+
+    const _jsonStringifyTransformerFns = {
+        transformer: (obj, key, keys) => {
+            if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
+            if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
+            if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
+        },
+        shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
+        shouldInlineObj: (key, depth, keysChain, obj) => {
+            // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
+            // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
+            // return null;
+            return (
+                (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
+                || (Array.isArray(obj) && obj.length <= 1)
+            ) ? false : null;
+        },
+        shouldSortKeys: (key, depth, keysChain, obj) => {
+            if(depth === 0) return sortStringsWithNumbers;
+            if(depth === 1) {
+                const _lookup = Object.fromEntries(["internalId", "name", "log", "archive", "pos", "description", "dimension"].map((v, i) => [v, i]));
+                const _default = Object.keys(_lookup).length;
+                return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
+            }
+            if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
+                // put "en" lang as first item, order all other lang keys lexographically
+                return (a, b) => {
+                    a = a.toLowerCase(); b = b.toLowerCase();
+                    return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
+                };
+            }
+        }
+    };
 
     const fnWriteDronesBackToFile = (/** @type {{ [tsDataDroneKey: string]: ExistingDroneDataType }} */ mergedDroneTSData) => {
-        const reconstructedLines = [];
-
-        // shallow copy for mutation purposes
-        mergedDroneTSData = { ...mergedDroneTSData };
-
-        const _processDepoDataObj = (
-            /** @type {string} */ tsDataDroneKey,
-            /** @type {mergedDroneTSData[keyof mergedDroneTSData]} */ tsDroneData
-        ) => {
-            // remove entry from drone data to insert now that it's processed
-            delete mergedDroneTSData[tsDataDroneKey];
-
-            const { internalId, pos, description, dimension, name, log, archive, _otherLines } = tsDroneData;
-            console.log(tsDroneData);
-            reconstructedLines.push(
-                `    "${tsDataDroneKey}": {`
-            + `\n        internalId: ${JSON.stringify(internalId)},`
-            // + (!internalName ? "" : `\n        internalName: ${JSON.stringify(internalName)},`)
-            + `\n        pos: { x: ${pos.x.toFixed(4)/*.replace(/0+$/,"")*/}, y: ${pos.y.toFixed(4)/*.replace(/0+$/,"")*/} },`
-            + `\n        description: ${JSON.stringify(description)},`
-            + `\n        dimension: ${dimension},`
-            + `\n        name: ${JSON.stringify(name)},`
-            + `\n        log: ${JSON.stringify(log, undefined, 4).replaceAll("\n","\n        ")},`
-            + `\n        archive: ${JSON.stringify(archive ?? [], undefined, 4).replaceAll("\n","\n        ")},`
-            + (!_otherLines ? "" : _otherLines.map(l => "\n        " + l.trimStart()).join(""))
-            + "\n    },"
-            );
-        }
+        const dataObjAsJsCode = looseJsonStringify(
+            mergedDroneTSData,
+            "    ",
+            _jsonStringifyTransformerFns
+        );
         
-        let reconstructionIndex = 0;
+        const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
 
-        while(reconstructionIndex < linesForReconstruction.length) {
-            // const line = linesForReconstruction[reconstructionIndex];
-            // if(endFileDataLineRegex.test(line))
-            //     // we will resume inserting the remaining lines after processing any remaining data objects
-            //     break;
-            // reconstructionIndex++;
-            // // console.log(line);
+        writeFileSync(PATH_TO_RESEARCH_DRONES_DATA_FILE, newFileText);
+    };
 
-            // const commentGroupLbl = groupCommentLineRegex.exec(line)?.[1];
-            
-            // if(!commentGroupLbl) {
-            //     reconstructedLines.push(line);
-            // }
-            // else {
-            //     // landed in a denoted group. fill in data
-            //     reconstructedLines.push(line);  // push the comment that started the group
-
-            //     const podDataInGroup = Object.entries(mergedShDepoTSData)
-            //         .filter(([, podData]) => {
-            //             // do a bit of processing to loosen comparison
-            //             const internalGroup = podGroupOfPodId(podData.internalId, cacheOpts)?.toLowerCase().replaceAll(/(^the | the | )/, "")
-            //             const commentedGroup = commentGroupLbl.toLowerCase().replaceAll(/(^the | the | )/, "");
-            //             return (
-            //                 internalGroup === commentedGroup
-            //                 || (internalGroup === "conservatory" && commentedGroup === "conservatory")
-            //                 || (internalGroup === "rainbowfields" && commentedGroup === "rainbowfields")
-            //                 || (internalGroup === "luminousstrand" && commentedGroup === "starlightstrand")
-            //                 || (internalGroup === "rumblinggorge" && commentedGroup === "embervalley")
-            //                 || (internalGroup === "powderfallbluffs" && commentedGroup === "powderfallbluffs")
-            //             );
-            //         })
-            //         // .sort((a, b) => a[0].localeCompare(b[0], { numeric: true }));
-            //         .sort((a, b) => sortStringsWithNumbers(a[0], b[0]));
-
-            //     console.log(podDataInGroup);
-
-            //     for (const entry of podDataInGroup) {
-            //         const [ tsDataDroneKey, tsPodData ] = entry;
-            //         _processDepoDataObj(tsDataDroneKey, tsPodData);
-            //     }
-
-            //     reconstructedLines.push("");  // push an empty line for spacing
-            // }
-            
-            const line = linesForReconstruction[reconstructionIndex];
-            if(endFileDataLineRegex.test(line))
-                // we will resume inserting the remaining lines after processing any remaining data objects
-                break;
-            reconstructionIndex++;
-            reconstructedLines.push(line);
-        }
-
-        // process shadow depo data objects
-        for (const tsDataDroneKey of Object.keys(mergedDroneTSData).sort(sortStringsWithNumbers)) {
-            const tsDroneData = mergedDroneTSData[tsDataDroneKey];
-            // console.log(mergedDroneTSData);
-            // console.log(Object.keys(mergedDroneTSData));
-            // console.log(tsDataDroneKey);
-            // console.log(tsDroneData);
-            _processDepoDataObj(tsDataDroneKey, tsDroneData);
-        }
-
-        // finish any remaining lines in the file
-        while(reconstructionIndex < linesForReconstruction.length) {
-            const line = linesForReconstruction[reconstructionIndex];
-            reconstructionIndex++;
-            reconstructedLines.push(line);
-        }
-
-        writeFileSync(PATH_TO_RESEARCH_DRONES_DATA_FILE, reconstructedLines.join("\n"));
-    }
+    // console.debug("\n");
+    // const _s = looseJsonStringify(
+    //     parsedObj,
+    //     "    ",
+    //     _jsonStringifyTransformerFns
+    // );
+    // console.debug(_s);
+    // console.debug(_s["research_undeterminedarea_ResearchDroneBluffsAurora"]);
+    // console.debug(/(research_[a-zA-Z0-9_"]*?):/g.exec(_s));
+    // console.debug(parsedObj["research_powderfallbluffs_2"]);
+    // const myRe = /(research_[a-zA-Z0-9_"]*?):/g;
+    // let myArray;
+    // while ((myArray = myRe.exec(_s)) !== null) {
+    //     let msg = `Found ${myArray[0]}. `;
+    //     msg += `Next match starts at ${myRe.lastIndex}`;
+    //     console.debug(msg);
+    // }
+    // throw new Error();
 
     return {
         fnWriteDronesBackToFile,
-        existingDroneTSDataByDepoKey
+        /** @type {{ [tsDataDepoKey: string]: ExistingShDepoDataType }} */
+        existingDroneTSDataByDroneKey: parsedObj
     }
 }
 
-/** @typedef {{ unlocks: string[], internalId?: string, internalName?: string, description: string, position: { x: number, y: number }, amount_required: number, _otherLines?: string[] }} ExistingShDepoDataType */
+/** @typedef {{ internalId?: string, internalName?: string, description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingDroneDataType */
 
 function readExistingShadowPlortDepoTSData(/** @type {CacheOpts} */ cacheOpts) {
     
@@ -1417,6 +1682,25 @@ const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMappin
 );
 
 /** old to internal @type {{ [oldId: string]: string }} */
+let _droneIdMap = null;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function droneIdInternalToOld(/** @type {string} */ internalId) {
+    if(_droneIdMap === null) {
+        _droneIdMap = JSON.parse(readFileSync("./id_mappings/researchDroneIdMap.json"));
+    }
+    return Object.entries(_droneIdMap).find(([, v]) => v === internalId)?.[0];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function droneIdOldToInternal(/** @type {string} */ oldId) {
+    if(_droneIdMap === null) {
+        _droneIdMap = JSON.parse(readFileSync("./id_mappings/researchDroneIdMap.json"));
+    }
+    return _droneIdMap[oldId];
+}
+
+/** old to internal @type {{ [oldId: string]: string }} */
 let _podIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1435,7 +1719,7 @@ function podIdOldToInternal(/** @type {string} */ oldId) {
     return _podIdMap[oldId];
 }
 
-/** old to internal @type {{ [oldId: string]: string }} */
+/** internal to old @type {{ [internalId: string]: string }} */
 let _shadowDepoIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1487,9 +1771,10 @@ let _droneL10nTables = null;
  */
 function dronePageTranslationsFor(/** @type {string} */ translationKeyId, /** @type {CacheOpts} */ cacheOpts, /** @type {(translation: string) => any} */ _processTrFn) {
     if(!_droneL10nTables && cacheOpts.useCache) {
+    // if(false) { // for debugging testing
         try {
             console.log("Reading cached drone localization tables...");
-            _droneL10nTables = JSON.parse(readFileSync("./data_cache/droneL10nDData.json"));
+            _droneL10nTables = JSON.parse(readFileSync("./data_cache/droneL10nData.json"));
         } catch(e) {
             console.log("Failed to read cached drone localization tables. Extracting anew.");
         }
@@ -1621,7 +1906,10 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
     for(const l10nFile of files) {
         /** @type {AssetsMappingType} */
         const assetsMapping = { };
-        parseUnityFileYamlIntoAssetsMapping(l10nFile, assetsMapping);
+        parseUnityFileYamlIntoAssetsMapping(l10nFile, assetsMapping, undefined, (/** @type {string} */ fileData) => {
+            // Because yaml library tries to parse the key id as number and loses precision. Surround it in quotes.
+            return fileData.replaceAll(/(-\s+m_Id:\s+)(\d+)(\s)/g, "$1\"$2\"$3");
+        });
 
         if(Object.keys(assetsMapping).length !== 1) {
             throw new Error("Expected only one asset to be in the drone asset file");

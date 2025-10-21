@@ -99,11 +99,15 @@ export function Log({
     const [showArchived, setShowArchived] = useState(false);
     const translatedPages = !showArchived ? research_drone.log : research_drone.archive;
 
+    let accessingText = translatedPages[0]?.[curLanguage]?.[0];
+    if(!accessingText)
+        accessingText = `Accessing GG${!showArchived ? "Log" : "Archive"}:`;
+
     return (
         <div className={`${!showArchived ? "border-[#0ba0fb] text-white" : "border-[#58faa4] text-[#58faa4]"} max-w-fit log`}>
             <div className="flex flex-col mb-7">
                 <div className="flex justify-between items-center mb-7">
-                    <span className="font-medium text-2xl">Accessing GG.{!showArchived ? "Log" : "Archive"}:</span>
+                    <span className="font-medium text-2xl">{accessingText}</span>
                     <AiOutlineClose
                         onClick={() => setShowLog(false)}
                         size={25}
@@ -111,7 +115,11 @@ export function Log({
                     />
                 </div>
                 <div className="flex flex-col gap-2">
-                    {translatedPages.flatMap((page: TranslatedDronePage) => page[curLanguage].map((text: string) => <p key={text} className="text-lg monospace-font">{text}</p>))}
+                    {translatedPages.flatMap((page: TranslatedDronePage, pageInd: number) => (
+                        page[curLanguage].map((text: string, lineInd: number) => (
+                            pageInd === 0 && lineInd === 0 ? null : <p key={text} className="text-lg monospace-font">{text}</p>
+                        )).filter(e => e !== null)
+                    ))}
                 </div>
             </div>
             <div className="flex justify-end">

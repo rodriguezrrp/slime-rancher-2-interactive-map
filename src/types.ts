@@ -20,7 +20,7 @@ export interface LockedDoor {
     name: string;
     plort: string;
     pos: Vec2;
-    image: string
+    image: string;
     description: string;
     unlocks: string;
     dimension: MapType;
@@ -34,17 +34,18 @@ export interface MapNode {
 }
 
 export interface TreasurePod {
-    internalId: string,
-    internalName?: string,
+    internalId: string;
+    internalName?: string;
     contents: string[];
     description: string;
     pos: Vec2;
     dimension: MapType;
 }
 
-export type TranslatedDronePage = { [lang in "en"|"es"|"de"|"fr"|"jp"|"ko"|"pt"|"ru"|"zh"]: string[] };
+export type TranslatedDronePage = { en: string[] } & { [lang in "es"|"de"|"fr"|"ja"|"ko"|"pt"|"ru"|"zh"]?: string[] };
 
 export interface ResearchDrone {
+    internalId: string;
     name: string;
     log: TranslatedDronePage[];
     archive: TranslatedDronePage[];
