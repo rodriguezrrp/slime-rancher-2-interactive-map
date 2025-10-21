@@ -650,7 +650,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我知道自己是新来的，所以并不想越界，但要是我重建这里，也许会有一些蜜蜂逗留，然后这个地方将成为生态系统的重要组成部分。希望你对此没意见。"
                 ]
             } ],
-        pos: { x: -234.66795000000002, y: -318.798089 },
+        pos: { x: -308.60198828030997, y: -307.8680010787096 },
         description: "On a rock next to a flower bed on the lower part of the ruins.",
         dimension: MapType.overworld
     },
@@ -962,7 +962,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我有时担心自己在这里承担了太多……我还没有准备好独自一人来面对这些。"
                 ]
             } ],
-        pos: { x: -413.16400300000004, y: -757.7700070000001 },
+        pos: { x: -413.164003, y: -757.770007 },
         description: "On a ledge up a cliff underneath a large rock overhang.",
         dimension: MapType.overworld
     },
@@ -1081,7 +1081,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "无论如何我得休息一下，然后再回去。我开始觉得这着实是一个惊人的科学和历史发现。我得打几个电话！"
                 ]
             } ],
-        pos: { x: -499.738892, y: -921.439041 },
+        pos: { x: -499.738892, y: -921.4390410000001 },
         description: "Inside the room past a Boom Gordo on a ruin stone.",
         dimension: MapType.overworld
     },
@@ -1246,7 +1246,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                 ]
             } ],
         archive: [ "" ],
-        pos: { x: -1402.3200689999999, y: -675.456054 },
+        pos: { x: -1402.320069, y: -675.456054 },
         description: "Underground on a small ledge next to a large cave opening.",
         dimension: MapType.overworld
     },
@@ -1411,7 +1411,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                 ]
             } ],
         archive: [ "" ],
-        pos: { x: -1591.10231, y: -568.4776489999999 },
+        pos: { x: -1568.5931431988897, y: -533.523250391068 },
         description: "On top of a snow pile at the very edge of a ledge over the water.",
         dimension: MapType.overworld
     },
@@ -1521,7 +1521,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "这一切都美好得令人难以置信！"
                 ]
             } ],
-        pos: { x: -286.295002, y: 280.6183282 },
+        pos: { x: -335.5531027918691, y: 226.46632027366874 },
         description: "On a small ledge next to a tree.",
         dimension: MapType.overworld
     },

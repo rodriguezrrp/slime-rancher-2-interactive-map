@@ -74,7 +74,7 @@ export function followMonoBehaviourGameObjectTransformChain(
     const position = {x: 0, y: 0, z: 0};
 
     // for (let i = transformChainChildToParent.length - 1; i >= 0; i--) {
-    for (let i = 0; i < transformChainChildToParent.length - 1; i++) {
+    for (let i = 0; i <= transformChainChildToParent.length - 1; i++) {
 
         const transformObj = transformChainChildToParent[i];
         
@@ -95,17 +95,17 @@ export function followMonoBehaviourGameObjectTransformChain(
 
         // q = new Quaternion();
 
-        let intermproduct = {
-            x: position.x,
-            y: position.y,
-            z: position.z,
-        };
         // let intermproduct = {
-        //     x: position.x * s.x,
-        //     y: position.y * s.y,
-        //     z: position.z * s.z
+        //     x: position.x,
+        //     y: position.y,
+        //     z: position.z,
         // };
-        // intermproduct = q.rotateVector(intermproduct);
+        let intermproduct = {
+            x: position.x * s.x,
+            y: position.y * s.y,
+            z: position.z * s.z
+        };
+        intermproduct = q.rotateVector(intermproduct);
 
         // console.log('q.norm:', q.norm());
         if(Math.abs(q.norm() - 1) > 0.00001)
