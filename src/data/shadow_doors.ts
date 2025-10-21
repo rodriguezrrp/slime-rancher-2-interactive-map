@@ -3,7 +3,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "(Depositor) (amt req: 25)": {
         internalId: "plortdepo0983262903",
         internalName: "Depositor",
-        position: { x: -3020.3506, y: 10003.4901 },
+        position: { x: 992.9905, y: 1925.9604 },
         description: "Todo: insert a description for this shadow door plortdepo0983262903",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 25,
@@ -11,7 +11,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "(Depositor) (amt req: 75)": {
         internalId: "plortdepo1136946853",
         internalName: "Depositor",
-        position: { x: -1867.3308, y: 5820.8861 },
+        position: { x: 1123.1431, y: 1385.8419 },
         description: "Todo: insert a description for this shadow door plortdepo1136946853",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 75,
@@ -19,7 +19,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "(objLabyShadowPlortCollector_bronze (1)) (amt req: 25)": {
         internalId: "plortdepo0888553246",
         internalName: "objLabyShadowPlortCollector_bronze (1)",
-        position: { x: -766.4264, y: 2927.1981 },
+        position: { x: 1103.4194, y: 1947.2758 },
         description: "Todo: insert a description for this shadow door plortdepo0888553246",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 25,
@@ -27,7 +27,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "(objLabyShadowPlortCollector_bronze (1)) (amt req: 50)": {
         internalId: "plortdepo1585516932",
         internalName: "objLabyShadowPlortCollector_bronze (1)",
-        position: { x: -1177.3084, y: 3093.2229 },
+        position: { x: 693.1265, y: 2113.1165 },
         description: "Todo: insert a description for this shadow door plortdepo1585516932",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 50,
@@ -35,7 +35,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "(objLabyShadowPlortCollector_bronze) (amt req: 50)": {
         internalId: "plortdepo1514039874",
         internalName: "objLabyShadowPlortCollector_bronze",
-        position: { x: -897.0168, y: 2951.8763 },
+        position: { x: 973.2715, y: 1971.5567 },
         description: "Todo: insert a description for this shadow door plortdepo1514039874",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 50,
@@ -43,7 +43,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "(objLabyShadowPlortCollector_bronze) (amt req: 75)": {
         internalId: "plortdepo0848528777",
         internalName: "objLabyShadowPlortCollector_bronze",
-        position: { x: -1077.8379, y: 3094.5425 },
+        position: { x: 792.3326, y: 2114.7983 },
         description: "Todo: insert a description for this shadow door plortdepo0848528777",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 75,
@@ -51,7 +51,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_1": {
         internalId: "plortdepo1536453680",
         internalName: "objLabyShadowPlortCollector_steel-WallLighting",
-        position: { x: -1012.6896, y: 1250.9715 },
+        position: { x: 1237.7443, y: 917.6066 },
         description: "Found in a small cave in the waterworks area, on higher ground.",
         unlocks: ["Wall Lighting"],
         amount_required: 25,
@@ -66,7 +66,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_2 or shadowdoor_8? (objLabyShadowPlortCollector_bronze-TankBooster) (amt req: 75)": {
         internalId: "plortdepo0535481876",
         internalName: "objLabyShadowPlortCollector_bronze-TankBooster",
-        position: { x: -1740.6720, y: 949.1542 },
+        position: { x: 953.0043, y: 1691.7147 },
         description: "Todo: insert a description for this shadow door plortdepo0535481876",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 75,
@@ -74,7 +74,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_2 or shadowdoor_8? (objLabyShadowPlortCollector_steel-TankBooster) (amt req: 75)": {
         internalId: "plortdepo0205142135",
         internalName: "objLabyShadowPlortCollector_steel-TankBooster",
-        position: { x: -1160.3444, y: 1356.7697 },
+        position: { x: 1357.0258, y: 1159.9865 },
         description: "Todo: insert a description for this shadow door plortdepo0205142135",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 75,
@@ -89,7 +89,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_3? (objLabyShadowPlortCollector_steel-PowerCore) (amt req: 50)": {
         internalId: "plortdepo1264812389",
         internalName: "objLabyShadowPlortCollector_steel-PowerCore",
-        position: { x: -1195.1351, y: 1409.8526 },
+        position: { x: 1410.0022, y: 1195.3525 },
         description: "Todo: insert a description for this shadow door plortdepo1264812389",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 50,
@@ -97,7 +97,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_4": {
         internalId: "plortdepo0454314964",
         internalName: "objLabyShadowPlortCollector_steel-Aquarium",
-        position: { x: -1309.0249, y: 1443.7550 },
+        position: { x: 1443.9461, y: 1309.2627 },
         description: "Located inside the large glass pillar, at the very top row.",
         unlocks: ["Aquarium"],
         amount_required: 50,
@@ -112,7 +112,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_5? (objLabyShadowPlortCollector_bronze-HeartModule) (amt req: 50)": {
         internalId: "plortdepo1683796824",
         internalName: "objLabyShadowPlortCollector_bronze-HeartModule",
-        position: { x: -719.9943, y: 2791.8178 },
+        position: { x: 1150.3648, y: 1811.7927 },
         description: "Todo: insert a description for this shadow door plortdepo1683796824",
         unlocks: ["Todo: Specify unlocks of this shadow door"],
         amount_required: 50,
@@ -120,7 +120,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_6": {
         internalId: "plortdepo1140442497",
         internalName: "objLabyShadowPlortCollector_bronze-LavaFountain",
-        position: { x: -716.0544, y: 2735.1178 },
+        position: { x: 1154.0230, y: 1754.7582 },
         description: "Located directly above the Rock Plort Statue in the room with the lava flowing from a large slime statue's mouth.",
         unlocks: ["Magma Fountain"],
         amount_required: 50,
@@ -128,7 +128,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_7": {
         internalId: "plortdepo2114425804",
         internalName: "objLabyShadowPlortCollector_bronze-PottedLavaPlants",
-        position: { x: -1844.4548, y: 1040.8932 },
+        position: { x: 998.8845, y: 1829.2635 },
         description: "Located in a small cave. Follow the lava upwards.",
         unlocks: ["Potted Lava Plants"],
         amount_required: 25,
@@ -143,7 +143,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_9": {
         internalId: "plortdepo1797478847",
         internalName: "objLabyShadowPlortCollector_bronze-GreyLabyrinthPortal",
-        position: { x: -1659.4597, y: 1126.9195 },
+        position: { x: 1094.7851, y: 1570.7919 },
         description: "Located on the Starlight Strand side of the wall, on a very tall grassy pillar near the small lava area. Can't be reached from the Ember Valley side without opening the door.",
         unlocks: ["Grey Labyrinth Portal"],
         amount_required: 50,
@@ -158,7 +158,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_11": {
         internalId: "plortdepo1999046796",
         internalName: "objLabyShadowPlortCollector_bronze-YoungCedaroak",
-        position: { x: -1372.1557, y: 1054.9707 },
+        position: { x: 1053.8009, y: 1371.9747 },
         description: "Located at the top of the spiral staircase inside the large, grey pillar.",
         unlocks: ["Young Cedaroak"],
         amount_required: 25,
@@ -166,7 +166,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_12": {
         internalId: "plortdepo0182151128",
         internalName: "objLabyShadowPlortCollector_bronze-GoldTeleporter",
-        position: { x: -1482.6600, y: 970.5818 },
+        position: { x: 923.8630, y: 1495.6886 },
         description: "Located behind some walls in the area with the Twin Gordo.",
         unlocks: ["Gold Teleporter"],
         amount_required: 50,
@@ -174,7 +174,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_13": {
         internalId: "plortdepo1249618371",
         internalName: "objLabyShadowPlortCollector_bronze-AnglerFountain",
-        position: { x: -1109.7998, y: 1000.9715 },
+        position: { x: 1002.1133, y: 1099.1703 },
         description: "Located on a ledge far below most of the tall buildings in the area, sitting next to a table and chair.",
         unlocks: ["Angler Fountain"],
         amount_required: 75,
@@ -182,7 +182,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_14": {
         internalId: "plortdepo1692299802",
         internalName: "objLabyShadowPlortCollector_bronze-AncientPurpleOak",
-        position: { x: -1000.9193, y: 2120.9334 },
+        position: { x: 869.5163, y: 1140.8317 },
         description: "Located inside a small cave underneath the nearby Stabilizing Gate.",
         unlocks: ["Ancient Purple Oak"],
         amount_required: 25,
@@ -197,7 +197,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_16": {
         internalId: "plortdepo0610995641",
         internalName: "objLabyShadowPlortCollector_bronze-PowerInjector",
-        position: { x: -850.6407, y: 914.2351 },
+        position: { x: 986.9628, y: 778.4667 },
         description: "Located at the end of the hedge maze in the surrounding garden.",
         unlocks: ["Injector Module"],
         amount_required: 100,
@@ -205,7 +205,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_17": {
         internalId: "plortdepo1532781050",
         internalName: "objLabyShadowPlortCollector_bronze-StabilizerFlag",
-        position: { x: -960.3523, y: 950.8132 },
+        position: { x: 951.0398, y: 961.8024 },
         description: "Found inside a glass room in a very decorated area.",
         unlocks: ["Stabilizer Flag"],
         amount_required: 25,
@@ -213,7 +213,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_18": {
         internalId: "plortdepo0658240398",
         internalName: "objLabyShadowPlortCollector_bronze-GoldTwistedTree",
-        position: { x: -1023.7350, y: 645.7976 },
+        position: { x: 796.1864, y: 762.5403 },
         description: "Located on the tall, bell-like tower, facing away from the edge of the map.",
         unlocks: ["Gold Twisted Tree"],
         amount_required: 50,
@@ -221,7 +221,7 @@ export const shadow_doors: { [key: string]: ShadowDoor } = {
     "shadowdoor_19": {
         internalId: "plortdepo0425846099",
         internalName: "objLabyShadowPlortCollector_steel-Regenerator",
-        position: { x: -740.1055, y: 400.9432 },
+        position: { x: 424.4713, y: 718.5272 },
         description: "Located behind a a large door, locked by a Radiant Projector puzzle.",
         unlocks: ["Regen Module"],
         amount_required: 100,

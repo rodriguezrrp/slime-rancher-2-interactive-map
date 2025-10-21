@@ -2,7 +2,10 @@ import L from "leaflet";
 
 // const gameMapBounds: { x: number[]; y: number[]; } = { x: [-3200,-3200], y: [3200,3200] };
 const gameMapWidthUnits: number = 6400;
+// const gameMapHeightUnits: number = 6400;
 // const gameMapHeightUnits: number = 0;
+
+// TODO could extract some of these constants from the maps' tilemapresource.xml files?
 
 const tileSize: number = 256;
 
@@ -12,21 +15,24 @@ const mapWidthPx: number = 25600;
 // const mapWidthPx: number = 11468;
 // const mapHeightPx: number = 25600;
 
-// Labyrinth settings?
+// // Labyrinth settings
 // const unitsPerPixel: number = 64;
-// // const unitsPerPixel: number = 256;
 // const mapWidthPx: number = 16003;
 
 // TODO Also find a way to swap out CRS dynamically? Or the L.Transformation? Do I need to move the L.Transformation 'logic' into a separate conditional function based on current_map?
 
 // Ex. with RI: largest zoom has a units-per-pixel = 128.
-// Then, account for how map png size is 25600x25600 pixels but in-game map size is 6400x6400 units.
+// Then with RI, account for how map png size is 25600x25600 pixels but in-game map size is 6400x6400 units.
 const scaleFactor = (1 / unitsPerPixel) * (mapWidthPx / gameMapWidthUnits);
+console.debug('map custom scaled CRS: scaleFactor:', scaleFactor);
 
 // The map png is centered around 0,0 on the in-game map.
 // However, because gdal2tiles readjusts it to be the next largest power of 2, we must account for the origin not truly being centered.
 // Also (ex. with RI), 128 is the center of tile (256 px / 2) at zoom 0 of course.
-const centerOffset = (tileSize / 2) * (gameMapWidthUnits / 2**Math.ceil(Math.log2(gameMapWidthUnits)));  // ex. 2**ceil(log2(25600)) = 2**15 = 32768
+// const centerOffset = (tileSize / 2) * (gameMapWidthUnits / 2**Math.ceil(Math.log2(gameMapWidthUnits)));  // ex. 2**ceil(log2(25600)) = 2**15 = 32768
+const centerOffset = (tileSize / 2) * (mapWidthPx / 2**Math.ceil(Math.log2(mapWidthPx)));  // ex. 2**ceil(log2(25600)) = 2**15 = 32768
+// const centerOffset = 0;
+console.debug('map custom scaled CRS: centerOffset:', centerOffset);
 
 export const ScaledSimpleCRS = L.extend({}, L.CRS.Simple, {
     // like (a*x + b, c*y + d)
@@ -34,3 +40,15 @@ export const ScaledSimpleCRS = L.extend({}, L.CRS.Simple, {
     // Compute b and d coefficients to shift the origin (0,0)
     transformation: new L.Transformation(scaleFactor, centerOffset, scaleFactor, centerOffset)
 });
+
+// console.debug('transform', ScaledSimpleCRS.transformation.transform(L.point(-gameMapWidthUnits/2, -gameMapWidthUnits/2)));
+// console.debug('transform', ScaledSimpleCRS.transformation.transform(L.point(0, 0)));
+// console.debug('transform', ScaledSimpleCRS.transformation.transform(L.point(gameMapWidthUnits/2, gameMapWidthUnits/2)));
+
+// console.debug('untransform (  -256,   -256)', ScaledSimpleCRS.transformation.untransform(L.point(-256, -256)));
+// console.debug('untransform (  -128,   -128)', ScaledSimpleCRS.transformation.untransform(L.point(-128, -128)));
+// console.debug('untransform (     0,      0)', ScaledSimpleCRS.transformation.untransform(L.point(0, 0)));
+// console.debug('untransform (   128,    128)', ScaledSimpleCRS.transformation.untransform(L.point(128, 128)));
+// console.debug('untransform (   200,    200)', ScaledSimpleCRS.transformation.untransform(L.point(200, 200)));
+// console.debug('untransform (250.04, 250.04)', ScaledSimpleCRS.transformation.untransform(L.point(250.04, 250.04)));
+// console.debug('untransform (   256,    256)', ScaledSimpleCRS.transformation.untransform(L.point(256, 256)));

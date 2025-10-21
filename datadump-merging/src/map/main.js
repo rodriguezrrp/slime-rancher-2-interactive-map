@@ -62,7 +62,7 @@ if(!(dontCopyTilemap && dontCopyTilemap.toLowerCase?.() !== "false")) {
         console.log(`Copied new Rainbow Island tilemap to "${PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER}".`);
     }
     catch(e) {
-        console.log(`Failed to copy new Rainbow Island tilemap to "${PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER}".`);
+        console.log(`Failed to copy new Rainbow Island tilemap to "${PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER}". Maybe the dev server is running?`);
         throw e;
     }
 
@@ -82,7 +82,7 @@ if(!(dontCopyTilemap && dontCopyTilemap.toLowerCase?.() !== "false")) {
         console.log(`Copied new Labyrinth tilemap to "${PATH_TO_LABYRINTH_TILEMAP_FOLDER}".`);
     }
     catch(e) {
-        console.log(`Failed to copy new Labyrinth tilemap to "${PATH_TO_LABYRINTH_TILEMAP_FOLDER}".`);
+        console.log(`Failed to copy new Labyrinth tilemap to "${PATH_TO_LABYRINTH_TILEMAP_FOLDER}". Maybe the dev server is running?`);
         throw e;
     }
 

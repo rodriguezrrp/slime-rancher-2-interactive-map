@@ -73,6 +73,14 @@ export function ResearchDroneIcon({
                         <span className="text-md font-bold">Description: </span>
                         <span>{research_drone.description}</span>
                     </div>
+                    {/* <div>
+                        <span className="text-md font-bold">internalId: </span>
+                        <span>{research_drone.internalId}</span>
+                    </div>
+                    <div>
+                        <span className="text-md font-bold">keyName: </span>
+                        <span>{keyName}</span>
+                    </div> */}
 
                     <button
                         className="border w-[5rem] mt-2 self-end"

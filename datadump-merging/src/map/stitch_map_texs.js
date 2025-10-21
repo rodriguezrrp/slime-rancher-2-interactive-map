@@ -112,6 +112,21 @@ export async function stitchMapTextures(
 
         // stitch the rainbow island map
 
+        const _desiredOrdering = ["Map_Strand_CU5", "Map_Wall", "Map_Gorge_CU5"];
+        const partPositionsEntriesSort = (entry1, entry2) => {
+            let [shortName1, ] = entry1;
+            let [shortName2, ] = entry2;
+            // trim off file ext (like .png) just in case
+            shortName1 = shortName1.split(".")[0];
+            shortName2 = shortName2.split(".")[0];
+            const i1 = _desiredOrdering.indexOf(shortName1);
+            const i2 = _desiredOrdering.indexOf(shortName2);
+            if(i1 === -1 && i2 === -1) {
+                return shortName1 < shortName2 ? -1 : shortName1 > shortName2 ? 1 : 0;
+            }
+            return i1 - i2;
+        }
+
         // const pipeline = 
         sharp({ create: {
             width: Math.floor( unitToPxScale * mapWidthUnits ),
@@ -119,22 +134,26 @@ export async function stitchMapTextures(
             channels: 4,
             background: { r:0, g:0, b:0, alpha:0 },
         }, limitInputPixels: 25600*25600 })
-        .composite(Object.entries(partPositions).map(([shortName, offsets]) => {
-            console.log(shortName, offsets);
-            const upsideDownTop = offsets.offsetMin.y;
-            // const rightSideUpBottom = ;
-            const selfHeight = offsets.offsetMax.y - offsets.offsetMin.y;
-            const distFromUpsideDownOverallTopToCorrectOverallTop = mapOffsetMax.y - (-mapOffsetMin.y);
-            const rightSideUpTop = - (upsideDownTop - distFromUpsideDownOverallTopToCorrectOverallTop) - selfHeight;
-            console.log(shortName, selfHeight, upsideDownTop, distFromUpsideDownOverallTopToCorrectOverallTop, rightSideUpTop);
-            return {
-                input: shortNamesToFilepaths[shortName],
-                top: Math.floor( unitToPxScale * (rightSideUpTop - mapOffsetMin.y) ),
-                left: Math.floor( unitToPxScale * (offsets.offsetMin.x - mapOffsetMin.x) ),
-                // top: mapScaleFactorRI * gameMapHeightUnits,
-                // left: mapScaleFactorRI * gameMapWidthUnits,
-            };
-        })) //;
+        .composite(
+            Object.entries(partPositions)
+            .sort(partPositionsEntriesSort)
+            .map(([shortName, offsets]) => {
+                console.log(shortName, offsets);
+                const upsideDownTop = offsets.offsetMin.y;
+                // const rightSideUpBottom = ;
+                const selfHeight = offsets.offsetMax.y - offsets.offsetMin.y;
+                const distFromUpsideDownOverallTopToCorrectOverallTop = mapOffsetMax.y - (-mapOffsetMin.y);
+                const rightSideUpTop = - (upsideDownTop - distFromUpsideDownOverallTopToCorrectOverallTop) - selfHeight;
+                console.log(shortName, selfHeight, upsideDownTop, distFromUpsideDownOverallTopToCorrectOverallTop, rightSideUpTop);
+                return {
+                    input: shortNamesToFilepaths[shortName],
+                    top: Math.floor( unitToPxScale * (rightSideUpTop - mapOffsetMin.y) ),
+                    left: Math.floor( unitToPxScale * (offsets.offsetMin.x - mapOffsetMin.x) ),
+                    // top: mapScaleFactorRI * gameMapHeightUnits,
+                    // left: mapScaleFactorRI * gameMapWidthUnits,
+                };
+            })
+        ) //;
         // pipeline.clone()
         .png({ compressionLevel: 9 })
         .toFile(outPath);

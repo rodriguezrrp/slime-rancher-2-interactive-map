@@ -30,7 +30,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank1 TankBoosterComponent",
         contents: ["Storage Cell"],
         description: "Shoot a Batty plort at the statue to open the door.",
-        pos: { x: -442.4170, y: -208.4450 },
+        pos: { x: -464.9876, y: -207.4037 },
         dimension: MapType.overworld,
     },
     "treasure_embervalley_2": {
@@ -78,7 +78,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank1 Sureshot Component",
         contents: ["Sureshot Module"],
         description: "Underground in a small ruins room behind an Angler Plort Door.",
-        pos: { x: -249.4180, y: -323.1510 },
+        pos: { x: -304.2491, y: -322.6180 },
         dimension: MapType.overworld,
     },
     "treasure_embervalley_8": {
@@ -134,7 +134,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank2 ItemDisplay",
         contents: ["Blueprint: Display Case"],
         description: "Inside a room in the lower parts of a ruined stone column.",
-        pos: { x: -239.8010, y: -642.1930 },
+        pos: { x: -216.6670, y: -629.9810 },
         dimension: MapType.overworld,
     },
     "treasure_embervalley_15": {
@@ -366,7 +366,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank3 - SnowZBench",
         contents: ["Blueprint: Snowz Bench"],
         description: "Underground on a ledge between a hole down and the cave.",
-        pos: { x: -1609.2319, y: -714.3970 },
+        pos: { x: -1577.7080, y: -689.1230 },
         dimension: MapType.overworld,
     },
     "treasure_powderfallbluffs_10": {
@@ -382,7 +382,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank3 - Sureshot",
         contents: ["Sureshot Module"],
         description: "On top of a mountain surrounded by ice cubes.",
-        pos: { x: -1559.7945, y: -639.8465 },
+        pos: { x: -1569.3333, y: -637.6455 },
         dimension: MapType.overworld,
     },
     "treasure_powderfallbluffs_12": {
@@ -390,7 +390,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank3 - TeleporterWhite",
         contents: ["Blueprint: Snowy Teleporter"],
         description: "Underground in the upper caves accessible through a crack in the top of a mountain on a ledge between two cave walls.",
-        pos: { x: -1566.7987, y: -658.9723 },
+        pos: { x: -1584.1350, y: -651.6370 },
         dimension: MapType.overworld,
     },
     "treasure_powderfallbluffs_13": {
@@ -406,7 +406,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank3 - AuroraPine",
         contents: ["Blueprint: Aurora Pine"],
         description: "On a pile of snow down the cliff underneath a ledge.",
-        pos: { x: -1625.4507, y: -618.5946 },
+        pos: { x: -1621.6940, y: -563.0500 },
         dimension: MapType.overworld,
     },
     "treasure_powderfallbluffs_15": {
@@ -670,7 +670,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank1",
         contents: ["Blueprint: Golden Tangle Statue"],
         description: "On a rock above a ledge up a cliff on an island.",
-        pos: { x: 230.6347, y: -125.6299 },
+        pos: { x: 236.2683, y: -137.5228 },
         dimension: MapType.overworld,
     },
     "treasure_starlightstrand_6": {
@@ -702,7 +702,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank2 TankGuardComponent",
         contents: ["Tank Liner"],
         description: "Underground in a cave next to a stream just above the water.",
-        pos: { x: 181.7002, y: 239.3137 },
+        pos: { x: 201.6914, y: 241.0316 },
         dimension: MapType.overworld,
     },
     "treasure_starlightstrand_10": {
@@ -710,7 +710,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank3 tallpinkcoralcolumns",
         contents: ["Blueprint: Tall Pink Coral Columns"],
         description: "At the end of a cave path past the Honey Gordo next to the Phosphor Plort Door statue.",
-        pos: { x: 214.6429, y: 216.1123 },
+        pos: { x: 224.8929, y: 273.9743 },
         dimension: MapType.overworld,
     },
     "treasure_starlightstrand_11": {
@@ -870,7 +870,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Rank1 slimebaitveggie",
         contents: ["Blueprint: Veggie Slime Bait"],
         description: "On a ledge up a cliff between two rocks.",
-        pos: { x: 192.8548, y: 265.4293 },
+        pos: { x: 175.5758, y: 252.1863 },
         dimension: MapType.overworld,
     },
     "treasure_starlightstrand_31": {
@@ -902,7 +902,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
         internalName: "treasurePod Drones",
         contents: ["Todo: Specify contents of this pod"],
         description: "Todo: insert a description for this pod",
-        pos: { x: -1581.5500, y: -700.3400 },
+        pos: { x: -1615.7938, y: -682.0773 },
         dimension: MapType.overworld,
     },
     "treasure_undeterminedarea_pod1976730192": {

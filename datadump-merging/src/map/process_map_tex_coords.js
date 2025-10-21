@@ -1,8 +1,8 @@
 import { globSync } from "glob";
-import { GLOBS_TO_MAP_SPRITE_ASSETS, PATH_TO_LABYRINTH_MAP_PREFAB, PATH_TO_RAINBOW_ISLAND_MAP_PREFAB } from "../../asset_paths.js";
 import { readFile } from "node:fs/promises";
-import { followMonoBehaviourGameObjectTransformChain, parseUnityFileYamlIntoAssetsMapping } from "../nodes/process_node_locs.js";
 import { basename } from "node:path";
+import { GLOBS_TO_MAP_SPRITE_ASSETS, PATH_TO_LABYRINTH_MAP_PREFAB, PATH_TO_RAINBOW_ISLAND_MAP_PREFAB } from "../../asset_paths.js";
+import { parseUnityFileYamlIntoAssetsMapping } from "../nodes/processing_utils.js";
 
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
 /** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
