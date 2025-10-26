@@ -6,10 +6,12 @@ export interface Vec2 {
 }
 
 export interface Gordo {
+    internalId: string;
     name: string;
     food: string;
+    favoriteFood: string;
     pos: Vec2;
-    image: string
+    image: string;
     drops: string[];
     description: string;
     unlocks: string[];

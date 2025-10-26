@@ -346,12 +346,13 @@ export function dumpMassiveHeckinBigObjectToJSON(
     }
 }
 
-export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { boolean | undefined } */ multiFile) {
+export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { boolean | undefined } */ multiFile, /** @type { ((fraction: number) => void) | undefined } */ progressCallback) {
     if(multiFile) {
         /** @type {{ [k: string]: unknown }} */
         const obj = { };
         const files = readdirSync(filePath).filter(f => /^\d+\.json$/.test(f));
         // for(const file of files) {
+        let processedCt = 0;
         await Promise.all(files.map(async file => {
             const fp = join(filePath, file);
             let contents;
@@ -365,6 +366,8 @@ export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { b
             for(const k of Object.keys(contents)) {
                 obj[k] = contents[k];
             }
+            processedCt++;
+            progressCallback?.(processedCt / files.length);
         // }
         }));
         console.log(`Read ${Object.keys(obj).length} entries from ${files.length} split JSON files.`);
@@ -389,6 +392,147 @@ export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { b
         // }))
         return obj;
     }
+}
+
+
+// get MapType in here for the eval.?() resolution
+// import { MapType } from "../../../src/CurrentMapContext.js";
+// import { MapType } from "../../../src/CurrentMapContext.tsx";
+const MapType = {
+    overworld: "map_overworld",
+    labyrinth: "map_labyrinth",
+    sr1: "map_sr1"
+};
+global.MapType = MapType;  // for indirect eval, global scoped
+
+export function looseJsonParseWithEval(/** @type {string} */ str) {
+    return eval?.(`"use strict";(${str})`);
+}
+/**
+ * @template T
+ * @param {T} obj 
+ * @param {number | string | null} indent 
+ * @param {{
+ *  transformer?: (obj: any, key: string | number, keys: (string | number)[]) => ({ raw: true, val: string } | { raw?: false, val: any } | undefined),
+ *  shouldQuoteKey?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
+ *  shouldInlineObj?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
+ *  shouldSortKeys?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | ((a: string, b: string) => number) | undefined)
+ * }} transformingFns 
+ * @param {*} [_prevIndent] 
+ * @param {*} [_curIndent] 
+ * @param {(string | number)[]} [_prevKeysChain] 
+ * @returns string
+ */
+export function looseJsonStringify(
+    obj,
+    indent = "    ",
+    transformingFns = undefined,
+    _prevIndent = "", _curIndent = "    ", _prevKeysChain = undefined
+) {
+    if(obj === null) {
+        return "null";
+    }
+    else if(typeof obj === "undefined") {
+        return "undefined";
+    }
+    
+    const { transformer, shouldQuoteKey, shouldInlineObj, shouldSortKeys } = (transformingFns ?? {});
+    
+    // allow transformer fn to serialize or otherwise transform data
+
+    _prevKeysChain ??= [];
+    /** @type {T | U} */
+    let retypedObj;
+    const transformed = transformer?.(obj, _prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain);
+    if(typeof transformed !== "undefined") {
+        // if transform result is raw, insert it directly into the stringified without further processing
+        if(transformed.raw) return transformed.val;
+        retypedObj = transformed.val;
+    }
+    else retypedObj = obj;
+    if(retypedObj === null) {
+        return "null";
+    }
+
+    // try to treat obj as a js type that is not a generic object
+    
+    if(typeof retypedObj === "string" || typeof retypedObj === "number") {
+        return JSON.stringify(retypedObj);
+    }
+    
+    // resolve indentation parameters
+    const _shouldInlineFnCallRes = shouldInlineObj?.(_prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain.length - 1, _prevKeysChain, retypedObj);
+    const shouldNewline = (
+        _shouldInlineFnCallRes !== true
+        && (
+            _shouldInlineFnCallRes === false
+            || (typeof indent === "string" || typeof indent === "number")
+        )
+    );
+    if(typeof indent === "number") {
+        let tmp = "";
+        for(let i = 0; i < indent; i++)
+            tmp += " ";
+        indent = tmp;
+    }
+    const newlineIndent = shouldNewline ? "\n" + _curIndent : " ";
+    
+
+    // try to treat obj as an array object
+
+    if(Array.isArray(retypedObj)) {
+        // build serialized arr
+        let str = "[";
+        let prevIndexWasEmpty = false;
+        for(let i = 0; i < retypedObj.length; i++) {
+            const comma = i === retypedObj.length - 1 ? "" : ",";
+            if(Object.hasOwn(retypedObj, i)) {
+                //
+                str += newlineIndent + looseJsonStringify(retypedObj[i], indent, transformingFns, _curIndent, _curIndent + indent, [..._prevKeysChain, i]) + comma;
+                prevIndexWasEmpty = false;
+            } else {
+                if(!prevIndexWasEmpty)
+                    str += newlineIndent;
+                str += comma;
+                prevIndexWasEmpty = true;
+            }
+        }
+        str += (shouldNewline ? "\n" + _prevIndent : " ") + "]";
+        return str;
+    }
+
+    // else, try to treat obj as a generic js object
+
+    // build serialized obj
+    let str = "{";
+    const ks = Object.keys(retypedObj);
+    let sortFn = shouldSortKeys?.(_prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain.length, _prevKeysChain, retypedObj);
+    if(typeof sortFn !== "undefined" && sortFn !== false) {
+        if(sortFn === true) {
+            // set a default argument value
+            sortFn = sortStringsWithNumbers;
+        }
+        if(typeof sortFn !== "function") {
+            console.warn(`The object key sorting function passed via shouldSortKeys was not a function type, instead a ${typeof sortFn}. Trying to pass it to .sort() anyway.`);
+        }
+        ks.sort(sortFn);
+    }
+    ks.forEach((k, i) => {
+        const comma = i === ks.length - 1 ? "" : ",";
+        const updatedKeysChain = [..._prevKeysChain, k];
+        const _shouldQuote = shouldQuoteKey?.(k, updatedKeysChain.length - 1, updatedKeysChain, retypedObj);
+        let _keyStr = (
+            _shouldQuote !== false
+            && (
+                _shouldQuote === true
+                || !/[a-z_][a-z0-9_]*/i.test(k)
+            )
+        ) ? `"${k}": ` : `${k}: `;
+        str += newlineIndent + _keyStr + looseJsonStringify(retypedObj[k], indent, transformingFns, _curIndent, _curIndent + indent, updatedKeysChain) + comma;
+    })
+    str += (shouldNewline ? "\n" + _prevIndent : " ") + "}";
+
+    return str;
 }
 
 

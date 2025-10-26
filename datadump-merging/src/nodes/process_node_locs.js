@@ -1,152 +1,12 @@
 
-import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES } from "../../asset_paths.js";
 
-import { Glob, globIterateSync, globSync } from "glob";
+import { Glob, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, setsEqual, arraysEqual } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
-
-// get MapType in here for the eval.?() resolution
-// import { MapType } from "../../../src/CurrentMapContext.js";
-// import { MapType } from "../../../src/CurrentMapContext.tsx";
-const MapType = {
-    overworld: "map_overworld",
-    labyrinth: "map_labyrinth",
-    sr1: "map_sr1"
-};
-global.MapType = MapType;  // for indirect eval, global scoped
-
-function looseJsonParseWithEval(/** @type {string} */ str) {
-    return eval?.(`"use strict";(${str})`);
-}
-/**
- * @template T, U, V
- * @param {T} obj 
- * @param {number | string | null} indent 
- * @param {{
- *  transformer?: (obj: any, key: string | number, keys: (string | number)[]) => ({ raw: true, val: string } | { raw?: false, val: U } | undefined),
- *  shouldQuoteKey?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
- *  shouldInlineObj?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
- *  shouldSortKeys?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | ((a: string, b: string) => number) | undefined)
- * }} transformingFns 
- * @param {*} [_prevIndent] 
- * @param {*} [_curIndent] 
- * @param {(string | number)[]} [_prevKeysChain] 
- * @returns string
- */
-function looseJsonStringify(
-    obj,
-    indent = "    ",
-    transformingFns = undefined,
-    _prevIndent = "", _curIndent = "    ", _prevKeysChain = undefined
-) {
-    if(obj === null) {
-        return "null";
-    }
-    else if(typeof obj === "undefined") {
-        return "undefined";
-    }
-    
-    const { transformer, shouldQuoteKey, shouldInlineObj, shouldSortKeys } = (transformingFns ?? {});
-    
-    // allow transformer fn to serialize or otherwise transform data
-
-    _prevKeysChain ??= [];
-    /** @type {T | U} */
-    let retypedObj;
-    const transformed = transformer?.(obj, _prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain);
-    if(typeof transformed !== "undefined") {
-        // if transform result is raw, insert it directly into the stringified without further processing
-        if(transformed.raw) return transformed.val;
-        retypedObj = transformed.val;
-    }
-    else retypedObj = obj;
-    if(retypedObj === null) {
-        return "null";
-    }
-
-    // try to treat obj as a js type that is not a generic object
-    
-    if(typeof retypedObj === "string" || typeof retypedObj === "number") {
-        return JSON.stringify(retypedObj);
-    }
-    
-    // resolve indentation parameters
-    const _shouldInlineFnCallRes = shouldInlineObj?.(_prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain.length - 1, _prevKeysChain, retypedObj);
-    const shouldNewline = (
-        _shouldInlineFnCallRes !== false
-        && (
-            _shouldInlineFnCallRes === true
-            || (typeof indent === "string" || typeof indent === "number")
-        )
-    );
-    if(typeof indent === "number") {
-        let tmp = "";
-        for(let i = 0; i < indent; i++)
-            tmp += " ";
-        indent = tmp;
-    }
-    const newlineIndent = shouldNewline ? "\n" + _curIndent : " ";
-    
-
-    // try to treat obj as an array object
-
-    if(Array.isArray(retypedObj)) {
-        // build serialized arr
-        let str = "[";
-        let prevIndexWasEmpty = false;
-        for(let i = 0; i < retypedObj.length; i++) {
-            const comma = i === retypedObj.length - 1 ? "" : ",";
-            if(Object.hasOwn(retypedObj, i)) {
-                //
-                str += newlineIndent + looseJsonStringify(retypedObj[i], indent, transformingFns, _curIndent, _curIndent + indent, [..._prevKeysChain, i]) + comma;
-                prevIndexWasEmpty = false;
-            } else {
-                if(!prevIndexWasEmpty)
-                    str += newlineIndent;
-                str += comma;
-                prevIndexWasEmpty = true;
-            }
-        }
-        str += (shouldNewline ? "\n" + _prevIndent : " ") + "]";
-        return str;
-    }
-
-    // else, try to treat obj as a generic js object
-
-    // build serialized obj
-    let str = "{";
-    const ks = Object.keys(retypedObj);
-    let sortFn = shouldSortKeys?.(_prevKeysChain[_prevKeysChain.length - 1], _prevKeysChain.length, _prevKeysChain, retypedObj);
-    if(typeof sortFn !== "undefined" && sortFn !== false) {
-        if(sortFn === true) {
-            // set a default argument value
-            sortFn = sortStringsWithNumbers;
-        }
-        if(typeof sortFn !== "function") {
-            console.warn(`The object key sorting function passed via shouldSortKeys was not a function type, instead a ${typeof sortFn}. Trying to pass it to .sort() anyway.`);
-        }
-        ks.sort(sortFn);
-    }
-    ks.forEach((k, i) => {
-        const comma = i === ks.length - 1 ? "" : ",";
-        const updatedKeysChain = [..._prevKeysChain, k];
-        const _shouldQuote = shouldQuoteKey?.(k, updatedKeysChain.length - 1, updatedKeysChain, retypedObj);
-        let _keyStr = (
-            _shouldQuote !== false
-            && (
-                _shouldQuote === true
-                || !/[a-z_][a-z0-9_]*/i.test(k)
-            )
-        ) ? `"${k}": ` : `${k}: `;
-        str += newlineIndent + _keyStr + looseJsonStringify(retypedObj[k], indent, transformingFns, _curIndent, _curIndent + indent, updatedKeysChain) + comma;
-    })
-    str += (shouldNewline ? "\n" + _prevIndent : " ") + "}";
-
-    return str;
-}
 
 
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
@@ -269,7 +129,7 @@ async function getOrExtractScenesAssetsMapping(/** @type {CacheOpts} */ cacheOpt
             try {
                 console.log("Reading cached asset JSON...");
                 const multiFile = true;  // TODO see if directory exists first?
-                assetsMapping = await readMassiveHeckinBigObjectFromJSON("./data_cache/assetsFileIdMapping.json", multiFile);
+                assetsMapping = await readMassiveHeckinBigObjectFromJSON("./data_cache/assetsFileIdMapping.json", multiFile, (progress) => { console.log(`  - ${(progress*100).toFixed(0)}%`); });
             } catch(e) {
                 console.error(`Failed to read cached asset JSON -- ${e}`);
                 console.log("Extracting anew instead.");
@@ -644,7 +504,7 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
                 throw new Error(`There was an archiveEntry GUID of ${JSON.stringify(_archiveGUID)}, but no asset matching that GUID was found?`);
             }
 
-            console.log(`[Research Drone ${referenceAssetJSON.props["referenceId"]}]: Determining position of shadow depo`);
+            console.log(`[Research Drone ${referenceAssetJSON.props["referenceId"]}]: Determining position of drone`);
 
             const { gameObj: droneGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
 
@@ -778,6 +638,341 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
     fnWriteDronesBackToFile(mergedDroneTSData);
 }
 
+async function exportGordoCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ fileId: string, assetJSON: AssetJSONType, gordoGameObj: AssetJSONType, targetCount: number, slimeDefinitionAssetJson: AssetJSONType, dietGroupsAssetsJSON: AssetJSONType[], favoriteFoodsAssetJSON?: AssetJSONType[], drops?: string[], position: { x: number, y: number, z: number } }[]} */
+    let ingameGordoPositions;
+    
+    if(cacheOpts.useCache && existsSync("./data_cache/gordoAssetsAndPositions.json")) {
+    // if(false) {  // for debugging
+        
+        console.log("Reading cached gordo coordinates...");
+
+        ingameGordoPositions = JSON.parse(readFileSync("./data_cache/gordoAssetsAndPositions.json"));
+
+        console.log(`Read (${ingameGordoPositions.length}) gordo coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting gordo coordinates from assets JSON...");
+
+        const gordoMonoBehavioursEntries = Object.entries(assetsMapping)
+            .filter(([, assetJSON]) => {
+            
+                const gordoId = assetJSON.props["_id"];
+            
+                if(!gordoId) return false;
+
+                if(!/^gordo[0-9]+$/.test(gordoId)) return false;
+
+                if(assetJSON.typeName !== "MonoBehaviour") {
+                    console.log(assetJSON);
+                    throw new Error("found asset with a pod id in \"_id\" prop, but it was not a MonoBehaviour?");
+                }
+
+                return true;
+
+            });
+
+        console.log(`Retrieved ${gordoMonoBehavioursEntries.length} gordo MonoBehaviour entries.`);
+
+        /** @type {{ [fileGUID: string]: AssetJSONType }} */
+        const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+        const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+        const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+        await Promise.all(identsAndDefsFilePaths.map(
+            async (assetpath) => {
+                // const filenameNoExt = basename(assetpath).split(".")[0];
+
+                const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+                const guid = metaFileGuidRegex.exec(metadata)[1];
+                
+                /** @type {AssetsMappingType} */
+                const identOrDefAssetsMapping = { }
+                parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+                if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+                    throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+                }
+                const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+                mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+            }
+        ));
+        // throw new Error("temp");
+
+        // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+        ingameGordoPositions = await Promise.all(gordoMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+            
+            const slimeDefinitionAssetJSON = mapIdentAndDefGUIDtoAssetJSONs[assetJSON.props["SlimeDefinition"]["guid"]];
+
+            const targetCount = assetJSON.props["TargetCount"];
+            if(typeof targetCount !== "number" || targetCount <= 0) {
+                throw new Error(`Expected gordo asset ${assetJSON.props["_id"]} to have a positive numeric TargetCount property, but got ${JSON.stringify(targetCount)}`);
+            }
+
+            const dietGroupsAssetsJSON = slimeDefinitionAssetJSON.props["Diet"]["MajorFoodIdentifiableTypeGroups"].map((/** @type {{ guid: string }} */ groupRef) => {
+                const groupAssetJSON = mapIdentAndDefGUIDtoAssetJSONs[groupRef.guid];
+                if(!groupAssetJSON) {
+                    throw new Error(`Could not find diet group identifiable type asset with guid ${groupRef.guid} for gordo ${assetJSON.props["_id"]}`);
+                }
+                return groupAssetJSON;
+            });
+
+            const favoriteFoodsAssetJSON = slimeDefinitionAssetJSON.props["Diet"]["FavoriteIdents"].map((/** @type {{ guid: string }} */ groupRef) => {
+                const foodAssetJSON = mapIdentAndDefGUIDtoAssetJSONs[groupRef.guid];
+                if(!foodAssetJSON) {
+                    throw new Error(`Could not find favorite food identifiable type asset with guid ${groupRef.guid} for gordo ${assetJSON.props["_id"]}`);
+                }
+                return foodAssetJSON;
+            });
+
+            console.log(`[Gordo ${assetJSON.props["_id"]}]: Determining position of gordo`);
+
+            const { gameObj: gordoGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+            // for(const child of transformChainChildToParent) {
+            //     console.log(child.typeName);
+            //     console.log(child.fileKey);
+            //     console.log(child.fileId);
+            //     console.log(child.props["m_LocalPosition"]);
+            //     console.log(child.props["m_LocalRotation"]);
+            //     console.log(child.props["m_LocalScale"]);
+            // }
+
+            console.log(`[Gordo ${assetJSON.props["_id"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+            return { fileId, assetJSON, gordoGameObj, targetCount, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, pos };
+
+        }));
+
+        console.log(`Determined ${ingameGordoPositions.length} gordo assets and their positions.`);
+        
+        // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        // for(const d of ingameDronePositions) {
+        //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+        //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+        //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+        //         return { ...c, gameObject: gameObj };
+        //     });
+        // }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/gordoAssetsAndPositions.json", JSON.stringify(ingameGordoPositions));
+                console.log("Exported gordo assets and their positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting gordo assets and their positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+
+    console.log("Parsing existing gordo data in the map data files...")
+
+    const { fnWriteGordosBackToFile, existingGordoTSDataByDroneKey } = readExistingGordoTSData(cacheOpts);
+
+    console.log(`Parsed ${Object.keys(existingGordoTSDataByDroneKey).length} existing gordo data entries.`);
+
+    const mergedGordoTSData = { ...existingGordoTSDataByDroneKey };
+
+    console.log("Merging existing and extracted gordo data");
+    
+    // merge existing and extracted shadow depo data
+    
+    for(const { assetJSON, gordoGameObj: gordoGameObjJSON, referenceAssetJSON, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, targetCount, pos } of ingameGordoPositions) {
+        /** @type {string} */
+        const internalGordoId = assetJSON.props["_id"];
+
+        // /** @type {string} */
+        // const internalName = droneGameObjJSON.props["m_Name"];
+
+        /** @type {string} */
+        const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
+
+        // for testing
+        // const gordoIdInternalToOld = (x) => undefined;
+        
+        const oldGordoId = gordoIdInternalToOld(internalGordoId);
+
+        let areaNameForKey;
+        // TODO determine area name?
+        if(!oldGordoId) {
+            console.log("debug: fileKey: ", assetJSON.fileKey);
+            areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)[1].toLowerCase().replace("_","")
+                ?? "undeterminedarea";
+        }
+        const tsDataKey = oldGordoId ?? (`${slimetype}gordo_${areaNameForKey}_${internalGordoId}`);
+
+        // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+        /** @type {undefined | existingGordoTSDataByDroneKey[keyof existingGordoTSDataByDroneKey]} */
+        const existingData = (
+            existingGordoTSDataByDroneKey[oldGordoId]
+            || existingGordoTSDataByDroneKey[internalGordoId]
+            || existingGordoTSDataByDroneKey[tsDataKey]
+            || Object.values(existingGordoTSDataByDroneKey).find(data => data.internalId === internalGordoId)
+        );
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        for(const [k, v] of Object.entries(mergedGordoTSData)) {
+            if(v === existingData) {
+                delete mergedGordoTSData[k];
+                break;
+            }
+        }
+
+        const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+        const slimetypeUppercasedFirst = slimetype.charAt(0).toUpperCase() + slimetype.slice(1);
+
+        const dietGroups = dietGroupsAssetsJSON.map(groupAssetJSON => {
+            if(groupAssetJSON.props["m_Name"])
+                // console.log(groupAssetJSON.props["m_Name"]);
+                return /^([a-z]+?)(?:FoodGroup|Group)?$/i.exec(groupAssetJSON.props["m_Name"])[1];
+            else {
+                console.log(groupAssetJSON);
+                throw new Error(`Could not determine diet group name for gordo ${assetJSON.props["_id"]} from asset with guid ${groupRef.guid}`);
+            }
+        });
+        const favoriteFoods = favoriteFoodsAssetJSON.map(foodAssetJSON => {
+            if(foodAssetJSON.props["m_Name"])
+                // console.log(groupAssetJSON.props["m_Name"]);
+                return /^([a-z]+?)(?:Fruit|Veggie|Meat)?$/i.exec(foodAssetJSON.props["m_Name"])[1];
+            else {
+                console.log(foodAssetJSON);
+                throw new Error(`Could not determine diet group name for gordo ${assetJSON.props["_id"]} from asset with guid ${groupRef.guid}`);
+            }
+        });
+
+        const joinedStringWithOxfordComma = function(arr) {
+            if(arr.length === 0) return "";
+            if(arr.length === 1) return arr[0];
+            if(arr.length === 2) return `${arr[0]} or ${arr[1]}`;
+            if(arr.length >= 3) return arr.slice(0, -1).join(", ") + ", or " + arr[arr.length - 1];
+            return arr[0];
+        }
+
+        const foodType = joinedStringWithOxfordComma(dietGroups) || "- Todo: specify valid food types for this gordo";
+        let favoriteFoodStr = joinedStringWithOxfordComma(favoriteFoods) || "";
+
+        // split camel cased words out with spaces
+        favoriteFoodStr = favoriteFoodStr.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+        // for some reason Oca Oca's Identifiable Food Type m_Name is concatenated as one word in the asset
+        // favoriteFoodStr = favoriteFoodStr.replace("Ocaoca", 'Oca Oca');
+
+        const favoriteFoodFactor = 2; // favorite foods count as double towards gordo feeding
+
+        /** @type {ExistingGordoDataType} */
+        const _mergedDataObj = { ...existingData,
+            internalId: internalGordoId,
+            // name: existingData?.name ?? ["TODO retrieve name from translation table"],
+            name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
+            description: existingData?.description ?? "Todo: insert a description for this gordo " + internalGordoId,
+            // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+            pos: { x: -pos.z, y: pos.x },
+            // dimension: existingData?.dimension ?? "MapType.overworld",
+            // dimension: existingData?.dimension ?? MapType.overworld,
+            dimension: dimension,
+            drops: existingData?.drops ?? ["Todo: specify gordo drops"],
+            unlocks: existingData?.unlocks ?? ["Todo: specify gordo unlocks"],
+            // food: existingData?.food ?? "Todo: specify gordo food",
+            food: `x${targetCount} ${foodType}` + (!favoriteFoodStr ? "" : `; or x${Math.ceil(targetCount/favoriteFoodFactor)} ${favoriteFoodStr}`),
+            // image: existingData?.image ?? "Todo: specify gordo image path",
+            image: `iconGordo${slimetypeUppercasedFirst}.png`,
+            // _otherLines: existingData?._otherLines,
+        };
+        // clear out all entries with undefined values
+        Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+        // save merged data back
+        mergedGordoTSData[tsDataKey] = _mergedDataObj;
+
+        if(existingData)
+            console.log(`Merged extracted gordo ${internalGordoId} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted gordo ${internalGordoId} data to ${tsDataKey} data`)
+    }
+
+    console.log("Writing gordo data back to map data file");
+
+    fnWriteGordosBackToFile(mergedGordoTSData);
+}
+
+/** @typedef {{ internalId?: string, internalName?: string, name: string, food: string, image: string, drops: string[], unlocks: string[], description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingGordoDataType */
+
+function readExistingGordoTSData(/** @type {CacheOpts} */ cacheOpts) {
+    
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    const fileText = readFileSync(PATH_TO_GORDOS_DATA_FILE, { encoding: "utf-8" });
+
+    const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*const\s+gordos.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
+
+    const parsedObj = looseJsonParseWithEval(dataObjInJsCode);
+
+    const _objMatchesExpectedSchema = (
+        typeof parsedObj === "object"
+        && Object.keys(parsedObj).every(k => (
+            typeof parsedObj[k] === "object"
+            && setContains(new Set(Object.keys(parsedObj[k])), ["name", "food", "pos", "image", "drops", "description", "unlocks", "dimension"])
+        ))
+    );
+
+    if(!_objMatchesExpectedSchema) {
+        console.log("dataObjAsInitText = ", dataObjInJsCode);
+        console.log("_obj = ", parsedObj);
+        for(const k of Object.keys(parsedObj)) {
+            if(!(
+                typeof parsedObj[k] === "object"
+                && setContains(new Set(Object.keys(parsedObj[k])), ["name", "food", "pos", "image", "drops", "description", "unlocks", "dimension"])
+            )) {
+                console.log(k)
+            }
+        }
+        throw new Error("unexpected loose json parse result, did not match expected schema");
+    }
+
+    const fnWriteGordosBackToFile = (/** @type {{ [tsDataGordoKey: string]: ExistingGordoDataType }} */ mergedGordoTSData) => {
+        const dataObjAsJsCode = looseJsonStringify(
+            mergedGordoTSData,
+            "    ",
+            {..._jsonStringifyTransformerFns,
+                shouldSortKeys: (key, depth, keysChain, obj) => {
+                    if(depth === 0) return (a, b) => {
+                        const areaA = /^[a-z]+(?:gordo)?_([a-z]+)_/.exec(a)?.[1] || "";
+                        const areaB = /^[a-z]+(?:gordo)?_([a-z]+)_/.exec(b)?.[1] || "";
+                        if(areaA !== areaB) return areaA < areaB ? -1 : 1;
+                        return sortStringsWithNumbers(a, b);
+                    };
+                }
+            }
+            // _jsonStringifyTransformerFns
+        );
+        
+        const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
+
+        writeFileSync(PATH_TO_GORDOS_DATA_FILE, newFileText);
+    };
+
+    return {
+        fnWriteGordosBackToFile,
+        /** @type {{ [tsDataGordoKey: string]: ExistingGordoDataType }} */
+        existingGordoTSDataByDroneKey: parsedObj
+    }
+}
+
 /** @typedef {{ internalId?: string, internalName?: string, description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingDroneDataType */
 
 function readExistingResearchDroneTSData(/** @type {CacheOpts} */ cacheOpts) {
@@ -812,38 +1007,38 @@ function readExistingResearchDroneTSData(/** @type {CacheOpts} */ cacheOpts) {
         throw new Error("unexpected loose json parse result, did not match expected schema");
     }
 
-    const _jsonStringifyTransformerFns = {
-        transformer: (obj, key, keys) => {
-            if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
-            if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
-            if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
-        },
-        shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
-        shouldInlineObj: (key, depth, keysChain, obj) => {
-            // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
-            // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
-            // return null;
-            return (
-                (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
-                || (Array.isArray(obj) && obj.length <= 1)
-            ) ? false : null;
-        },
-        shouldSortKeys: (key, depth, keysChain, obj) => {
-            if(depth === 0) return sortStringsWithNumbers;
-            if(depth === 1) {
-                const _lookup = Object.fromEntries(["internalId", "name", "log", "archive", "pos", "position", "description", "dimension"].map((v, i) => [v, i]));
-                const _default = Object.keys(_lookup).length;
-                return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
-            }
-            if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
-                // put "en" lang as first item, order all other lang keys lexographically
-                return (a, b) => {
-                    a = a.toLowerCase(); b = b.toLowerCase();
-                    return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
-                };
-            }
-        }
-    };
+    // const _jsonStringifyTransformerFns = {
+    //     transformer: (obj, key, keys) => {
+    //         if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
+    //         if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
+    //         if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
+    //     },
+    //     shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
+    //     shouldInlineObj: (key, depth, keysChain, obj) => {
+    //         // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
+    //         // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
+    //         // return null;
+    //         return (
+    //             (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
+    //             || (Array.isArray(obj) && obj.length <= 1)
+    //         ) ? false : null;
+    //     },
+    //     shouldSortKeys: (key, depth, keysChain, obj) => {
+    //         if(depth === 0) return sortStringsWithNumbers;
+    //         if(depth === 1) {
+    //             const _lookup = Object.fromEntries(["internalId", "name", "log", "archive", "pos", "position", "description", "dimension"].map((v, i) => [v, i]));
+    //             const _default = Object.keys(_lookup).length;
+    //             return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
+    //         }
+    //         if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
+    //             // put "en" lang as first item, order all other lang keys lexographically
+    //             return (a, b) => {
+    //                 a = a.toLowerCase(); b = b.toLowerCase();
+    //                 return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
+    //             };
+    //         }
+    //     }
+    // };
 
     const fnWriteDronesBackToFile = (/** @type {{ [tsDataDroneKey: string]: ExistingDroneDataType }} */ mergedDroneTSData) => {
         const dataObjAsJsCode = looseJsonStringify(
@@ -859,12 +1054,12 @@ function readExistingResearchDroneTSData(/** @type {CacheOpts} */ cacheOpts) {
 
     return {
         fnWriteDronesBackToFile,
-        /** @type {{ [tsDataDepoKey: string]: ExistingShDepoDataType }} */
+        /** @type {{ [tsDataDroneKey: string]: ExistingDroneDataType }} */
         existingDroneTSDataByDroneKey: parsedObj
     }
 }
 
-/** @typedef {{ internalId?: string, internalName?: string, description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingDroneDataType */
+/** @typedef {{ unlocks: string[], internalId?: string, internalName?: string, description: string, position: { x: number, y: number }, amount_required: number, _otherLines?: string[] }} ExistingShDepoDataType */
 
 function readExistingShadowPlortDepoTSData(/** @type {CacheOpts} */ cacheOpts) {
     
@@ -1279,7 +1474,59 @@ const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMappin
     }
 );
 
-/** old to internal @type {{ [oldId: string]: string }} */
+const _jsonStringifyTransformerFns = {
+    transformer: (obj, key, keys) => {
+        if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
+        if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
+        if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
+    },
+    shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
+    shouldInlineObj: (key, depth, keysChain, obj) => {
+        // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
+        // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
+        // return null;
+        return (
+            (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
+            || (Array.isArray(obj) && obj.length <= 1) || (key === "drops" && Array.isArray(obj) && obj.length <= 3)
+        ) ? true : null;
+    },
+    shouldSortKeys: (key, depth, keysChain, obj) => {
+        if(depth === 0) return sortStringsWithNumbers;
+        if(depth === 1) {
+            const _lookup = Object.fromEntries(["internalId", "name", "log", "archive", "food", "pos", "position", "image", "drops", "unlocks", "description", "dimension"].map((v, i) => [v, i]));
+            const _default = Object.keys(_lookup).length;
+            return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
+        }
+        if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
+            // put "en" lang as first item, order all other lang keys lexographically
+            return (a, b) => {
+                a = a.toLowerCase(); b = b.toLowerCase();
+                return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
+            };
+        }
+    }
+};
+
+/** old (ours) to internal @type {{ [oldId: string]: string }} */
+let _gordoIdMap = null;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function gordoIdInternalToOld(/** @type {string} */ internalId) {
+    if(_gordoIdMap === null) {
+        _gordoIdMap = JSON.parse(readFileSync("./id_mappings/gordoIdMap.json"));
+    }
+    return Object.entries(_gordoIdMap).find(([, v]) => v === internalId)?.[0];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function gordoIdOldToInternal(/** @type {string} */ oldId) {
+    if(_gordoIdMap === null) {
+        _gordoIdMap = JSON.parse(readFileSync("./id_mappings/gordoIdMap.json"));
+    }
+    return _gordoIdMap[oldId];
+}
+
+/** old (ours) to internal @type {{ [oldId: string]: string }} */
 let _droneIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1298,7 +1545,7 @@ function droneIdOldToInternal(/** @type {string} */ oldId) {
     return _droneIdMap[oldId];
 }
 
-/** old to internal @type {{ [oldId: string]: string }} */
+/** old (ours) to internal @type {{ [oldId: string]: string }} */
 let _podIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1317,7 +1564,7 @@ function podIdOldToInternal(/** @type {string} */ oldId) {
     return _podIdMap[oldId];
 }
 
-/** internal to old @type {{ [internalId: string]: string }} */
+/** internal to old (ours) @type {{ [internalId: string]: string }} */
 let _shadowDepoIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1519,7 +1766,7 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
 
         const lang = /^ResearchDrone_(en|es|de|fr|ja|ko|pt|ru|zh).asset$/.exec(basename(l10nFile))[1];
 
-        assert(lang);
+        if(!lang) throw new Error(`Unexpected lang value ${lang}`);
 
         droneL10nData[lang] = mapping;
     }
@@ -1551,3 +1798,4 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
 // exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false, exportToCache: false });
 // exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false });
 // exportResearchDroneDepoCoordinatesFromAssetsMapping();
+exportGordoCoordinatesFromAssetsMapping();

@@ -41,9 +41,16 @@ export const GLOBS_TO_DRONE_LOCALIZATION_TABLES = [
     // "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/**/Localization/StringTable/ResearchDrone/ResearchDrone_{en,es,de,fr,ja,ko,pt,ru,zh}.asset",
 ];
 
+export const GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES = [
+    "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Asset_Bundles/1937414ef44dd74c104e9348d08dfa93.bundle/Actor/**/IdentifiableType/*.asset",
+    "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Asset_Bundles/1937414ef44dd74c104e9348d08dfa93.bundle/Actor/Slime/**/Definition/*.asset",
+    "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Asset_Bundles/5d6f04b397b0eee4e4b8e60a5f17eb13.bundle/Actor/IdentifiableTypeGroup/**/*.asset"
+];
+
 export const PATH_TO_TREASURE_PODS_DATA_FILE = "../src/data/treasure_pods.ts";
 export const PATH_TO_SHADOW_DEPOS_DATA_FILE = "../src/data/shadow_doors.ts";
 export const PATH_TO_RESEARCH_DRONES_DATA_FILE = "../src/data/research_drones.ts";
+export const PATH_TO_GORDOS_DATA_FILE = "../src/data/gordos.ts";
 
 export const PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER = "../public/map_overworld";
 export const PATH_TO_LABYRINTH_TILEMAP_FOLDER = "../public/map_labyrinth";
