@@ -39,11 +39,6 @@ export async function exportNodeCoordsFromScenesJSON(
     await exportResearchDroneDepoCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
-    // Rainbow Island Gordos
-    
-    //...
-    
-    //===============
     // Map Nodes
     
     //...
@@ -75,11 +70,6 @@ export async function exportNodeCoordsFromScenesJSON(
     
     //===============
     // Gigi Holograms
-    
-    //...
-
-    //===============
-    // Labyrinth Gordos
     
     //...
     
@@ -117,6 +107,16 @@ export async function exportNodeCoordsFromScenesJSON(
     // Radiant Projector Puzzles
     
     //...
+
+    //
+    //////////////////////
+    // (BOTH MAPS)
+    //////////////////////
+
+    //===============
+    // Gordo Locations
+
+    await exportGordoCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
 
 }
 
@@ -1798,4 +1798,4 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
 // exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false, exportToCache: false });
 // exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false });
 // exportResearchDroneDepoCoordinatesFromAssetsMapping();
-exportGordoCoordinatesFromAssetsMapping();
+// exportGordoCoordinatesFromAssetsMapping();
