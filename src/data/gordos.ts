@@ -81,7 +81,7 @@ export const gordos: { [key: string]: Gordo } = {
     },
     "crystalgordo_embervalley_1": {
         name: "Crystal Gordo",
-        food: "x50 Veggie; or x25 Onion",
+        food: "x50 Veggie; or x25 Odd Onion",
         pos: { x: -688.03998, y: -531.00001 },
         image: "iconGordoCrystal.png",
         drops: [ "x12 Crytal Slimes", "x1 Jar" ],
@@ -92,7 +92,7 @@ export const gordos: { [key: string]: Gordo } = {
     },
     "rockgordo_embervalley_1": {
         name: "Rock Gordo",
-        food: "x50 Veggie; or x25 Beet",
+        food: "x50 Veggie; or x25 Heart Beet",
         pos: { x: -570.9500114, y: -322.5700043 },
         image: "iconGordoRock.png",
         drops: [ "x12 Rock Slimes", "x1 Jar" ],
@@ -241,7 +241,7 @@ export const gordos: { [key: string]: Gordo } = {
         dimension: MapType.labyrinth,
         drops: [ "Todo: specify gordo drops" ],
         unlocks: [ "Todo: specify gordo unlocks" ],
-        food: "x30 Veggie; or x15 Tater",
+        food: "x30 Veggie; or x15 Turbo Tater",
         image: "iconGordoHyper.png"
     }
 };

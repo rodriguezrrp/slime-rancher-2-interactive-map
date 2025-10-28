@@ -34,6 +34,10 @@ export async function stitchMapTextures(
 
             const texMeta = await sharp(shortNamesToFilepaths[shortName]).metadata();
             const partSizeInUnits = partPositionsRI[shortName].sizeInUnits;
+            
+            console.log(shortName, shortNamesToFilepaths[shortName]);
+            console.log("texMeta: ", texMeta);
+            console.log("partSizeInUnits: ", partSizeInUnits);
 
             const texUnitToPxScale = { x: texMeta.width / partSizeInUnits.x, y: texMeta.height / partSizeInUnits.y };
             if(texUnitToPxScale.x !== texUnitToPxScale.y)
@@ -45,7 +49,8 @@ export async function stitchMapTextures(
         })
     ))
     // currently, just use the largest scale factor because it's been the same
-    const unitToPxScaleRI = Math.max(...Object.values(texScaleFactorsRI));
+    // const unitToPxScaleRI = Math.max(...Object.values(texScaleFactorsRI));
+    const unitToPxScaleRI = 4;  // eh now that I added GorgeToLabyrinth and StrandToLabyrinth, just hardcode it. Because those are 1024 / 250 units = 4.096, while the rest are 1024 / 256 units = 4 exactly.
     console.log(`unitToPxScaleRI: ${unitToPxScaleRI}`);
 
     const texScaleFactorsLabyrinth = Object.fromEntries(await Promise.all(
@@ -89,6 +94,7 @@ export async function stitchMapTextures(
 
     for(const [unitToPxScale, mapWidthUnits, mapHeightUnits, mapOffsetMin, mapOffsetMax, partPositions, outPath] of _forloopIterationArgs) {
 
+        // initialize with extreme values
         const partsOverallOffsetMin = { x: 1e40, y: 1e40 };
         const partsOverallOffsetMax = { x: -1e40, y: -1e40 };
 
@@ -112,13 +118,15 @@ export async function stitchMapTextures(
 
         // stitch the rainbow island map
 
-        const _desiredOrdering = ["Map_Strand_CU5", "Map_Wall", "Map_Gorge_CU5"];
+        const _desiredOrdering = ["Map_Strand_CU5", "Map_Wall", "Map_Gorge_CU5", "GorgeToLabyrinth", "StrandToLabyrinth"];
         const partPositionsEntriesSort = (entry1, entry2) => {
             let [shortName1, ] = entry1;
             let [shortName2, ] = entry2;
             // trim off file ext (like .png) just in case
-            shortName1 = shortName1.split(".")[0];
-            shortName2 = shortName2.split(".")[0];
+            const indexOfDot1 = shortName1.lastIndexOf(".");
+            const indexOfDot2 = shortName2.lastIndexOf(".");
+            shortName1 = indexOfDot1 === -1 ? shortName1 : shortName1.slice(0, indexOfDot1);
+            shortName2 = indexOfDot2 === -1 ? shortName2 : shortName2.slice(0, indexOfDot2);
             const i1 = _desiredOrdering.indexOf(shortName1);
             const i2 = _desiredOrdering.indexOf(shortName2);
             if(i1 === -1 && i2 === -1) {

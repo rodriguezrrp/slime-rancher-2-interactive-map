@@ -1,4 +1,4 @@
-export const GLOB_TO_MAP_TEXTURES = "./_ripped_mapimgs/Map_*.png"
+export const GLOB_TO_MAP_TEXTURES = "./_ripped_mapimgs/{Map_*,*ToLabyrinth}.png"
 
 // for files like environmentGorge.unity
 export const GLOBS_TO_INTERESTING_SCENES = [
@@ -10,7 +10,8 @@ export const GLOBS_TO_INTERESTING_SCENES = [
 ];
 
 export const GLOBS_TO_MAP_SPRITE_ASSETS = [
-    "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Sprite/Map_{Bluffs,Fields,Strand_CU5,Gorge_CU5,Wall,Labyrinth}.asset"
+    "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Sprite/Map_{Bluffs,Fields,Strand_CU5,Gorge_CU5,Wall,Labyrinth}.asset",
+    "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Sprite/{Gorge,Strand}ToLabyrinth.asset",
 ];
 
 export const PATH_TO_RAINBOW_ISLAND_MAP_PREFAB = "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/PrefabInstance/RainbowIslandMap.prefab";

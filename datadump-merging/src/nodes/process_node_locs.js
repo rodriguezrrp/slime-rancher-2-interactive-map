@@ -5,7 +5,7 @@ import { Glob, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
 
 
@@ -856,22 +856,24 @@ async function exportGordoCoordinatesFromAssetsMapping(/** @type {AssetsMappingT
             }
         });
 
-        const joinedStringWithOxfordComma = function(arr) {
-            if(arr.length === 0) return "";
-            if(arr.length === 1) return arr[0];
-            if(arr.length === 2) return `${arr[0]} or ${arr[1]}`;
-            if(arr.length >= 3) return arr.slice(0, -1).join(", ") + ", or " + arr[arr.length - 1];
-            return arr[0];
-        }
-
         const foodType = joinedStringWithOxfordComma(dietGroups) || "- Todo: specify valid food types for this gordo";
         let favoriteFoodStr = joinedStringWithOxfordComma(favoriteFoods) || "";
 
-        // split camel cased words out with spaces
-        favoriteFoodStr = favoriteFoodStr.replace(/([a-z])([A-Z])/g, '$1 $2');
+        favoriteFoodStr = favoriteFoodStr.replace(/(\b)Beet/g, "$1Heart Beet");
+        favoriteFoodStr = favoriteFoodStr.replace(/(\b)Tater/g, "$1Turbo Tater");
+        favoriteFoodStr = favoriteFoodStr.replace(/(\b)Onion/g, "$1Odd Onion");
+        favoriteFoodStr = favoriteFoodStr.replace(/(\b)Mango/g, "$1Mint Mango");
+
+        // split camel cased words apart with spaces
+        favoriteFoodStr = favoriteFoodStr.replace(/([a-z])([A-Z])/g, "$1 $2");
 
         // for some reason Oca Oca's Identifiable Food Type m_Name is concatenated as one word in the asset
-        // favoriteFoodStr = favoriteFoodStr.replace("Ocaoca", 'Oca Oca');
+        // favoriteFoodStr = favoriteFoodStr.replace("Ocaoca", "Oca Oca");
+
+        // favoriteFoodStr = favoriteFoodStr.replace(/(?<!Heart ?)Beet/, "Heart Beet");
+        // favoriteFoodStr = favoriteFoodStr.replace(/(?<!Turbo ?)Tater/, "Turbo Tater");
+        // favoriteFoodStr = favoriteFoodStr.replace(/(?<!Odd ?)Onion/, "Odd Onion");
+        // favoriteFoodStr = favoriteFoodStr.replace(/(?<!Mint ?)Mango/, "Mint Mango");
 
         const favoriteFoodFactor = 2; // favorite foods count as double towards gordo feeding
 

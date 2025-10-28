@@ -536,6 +536,15 @@ export function looseJsonStringify(
 }
 
 
+export function joinedStringWithOxfordComma(/** @type {string[]} */ arr) {
+    if(arr.length === 0) return "";
+    if(arr.length === 1) return arr[0];
+    if(arr.length === 2) return `${arr[0]} or ${arr[1]}`;
+    if(arr.length >= 3) return arr.slice(0, -1).join(", ") + ", or " + arr[arr.length - 1];
+    return arr[0];
+}
+
+
 /**
  * Checks if a Set contains all specified items
  * @template T
