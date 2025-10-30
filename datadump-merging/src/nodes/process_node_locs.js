@@ -1,11 +1,11 @@
 
-import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES } from "../../asset_paths.js";
+import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE } from "../../asset_paths.js";
 
 import { Glob, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
 
 
@@ -253,11 +253,35 @@ async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingTyp
 
 }
 
+/** @typedef {{ fileId: string, assetJSON: AssetJSONType, depoGameObj: AssetJSONType, position: { x: number, y: number, z: number } }[]} ShadowDepoPosCacheType */
+
+/** @type {ShadowDepoPosCacheType} */
+let _shDepoPosCache = null;
+
+function getOrLoadShadowDepoPositionCache(/** @type {CacheOpts} */ cacheOpts, /** @type {ShadowDepoPosCacheType | null} */ defaultValueInstead = null) {
+    if(typeof _shDepoPosCache === "undefined" || _shDepoPosCache === null) {
+        if(defaultValueInstead) {
+            _shDepoPosCache = defaultValueInstead;
+        }
+        else {
+            if(cacheOpts.useCache && existsSync("./data_cache/shdepoPositions.json")) {
+                console.log("Reading cached shadow plort depo coordinates...");
+                _shDepoPosCache = JSON.parse(readFileSync("./data_cache/shdepoPositions.json"));
+                console.log(`Read (${_shDepoPosCache.length}) shadow plort depo coordinates from cache file.`);
+            }
+            else {
+                throw new Error("todo need to generate and cache the shdepoPositions.json");
+            }
+        }
+    }
+    return _shDepoPosCache;
+}
+
 async function exportShadowPlortDepoCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
     
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
-    /** @type {{ fileId: string, assetJSON: AssetJSONType, depoGameObj: AssetJSONType, position: { x: number, y: number, z: number } }[]} */
+    /** @type {ShadowDepoPosCacheType} */
     let ingameShDepoPositions;
 
     if(cacheOpts.useCache && existsSync("./data_cache/shdepoPositions.json")) {
@@ -803,12 +827,13 @@ async function exportGordoCoordinatesFromAssetsMapping(/** @type {AssetsMappingT
         // for testing
         // const gordoIdInternalToOld = (x) => undefined;
         
-        const oldGordoId = gordoIdInternalToOld(internalGordoId);
+        const oldGordoId = puzzleDoorIdInternalToOld(internalGordoId);
 
         let areaNameForKey;
         // TODO determine area name?
         if(!oldGordoId) {
             console.log("debug: fileKey: ", assetJSON.fileKey);
+            // make a best guess based on what scene file the asset was in.
             areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)[1].toLowerCase().replace("_","")
                 ?? "undeterminedarea";
         }
@@ -910,6 +935,474 @@ async function exportGordoCoordinatesFromAssetsMapping(/** @type {AssetsMappingT
     console.log("Writing gordo data back to map data file");
 
     fnWriteGordosBackToFile(mergedGordoTSData);
+}
+
+async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ fileId: string, assetJSON: AssetJSONType, puzzleGameObj: AssetJSONType, type: "door" | "receptacle", pos: { x: number, y: number, z: number } }[]} */
+    let ingamePuzzleDoorPositions;
+    
+    if(cacheOpts.useCache && existsSync("./data_cache/puzzleDoorAssetsAndPositions.json")) {
+    // if(false) {  // for debugging
+        
+        console.log("Reading cached puzzle door coordinates...");
+
+        ingamePuzzleDoorPositions = JSON.parse(readFileSync("./data_cache/puzzleDoorAssetsAndPositions.json"));
+
+        console.log(`Read (${ingamePuzzleDoorPositions.length}) puzzle door coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting puzzle door coordinates from assets JSON...");
+
+        const puzzleDoorMonoBehavioursEntries = Object.entries(assetsMapping)
+            .filter(([, assetJSON]) => {
+            
+                const _id = assetJSON.props["_id"];
+            
+                if(!_id) return false;
+
+                if(!/^(puz|puzzlelock)[0-9]+$/.test(_id)) return false;
+
+                if(assetJSON.typeName !== "MonoBehaviour") {
+                    console.log(assetJSON);
+                    throw new Error("found asset with a puzzlelock or puz id in \"_id\" prop, but it was not a MonoBehaviour?");
+                }
+
+                return true;
+
+            });
+        console.log(`Retrieved ${puzzleDoorMonoBehavioursEntries.length} puzzlelock locked door / puz plort receptacle MonoBehaviour entries.`);
+
+        // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+        // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+        // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+        // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+        // await Promise.all(identsAndDefsFilePaths.map(
+        //     async (assetpath) => {
+        //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+        //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+        //         const guid = metaFileGuidRegex.exec(metadata)[1];
+                
+        //         /** @type {AssetsMappingType} */
+        //         const identOrDefAssetsMapping = { }
+        //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+        //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+        //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+        //         }
+        //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+        //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+        //     }
+        // ));
+        // throw new Error("temp");
+
+        // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+        ingamePuzzleDoorPositions = await Promise.all(puzzleDoorMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+            
+            // const slimeDefinitionAssetJSON = mapIdentAndDefGUIDtoAssetJSONs[assetJSON.props["SlimeDefinition"]["guid"]];
+
+            // const targetCount = assetJSON.props["TargetCount"];
+            // if(typeof targetCount !== "number" || targetCount <= 0) {
+            //     throw new Error(`Expected gordo asset ${assetJSON.props["_id"]} to have a positive numeric TargetCount property, but got ${JSON.stringify(targetCount)}`);
+            // }
+
+            // const dietGroupsAssetsJSON = slimeDefinitionAssetJSON.props["Diet"]["MajorFoodIdentifiableTypeGroups"].map((/** @type {{ guid: string }} */ groupRef) => {
+            //     const groupAssetJSON = mapIdentAndDefGUIDtoAssetJSONs[groupRef.guid];
+            //     if(!groupAssetJSON) {
+            //         throw new Error(`Could not find diet group identifiable type asset with guid ${groupRef.guid} for gordo ${assetJSON.props["_id"]}`);
+            //     }
+            //     return groupAssetJSON;
+            // });
+
+            // const favoriteFoodsAssetJSON = slimeDefinitionAssetJSON.props["Diet"]["FavoriteIdents"].map((/** @type {{ guid: string }} */ groupRef) => {
+            //     const foodAssetJSON = mapIdentAndDefGUIDtoAssetJSONs[groupRef.guid];
+            //     if(!foodAssetJSON) {
+            //         throw new Error(`Could not find favorite food identifiable type asset with guid ${groupRef.guid} for gordo ${assetJSON.props["_id"]}`);
+            //     }
+            //     return foodAssetJSON;
+            // });
+
+            const type = /^puz[0-9]/.test(assetJSON.props["_id"]) ? "receptacle" : "door";
+
+            console.log(`[Puzzle ${type} ${assetJSON.props["_id"]}]: Determining position of ${type}`);
+
+            const { gameObj: puzzleGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+            // for(const child of transformChainChildToParent) {
+            //     console.log(child.typeName);
+            //     console.log(child.fileKey);
+            //     console.log(child.fileId);
+            //     console.log(child.props["m_LocalPosition"]);
+            //     console.log(child.props["m_LocalRotation"]);
+            //     console.log(child.props["m_LocalScale"]);
+            // }
+
+            console.log(`[Puzzle ${type} ${assetJSON.props["_id"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+            // return { fileId, assetJSON, gordoGameObj, targetCount, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, pos };
+            return { fileId, assetJSON, puzzleGameObj, type: type, pos };
+
+        }));
+
+        console.log(`Determined ${ingamePuzzleDoorPositions.length} puzzle door assets and their positions.`);
+        
+        // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        // for(const d of ingameDronePositions) {
+        //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+        //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+        //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+        //         return { ...c, gameObject: gameObj };
+        //     });
+        // }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/puzzleDoorAssetsAndPositions.json", JSON.stringify(ingamePuzzleDoorPositions));
+                console.log("Exported puzzle door assets and their positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting puzzle door assets and their positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+    
+    /** @type {{ [fileGUID: string]: AssetJSONType }} */
+    const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+    const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+
+    const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+    await Promise.all(identsAndDefsFilePaths.map(
+        async (assetpath) => {
+            // const filenameNoExt = basename(assetpath).split(".")[0];
+
+            const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+            const guid = metaFileGuidRegex.exec(metadata)[1];
+            
+            /** @type {AssetsMappingType} */
+            const identOrDefAssetsMapping = { }
+            parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+            if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+                throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+            }
+            const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+            mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+        }
+    ));
+
+
+    console.log("Parsing existing puzzle door data in the map data files...")
+
+    const { fnWritePuzzleDoorsBackToFile, existingPuzzleDoorTSDataByDroneKey } = readExistingPuzzleDoorTSData(cacheOpts);
+
+    console.log(`Parsed ${Object.keys(existingPuzzleDoorTSDataByDroneKey).length} existing puzzle door data entries.`);
+
+    const mergedPuzzleDoorTSData = { ...existingPuzzleDoorTSDataByDroneKey };
+
+    console.log("Merging existing and extracted puzzle door data");
+    
+    // merge existing and extracted shadow depo data
+    
+    for(const { fileId, assetJSON, puzzleGameObj: puzzleGameObjJSON, pos, type } of ingamePuzzleDoorPositions) {
+        /** @type {string} */
+        const internalId = assetJSON.props["_id"];
+
+        // /** @type {string} */
+        // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
+
+        // for testing
+        const puzzleDoorIdInternalToOld = (x) => undefined;
+        
+        const oldId = puzzleDoorIdInternalToOld(internalId);
+
+        let areaNameForKey;
+        // TODO determine area name?
+        if(!oldId) {
+            // console.log("debug: fileKey: ", assetJSON.fileKey);
+            // make a best guess based on what scene file the asset was in.
+            console.log(assetJSON.fileKey);
+            areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+                ?? "undeterminedarea";
+            // areaNameForKey = "undeterminedarea";
+        }
+        const tsDataKey = oldId ?? (`locked${type === "door" ? "door" : ""}_${areaNameForKey}_${internalId}`);
+
+        // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+        /** @type {undefined | existingPuzzleDoorTSDataByDroneKey[keyof existingPuzzleDoorTSDataByDroneKey]} */
+        const existingData = (
+            existingPuzzleDoorTSDataByDroneKey[oldId]
+            || existingPuzzleDoorTSDataByDroneKey[internalId]
+            || existingPuzzleDoorTSDataByDroneKey[tsDataKey]
+            || Object.values(existingPuzzleDoorTSDataByDroneKey).find(data => data.internalId === internalId)
+        );
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        for(const [k, v] of Object.entries(mergedPuzzleDoorTSData)) {
+            if(v === existingData) {
+                delete mergedPuzzleDoorTSData[k];
+                break;
+            }
+        }
+
+        const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+        // const dietGroups = dietGroupsAssetsJSON.map(groupAssetJSON => {
+        //     if(groupAssetJSON.props["m_Name"])
+        //         // console.log(groupAssetJSON.props["m_Name"]);
+        //         return /^([a-z]+?)(?:FoodGroup|Group)?$/i.exec(groupAssetJSON.props["m_Name"])[1];
+        //     else {
+        //         console.log(groupAssetJSON);
+        //         throw new Error(`Could not determine diet group name for gordo ${assetJSON.props["_id"]} from asset with guid ${groupRef.guid}`);
+        //     }
+        // });
+        // const favoriteFoods = favoriteFoodsAssetJSON.map(foodAssetJSON => {
+        //     if(foodAssetJSON.props["m_Name"])
+        //         // console.log(groupAssetJSON.props["m_Name"]);
+        //         return /^([a-z]+?)(?:Fruit|Veggie|Meat)?$/i.exec(foodAssetJSON.props["m_Name"])[1];
+        //     else {
+        //         console.log(foodAssetJSON);
+        //         throw new Error(`Could not determine diet group name for gordo ${assetJSON.props["_id"]} from asset with guid ${groupRef.guid}`);
+        //     }
+        // });
+
+        // const foodType = joinedStringWithOxfordComma(dietGroups) || "- Todo: specify valid food types for this gordo";
+        // let favoriteFoodStr = joinedStringWithOxfordComma(favoriteFoods) || "";
+
+        // favoriteFoodStr = favoriteFoodStr.replace(/(\b)Beet/g, "$1Heart Beet");
+        // favoriteFoodStr = favoriteFoodStr.replace(/(\b)Tater/g, "$1Turbo Tater");
+        // favoriteFoodStr = favoriteFoodStr.replace(/(\b)Onion/g, "$1Odd Onion");
+        // favoriteFoodStr = favoriteFoodStr.replace(/(\b)Mango/g, "$1Mint Mango");
+
+        // // split camel cased words apart with spaces
+        // favoriteFoodStr = favoriteFoodStr.replace(/([a-z])([A-Z])/g, "$1 $2");
+
+        // // for some reason Oca Oca's Identifiable Food Type m_Name is concatenated as one word in the asset
+        // // favoriteFoodStr = favoriteFoodStr.replace("Ocaoca", "Oca Oca");
+
+        // // favoriteFoodStr = favoriteFoodStr.replace(/(?<!Heart ?)Beet/, "Heart Beet");
+        // // favoriteFoodStr = favoriteFoodStr.replace(/(?<!Turbo ?)Tater/, "Turbo Tater");
+        // // favoriteFoodStr = favoriteFoodStr.replace(/(?<!Odd ?)Onion/, "Odd Onion");
+        // // favoriteFoodStr = favoriteFoodStr.replace(/(?<!Mint ?)Mango/, "Mint Mango");
+
+        // const favoriteFoodFactor = 2; // favorite foods count as double towards gordo feeding
+
+        /** @type {string} */
+        let plortText;
+        /** @type {string} */
+        let image;
+        /** @type {string} */
+        let name = existingData?.name;
+        /** @type {AssetJSONType[] | undefined} */
+        let puzJSONs = undefined;
+        /** @type {AssetJSONType[] | undefined} */
+        let depoJSONs = undefined;
+        /** @type {AssetJSONType | undefined} */
+        let puzdoorJSON = undefined;
+        /*
+         *** Relevant excerpt example of YAML properties for a puzzlelock MonoBehaviour:
+         * _id: puzzlelock0425896758
+         * _slots:
+         * - {fileID: 64293}
+         * - {fileID: 64294}
+         * - {fileID: 64292}
+         *** or sometimes, instead of _slots:
+         * _depositors:
+         * - {fileID: 24105}
+         *
+         *** Relevant excerpt example of YAML properties for a puz MonoBehaviour:
+         * _id: puz0314448441
+         * _catchIdentifiableType: {fileID: 11400000, guid: a8e447996f1b64e428a9801d0ff60e12, type: 2}
+         * _targetString:
+         *   m_TableReference:
+         *     m_TableCollectionName: GUID:4db04717861c47447b4b8b4613627aa4
+         *   m_TableEntryReference:
+         *     m_KeyId: 444668425773150208
+         */
+        const _extractPuzAndDepoJSONsForLockedDoorJSON = (/** @type {AssetJSONType} */ puzzlelockJSON) => {
+            /** @type {{ fileID: number }[]} */
+            const puzzleSlots = puzzlelockJSON.props["_slots"];
+            /** @type {{ fileID: number }[] | undefined} */
+            const puzzleShadowDepos = puzzlelockJSON.props["_depositors"];
+            let puzJSONs = puzzleSlots.map(slot => {
+                const fileKeyFileId = puzzlelockJSON.fileKey + "&" + slot.fileID;
+                // const puz = assetsMapping[fileKeyFileId];
+                const puz = ingamePuzzleDoorPositions.find(data => data.fileId === fileKeyFileId).assetJSON;
+                // console.log('puz:', puz);
+                // console.log('target fileKeyFileId:', fileKeyFileId);
+                // ingamePuzzleDoorPositions.forEach(data => {
+                //     console.log(' ', data.fileId);
+                // })
+                return puz;
+            });
+            let depoJSONs = puzzleShadowDepos?.map(slot => {
+                const fileKeyFileId = assetJSON.fileKey + "&" + slot.fileID;
+                const depo = getOrLoadShadowDepoPositionCache(cacheOpts).find(data => data.fileId === fileKeyFileId).assetJSON;
+                return depo;
+            });
+            return { puzJSONs, depoJSONs };
+        }
+        if(type === "door") {
+            let _extracted = _extractPuzAndDepoJSONsForLockedDoorJSON(assetJSON);
+            puzJSONs = _extracted.puzJSONs;
+            depoJSONs = _extracted.depoJSONs;
+            const plortNames = puzJSONs.map(puz => {
+                const plortGuid = puz.props["_catchIdentifiableType"]["guid"];
+                const plortIdent = mapIdentAndDefGUIDtoAssetJSONs[plortGuid];
+                const plortName = plortIdent.props["m_Name"];
+                return capitalizeFirst(plortName.replace(/Plort$/i, ""));
+            });
+            // if(depoJSONs) {
+            //     // Add "Shadow" for each depo to plortNames array.
+            //     // We can assume the shadow plort depositories only catch shadow plorts :)
+            //     plortNames.push(...Array(depoJSONs.length).fill("Shadow"));
+            // }
+            console.log(plortNames);
+            const plortNamesCounted = Object.entries(plortNames.reduce((acc, name) => {
+                acc[name] = (acc[name] || 0) + 1;
+                return acc;
+            }, {})).map(([name, count]) => `x${count} ${name} Plort${count === 1 ? "" : "s"}`);
+            if(depoJSONs) {
+                const count = depoJSONs.reduce((acc, data) => {
+                    return acc + data.props["_fillAmount"];
+                }, 0);
+                if(count !== 0) {
+                    plortNames.push("Shadow");
+                    plortNamesCounted.push(`x${count} Shadow Plort${count === 1 ? "" : "s"}`);
+                }
+            }
+            console.log(plortNamesCounted);
+            
+            plortText = joinedStringWithOxfordComma(plortNamesCounted, "and");
+            image = "../iconMapPlortDoor.png";
+            
+            // let namepart = plortText.replaceAll(" Plort", "");
+            // const hasMultipleOfSomePlort = /\bx(?:[2-9]|[1-9][0-9]+)\b/i.test(namepart);
+            // if(!hasMultipleOfSomePlort) {
+            //     namepart = namepart.replaceAll(/x1 /ig, "");
+            // }
+            let namePartPlorts = plortNames.filter((v, i, arr) => i === arr.indexOf(v)).join(", ");
+            name ??= "Locked Door" + (namePartPlorts ? ` (${namePartPlorts})` : '');
+        }
+        else {   // else type is receptacle
+            // find parent puzzlelock which has this receptacle as one of its requirements
+            puzdoorJSON = ingamePuzzleDoorPositions.find(data => data.assetJSON.props["_slots"]?.find(slot => slot.fileID === assetJSON.fileId))?.assetJSON;
+            const plortGuid = assetJSON.props["_catchIdentifiableType"]["guid"];
+            const plortIdent = mapIdentAndDefGUIDtoAssetJSONs[plortGuid];
+            const plortName = plortIdent.props["m_Name"];
+            const strippedName = capitalizeFirst(plortName.replace(/Plort$/i, ""));
+            
+            plortText = "x1 " + strippedName + " Plort";
+            image = `iconPlort${strippedName}.png`;
+            name ??= `${strippedName} Plort Receptacle`;
+        }
+
+        console.log(plortText);
+
+        /** @type {ExistingPuzzleDoorDataType} */
+        const _mergedDataObj = { ...existingData,
+            internalId: internalId,
+            // name: existingData?.name ?? ["TODO retrieve name from translation table"],
+            // name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
+            name: name,
+            plort: plortText,
+            // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+            pos: { x: -pos.z, y: pos.x },
+            image: image,
+            type: type,
+            doorId: type === "door" ? undefined : puzdoorJSON?.props["_id"],
+            receptacleIds: type === "receptacle" ? undefined : [...puzJSONs, ...depoJSONs].map(asset => asset.props["_id"]),
+            description: existingData?.description ?? "Todo: insert a description for this puzzle " + type + " " + internalId,
+            // dimension: existingData?.dimension ?? "MapType.overworld",
+            // dimension: existingData?.dimension ?? MapType.overworld,
+            unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
+            dimension: dimension,
+            // drops: existingData?.drops ?? ["Todo: specify gordo drops"],
+            // food: `x${targetCount} ${foodType}` + (!favoriteFoodStr ? "" : `; or x${Math.ceil(targetCount/favoriteFoodFactor)} ${favoriteFoodStr}`),
+        };
+        // clear out all entries with undefined values
+        Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+        // save merged data back
+        mergedPuzzleDoorTSData[tsDataKey] = _mergedDataObj;
+
+        if(existingData)
+            console.log(`Merged extracted puzzle door ${internalId} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted puzzle door ${internalId} data to ${tsDataKey} data`)
+    }
+
+    console.log("Writing puzzle door data back to map data file");
+
+    fnWritePuzzleDoorsBackToFile(mergedPuzzleDoorTSData);
+}
+
+/** @typedef {{ internalId: string, type: "door" | "receptacle", doorId?: string, receptacleIds?: string[], name: string, plort: string, image: string, description: string, unlocks: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingPuzzleDoorDataType */
+
+function readExistingPuzzleDoorTSData(/** @type {CacheOpts} */ cacheOpts) {
+    
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    const fileText = readFileSync(PATH_TO_PUZZLE_DOORS_DATA_FILE, { encoding: "utf-8" });
+
+    const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*const\s+locked_doors.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
+
+    const parsedObj = looseJsonParseWithEval(dataObjInJsCode);
+
+    const _objMatchesExpectedSchema = (
+        typeof parsedObj === "object"
+        && Object.keys(parsedObj).every(k => (
+            typeof parsedObj[k] === "object"
+            && setContains(new Set(Object.keys(parsedObj[k])), ["name", "plort", "image", "pos", "description", "unlocks", "dimension"])
+        ))
+    );
+
+    if(!_objMatchesExpectedSchema) {
+        console.log("dataObjAsInitText = ", dataObjInJsCode);
+        console.log("_obj = ", parsedObj);
+        for(const k of Object.keys(parsedObj)) {
+            if(!(
+                typeof parsedObj[k] === "object"
+                && setContains(new Set(Object.keys(parsedObj[k])), ["name", "plort", "image", "pos", "description", "unlocks", "dimension"])
+            )) {
+                console.log(k)
+            }
+        }
+        throw new Error("unexpected loose json parse result, did not match expected schema");
+    }
+
+    const fnWritePuzzleDoorsBackToFile = (/** @type {{ [tsDataPuzzleDoorKey: string]: ExistingPuzzleDoorDataType }} */ mergedPuzzleDoorTSData) => {
+        const dataObjAsJsCode = looseJsonStringify(
+            mergedPuzzleDoorTSData,
+            "    ",
+            _jsonStringifyTransformerFns
+        );
+        
+        const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
+
+        writeFileSync(PATH_TO_PUZZLE_DOORS_DATA_FILE, newFileText);
+    };
+
+    return {
+        fnWritePuzzleDoorsBackToFile,
+        /** @type {{ [tsDataPuzzleDoorKey: string]: ExistingPuzzleDoorDataType }} */
+        existingPuzzleDoorTSDataByDroneKey: parsedObj
+    }
 }
 
 /** @typedef {{ internalId?: string, internalName?: string, name: string, food: string, image: string, drops: string[], unlocks: string[], description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingGordoDataType */
@@ -1513,7 +2006,7 @@ const _jsonStringifyTransformerFns = {
 let _gordoIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function gordoIdInternalToOld(/** @type {string} */ internalId) {
+function puzzleDoorIdInternalToOld(/** @type {string} */ internalId) {
     if(_gordoIdMap === null) {
         _gordoIdMap = JSON.parse(readFileSync("./id_mappings/gordoIdMap.json"));
     }
@@ -1801,3 +2294,4 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
 // exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false });
 // exportResearchDroneDepoCoordinatesFromAssetsMapping();
 // exportGordoCoordinatesFromAssetsMapping();
+exportPuzzleDoorCoordinatesFromAssetsMapping();

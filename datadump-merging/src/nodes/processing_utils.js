@@ -536,12 +536,23 @@ export function looseJsonStringify(
 }
 
 
-export function joinedStringWithOxfordComma(/** @type {string[]} */ arr) {
+export function joinedStringWithOxfordComma(/** @type {string[]} */ arr, andor = "or") {
     if(arr.length === 0) return "";
     if(arr.length === 1) return arr[0];
-    if(arr.length === 2) return `${arr[0]} or ${arr[1]}`;
-    if(arr.length >= 3) return arr.slice(0, -1).join(", ") + ", or " + arr[arr.length - 1];
+    if(arr.length === 2) return `${arr[0]} ${andor} ${arr[1]}`;
+    if(arr.length >= 3) return arr.slice(0, -1).join(", ") + ", " + andor + " " + arr[arr.length - 1];
     return arr[0];
+}
+
+
+/**
+ * Capitalizes the first letter of a string
+ * @param {string} str - The string to capitalize
+ * @returns {string} The string with first letter capitalized
+ */
+export function capitalizeFirst(str) {
+    if (!str) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 

@@ -1,3 +1,4 @@
+import internal from "stream";
 import { MapType } from "./CurrentMapContext";
 
 export interface Vec2 {
@@ -19,6 +20,10 @@ export interface Gordo {
 }
 
 export interface LockedDoor {
+    internalId?: string;
+    type: "door" | "receptacle";
+    doorId?: string;
+    receptacleIds?: string[];
     name: string;
     plort: string;
     pos: Vec2;
