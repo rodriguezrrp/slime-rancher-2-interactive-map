@@ -48,16 +48,6 @@ export async function exportNodeCoordsFromScenesJSON(
     
     //...
     
-    //===============
-    // Plort Receptacle Statues
-    
-    //...
-
-    //===============
-    // Plort Locked Doors
-    
-    //...
-    
     //
     //////////////////////
     // LABYRINTH
@@ -84,16 +74,6 @@ export async function exportNodeCoordsFromScenesJSON(
     //...
     
     //===============
-    // Plort Receptacle Statues
-    
-    //...
-
-    //===============
-    // Plort Locked Doors
-    
-    //...
-
-    //===============
     // Nullifier Doors
     
     //...
@@ -117,6 +97,11 @@ export async function exportNodeCoordsFromScenesJSON(
     // Gordo Locations
 
     await exportGordoCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+
+    //===============
+    // Locked Doors, Plort Receptacle Statues
+    
+    await exportPuzzleDoorCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
 
 }
 
@@ -270,7 +255,7 @@ function getOrLoadShadowDepoPositionCache(/** @type {CacheOpts} */ cacheOpts, /*
                 console.log(`Read (${_shDepoPosCache.length}) shadow plort depo coordinates from cache file.`);
             }
             else {
-                throw new Error("todo need to generate and cache the shdepoPositions.json");
+                throw new Error("todo need to generate and cache the shdepoPositions.json; move logic from the exportShadowPlortDepoCoordinatesFromAssetsMapping function?");
             }
         }
     }
@@ -827,7 +812,7 @@ async function exportGordoCoordinatesFromAssetsMapping(/** @type {AssetsMappingT
         // for testing
         // const gordoIdInternalToOld = (x) => undefined;
         
-        const oldGordoId = puzzleDoorIdInternalToOld(internalGordoId);
+        const oldGordoId = gordoIdInternalToOld(internalGordoId);
 
         let areaNameForKey;
         // TODO determine area name?
@@ -1126,7 +1111,7 @@ async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMap
         // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
 
         // for testing
-        const puzzleDoorIdInternalToOld = (x) => undefined;
+        // const puzzleDoorIdInternalToOld = (x) => undefined;
         
         const oldId = puzzleDoorIdInternalToOld(internalId);
 
@@ -1303,6 +1288,16 @@ async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMap
         else {   // else type is receptacle
             // find parent puzzlelock which has this receptacle as one of its requirements
             puzdoorJSON = ingamePuzzleDoorPositions.find(data => data.assetJSON.props["_slots"]?.find(slot => slot.fileID === assetJSON.fileId))?.assetJSON;
+            
+            let doorReceptacles = _extractPuzAndDepoJSONsForLockedDoorJSON(puzdoorJSON);
+            let doorReceptaclesCt = (doorReceptacles.puzJSONs?.length || 0) + (doorReceptacles.depoJSONs?.length || 0);
+            let indOfThisReceptacle = doorReceptaclesCt === 1 ? 0 : [...doorReceptacles.puzJSONs, ...doorReceptacles.depoJSONs].sort((a, b) => {
+                // sort all of door's receptacles for deterministic index positioning, just in case.
+                let aId = a.props["_id"];
+                let bId = b.props["_id"];
+                return aId === bId ? 0 : aId < bId ? -1 : 1;
+            }).findIndex(a => a.props["_id"] === assetJSON.props["_id"]);
+
             const plortGuid = assetJSON.props["_catchIdentifiableType"]["guid"];
             const plortIdent = mapIdentAndDefGUIDtoAssetJSONs[plortGuid];
             const plortName = plortIdent.props["m_Name"];
@@ -1310,7 +1305,7 @@ async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMap
             
             plortText = "x1 " + strippedName + " Plort";
             image = `iconPlort${strippedName}.png`;
-            name ??= `${strippedName} Plort Receptacle`;
+            name ??= `${strippedName} Plort Receptacle` + (doorReceptaclesCt === 1 ? "" : ` (${indOfThisReceptacle + 1}/${doorReceptaclesCt})`);
         }
 
         console.log(plortText);
@@ -1390,7 +1385,48 @@ function readExistingPuzzleDoorTSData(/** @type {CacheOpts} */ cacheOpts) {
         const dataObjAsJsCode = looseJsonStringify(
             mergedPuzzleDoorTSData,
             "    ",
-            _jsonStringifyTransformerFns
+            {
+                ..._jsonStringifyTransformerFns,
+                shouldSortKeys: (key, depth, keys, obj) => {
+                    if(depth === 0) {
+                        let _origSortFn = _jsonStringifyTransformerFns.shouldSortKeys(key, depth, keys, obj);
+                        let applyOrigSortFn = (a,b) => {
+                            if(typeof _origSortFn === "function") return _origSortFn(a,b);
+                            // if(typeof _origSortFn === "undefined") return undefined;
+                            return sortStringsWithNumbers(a,b);
+                        };
+                        return (a, b) => {
+                            // console.log(key,depth,keys,obj,'|',a,b); return undefined;
+                            // prefer to sort by related puzzle door, otherwise use any previously defined sort function
+                            const aObj = obj[a];
+                            const bObj = obj[b];
+                            const aInternalId = obj[a].internalId;
+                            const bInternalId = obj[b].internalId;
+                            
+                            // put locked door entries without associated door ids after those with.
+                            if(!aInternalId && !bInternalId) return applyOrigSortFn(a, b);
+                            if(!aInternalId) return 1;
+                            if(!bInternalId) return -1;
+
+                            const aIsDoor = /^puzzlelock[0-9]/.test(aInternalId);
+                            const bIsDoor = /^puzzlelock[0-9]/.test(bInternalId);
+                            const aDoorId = aIsDoor ? aInternalId : aObj.doorId;
+                            const bDoorId = bIsDoor ? bInternalId : bObj.doorId;
+
+                            // if they're not part of the same door grouping, sort the locked door entries by their (different) door ids.
+                            if(aDoorId !== bDoorId) return sortStringsWithNumbers(aDoorId, bDoorId);
+                            
+                            if(aIsDoor && bIsDoor) throw new Error(`How was there two entries that were both doors and were the same door? (a = ${JSON.stringify(a)} , b = (${JSON.stringify(b)})`);
+                            // put the door entry before its receptacle entries
+                            if(aIsDoor) return -1;
+                            if(bIsDoor) return 1;
+                            // sort receptacles by their object keys as usual.
+                            return applyOrigSortFn(a, b);
+                        };
+                    }
+                    return _jsonStringifyTransformerFns.shouldSortKeys(key, depth, keys, obj);
+                }
+            }
         );
         
         const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
@@ -2002,11 +2038,32 @@ const _jsonStringifyTransformerFns = {
     }
 };
 
+
+/** old (ours) to internal @type {{ [oldId: string]: string }} */
+let _puzzleDoorIdMap = null;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function puzzleDoorIdInternalToOld(/** @type {string} */ internalId) {
+    if(_puzzleDoorIdMap === null) {
+        _puzzleDoorIdMap = JSON.parse(readFileSync("./id_mappings/puzzleDoorIdMap.json"));
+    }
+    return Object.entries(_puzzleDoorIdMap).find(([, v]) => v === internalId)?.[0];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function puzzleDoorIdOldToInternal(/** @type {string} */ oldId) {
+    if(_puzzleDoorIdMap === null) {
+        _puzzleDoorIdMap = JSON.parse(readFileSync("./id_mappings/puzzleDoorIdMap.json"));
+    }
+    return _puzzleDoorIdMap[oldId];
+}
+
+
 /** old (ours) to internal @type {{ [oldId: string]: string }} */
 let _gordoIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function puzzleDoorIdInternalToOld(/** @type {string} */ internalId) {
+function gordoIdInternalToOld(/** @type {string} */ internalId) {
     if(_gordoIdMap === null) {
         _gordoIdMap = JSON.parse(readFileSync("./id_mappings/gordoIdMap.json"));
     }
@@ -2020,6 +2077,7 @@ function gordoIdOldToInternal(/** @type {string} */ oldId) {
     }
     return _gordoIdMap[oldId];
 }
+
 
 /** old (ours) to internal @type {{ [oldId: string]: string }} */
 let _droneIdMap = null;
@@ -2040,6 +2098,7 @@ function droneIdOldToInternal(/** @type {string} */ oldId) {
     return _droneIdMap[oldId];
 }
 
+
 /** old (ours) to internal @type {{ [oldId: string]: string }} */
 let _podIdMap = null;
 
@@ -2059,6 +2118,7 @@ function podIdOldToInternal(/** @type {string} */ oldId) {
     return _podIdMap[oldId];
 }
 
+
 /** internal to old (ours) @type {{ [internalId: string]: string }} */
 let _shadowDepoIdMap = null;
 
@@ -2077,6 +2137,7 @@ function shadowDepoIdOldToInternal(/** @type {string} */ oldId) {
     }
     return Object.entries(_shadowDepoIdMap).find(([, v]) => v === internalId)?.[0];
 }
+
 
 let _podIdGroups = null;
 
