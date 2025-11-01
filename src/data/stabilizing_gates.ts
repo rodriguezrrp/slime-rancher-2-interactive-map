@@ -2,27 +2,58 @@ import { StabilizingGate } from "../types";
 
 export const stabilizing_gates: { [key: string]: StabilizingGate } = {
     "stabilizinggate_1": {
-        position: { x: 12.5, y: -30.0 },
-        description: "",
+        internalId: "stabilizinggate1291701359",
+        position: { x: 954.0206464400671, y: 1485.5659559422133 },
+        description: ""
     },
     "stabilizinggate_2": {
-        position: { x: 1.5, y: -47.8 },
-        description: "",
+        internalId: "stabilizinggate0410698372",
+        position: { x: 1033.9733076620512, y: 1362.6952500628347 },
+        description: ""
     },
     "stabilizinggate_3": {
-        position: { x: -15.2, y: -44.3 },
-        description: "Inside the locked door from the Shadow Plort Door nearby.",
+        internalId: "stabilizinggate0382406702",
+        position: { x: 1135.5570861576912, y: 1391.8986100960383 },
+        description: "Inside the locked door from the Shadow Plort Door nearby."
     },
     "stabilizinggate_4": {
-        position: { x: 23.6, y: -80.9 },
-        description: "In the same room as the nearby Shadow Plort Door.",
+        internalId: "stabilizinggate0945675053",
+        position: { x: 872.7890915031468, y: 1141.4655080401847 },
+        description: "In the same room as the nearby Shadow Plort Door."
     },
     "stabilizinggate_5": {
-        position: { x: 44.8, y: -132.3 },
-        description: "Located on the floating island of debris.",
+        internalId: "stabilizinggate0896331853",
+        position: { x: 699.4356568403227, y: 793.6342943487032 },
+        description: "Located on the floating island of debris."
     },
     "stabilizinggate_6": {
-        position: { x: 64.9, y: -99.2 },
-        description: "",
+        internalId: "stabilizinggate1405368789",
+        position: { x: 455.2485172435835, y: 1018.4409027689567 },
+        description: ""
     },
+    "stabilizinggate_stabilizinggate0148392974": {
+        internalId: "stabilizinggate0148392974",
+        position: { x: 818.1307908670938, y: 2038.8654771665385 },
+        description: "Todo: insert a description for this stabilizing gate stabilizinggate0148392974"
+    },
+    "stabilizinggate_stabilizinggate0344923807": {
+        internalId: "stabilizinggate0344923807",
+        position: { x: -926.4029504233495, y: 1123.5877500610238 },
+        description: "Todo: insert a description for this stabilizing gate stabilizinggate0344923807"
+    },
+    "stabilizinggate_stabilizinggate0654469445": {
+        internalId: "stabilizinggate0654469445",
+        position: { x: -1023.8918073332067, y: 468.83837292159023 },
+        description: "Todo: insert a description for this stabilizing gate stabilizinggate0654469445"
+    },
+    "stabilizinggate_stabilizinggate1172010955": {
+        internalId: "stabilizinggate1172010955",
+        position: { x: 988.2619951287834, y: 828.6339026257912 },
+        description: "Todo: insert a description for this stabilizing gate stabilizinggate1172010955"
+    },
+    "stabilizinggate_stabilizinggate1617779913": {
+        internalId: "stabilizinggate1617779913",
+        position: { x: -926.4030114233494, y: 1123.5877500610238 },
+        description: "Todo: insert a description for this stabilizing gate stabilizinggate1617779913"
+    }
 };

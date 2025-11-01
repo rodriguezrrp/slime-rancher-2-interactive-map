@@ -1,5 +1,5 @@
 
-import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE } from "../../asset_paths.js";
 
 import { Glob, globSync } from "glob";
 import assert from "node:assert";
@@ -37,16 +37,6 @@ export async function exportNodeCoordsFromScenesJSON(
     // Research Drones
     
     await exportResearchDroneDepoCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
-
-    //===============
-    // Map Nodes
-    
-    //...
-    
-    //===============
-    // Teleport Pads, Teleport Lines
-    
-    //...
     
     //
     //////////////////////
@@ -60,16 +50,6 @@ export async function exportNodeCoordsFromScenesJSON(
     
     //===============
     // Gigi Holograms
-    
-    //...
-    
-    //===============
-    // Map Nodes
-    
-    //...
-    
-    //===============
-    // Teleport Pads, Teleport Lines
     
     //...
     
@@ -102,6 +82,16 @@ export async function exportNodeCoordsFromScenesJSON(
     // Locked Doors, Plort Receptacle Statues
     
     await exportPuzzleDoorCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+
+    //===============
+    // Map Nodes
+    
+    //...
+    
+    //===============
+    // Teleport Pads, Teleport Lines
+    
+    //...
 
 }
 
@@ -1093,11 +1083,11 @@ async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMap
 
     console.log("Parsing existing puzzle door data in the map data files...")
 
-    const { fnWritePuzzleDoorsBackToFile, existingPuzzleDoorTSDataByDroneKey } = readExistingPuzzleDoorTSData(cacheOpts);
+    const { fnWritePuzzleDoorsBackToFile, existingPuzzleDoorTSDataByDoorKey } = readExistingPuzzleDoorTSData(cacheOpts);
 
-    console.log(`Parsed ${Object.keys(existingPuzzleDoorTSDataByDroneKey).length} existing puzzle door data entries.`);
+    console.log(`Parsed ${Object.keys(existingPuzzleDoorTSDataByDoorKey).length} existing puzzle door data entries.`);
 
-    const mergedPuzzleDoorTSData = { ...existingPuzzleDoorTSDataByDroneKey };
+    const mergedPuzzleDoorTSData = { ...existingPuzzleDoorTSDataByDoorKey };
 
     console.log("Merging existing and extracted puzzle door data");
     
@@ -1131,10 +1121,10 @@ async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMap
 
         /** @type {undefined | existingPuzzleDoorTSDataByDroneKey[keyof existingPuzzleDoorTSDataByDroneKey]} */
         const existingData = (
-            existingPuzzleDoorTSDataByDroneKey[oldId]
-            || existingPuzzleDoorTSDataByDroneKey[internalId]
-            || existingPuzzleDoorTSDataByDroneKey[tsDataKey]
-            || Object.values(existingPuzzleDoorTSDataByDroneKey).find(data => data.internalId === internalId)
+            existingPuzzleDoorTSDataByDoorKey[oldId]
+            || existingPuzzleDoorTSDataByDoorKey[internalId]
+            || existingPuzzleDoorTSDataByDoorKey[tsDataKey]
+            || Object.values(existingPuzzleDoorTSDataByDoorKey).find(data => data.internalId === internalId)
         );
 
         // remove existingData object from the merged data mapping;
@@ -1347,6 +1337,290 @@ async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMap
     fnWritePuzzleDoorsBackToFile(mergedPuzzleDoorTSData);
 }
 
+async function exportStabilizingGateCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ fileId: string, assetJSON: AssetJSONType, gateGameObj: AssetJSONType, pos: { x: number, y: number, z: number } }[]} */
+    let ingameGatePositions;
+    
+    if(cacheOpts.useCache && existsSync("./data_cache/stabilizingGateAssetsAndPositions.json")) {
+    // if(false) {  // for debugging
+        
+        console.log("Reading cached stabilizing gate coordinates...");
+
+        ingameGatePositions = JSON.parse(readFileSync("./data_cache/stabilizingGateAssetsAndPositions.json"));
+
+        console.log(`Read (${ingameGatePositions.length}) stabilizing gate coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting stabilizing gate coordinates from assets JSON...");
+
+        const gateMonoBehavioursEntries = Object.entries(assetsMapping)
+            .filter(([, assetJSON]) => {
+            
+                const _id = assetJSON.props["_id"];
+            
+                if(!_id) return false;
+
+                if(!/^stabilizinggate[0-9]+$/.test(_id)) return false;
+
+                if(assetJSON.typeName !== "MonoBehaviour") {
+                    console.log(assetJSON);
+                    throw new Error("found asset with a stabilizinggate id in \"_id\" prop, but it was not a MonoBehaviour?");
+                }
+
+                return true;
+
+            });
+        console.log(`Retrieved ${gateMonoBehavioursEntries.length} stabilizinggate MonoBehaviour entries.`);
+
+        // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+        // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+        // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+        // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+        // await Promise.all(identsAndDefsFilePaths.map(
+        //     async (assetpath) => {
+        //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+        //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+        //         const guid = metaFileGuidRegex.exec(metadata)[1];
+                
+        //         /** @type {AssetsMappingType} */
+        //         const identOrDefAssetsMapping = { }
+        //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+        //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+        //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+        //         }
+        //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+        //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+        //     }
+        // ));
+        // throw new Error("temp");
+
+        // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+        ingameGatePositions = await Promise.all(gateMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+            console.log(`[Stabilizing Gate ${assetJSON.props["_id"]}]: Determining position of stabilizing gate`);
+
+            const { gameObj: gateGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+            // for(const child of transformChainChildToParent) {
+            //     console.log(child.typeName);
+            //     console.log(child.fileKey);
+            //     console.log(child.fileId);
+            //     console.log(child.props["m_LocalPosition"]);
+            //     console.log(child.props["m_LocalRotation"]);
+            //     console.log(child.props["m_LocalScale"]);
+            // }
+
+            console.log(`[Stabilizing Gate ${assetJSON.props["_id"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+            // return { fileId, assetJSON, gordoGameObj, targetCount, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, pos };
+            return { fileId, assetJSON, gateGameObj, pos };
+
+        }));
+
+        console.log(`Determined ${ingameGatePositions.length} stabilizing gate assets and their positions.`);
+        
+        // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        // for(const d of ingameDronePositions) {
+        //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+        //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+        //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+        //         return { ...c, gameObject: gameObj };
+        //     });
+        // }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/stabilizingGateAssetsAndPositions.json", JSON.stringify(ingameGatePositions));
+                console.log("Exported stabilizing gate assets and their positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting stabilizing gate assets and their positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+    
+    // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+    // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+    // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+
+    // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+    // await Promise.all(identsAndDefsFilePaths.map(
+    //     async (assetpath) => {
+    //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+    //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+    //         const guid = metaFileGuidRegex.exec(metadata)[1];
+            
+    //         /** @type {AssetsMappingType} */
+    //         const identOrDefAssetsMapping = { }
+    //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+    //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+    //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+    //         }
+    //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+    //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+    //     }
+    // ));
+
+
+    console.log("Parsing existing stabilizing gate data in the map data files...")
+
+    const { fnWriteStabilizingGatesBackToFile, existingStabilizingGateTSDataByGateKey } = readExistingStabilizingGatesTSData(cacheOpts);
+
+    console.log(`Parsed ${Object.keys(existingStabilizingGateTSDataByGateKey).length} existing stabilizing gate data entries.`);
+
+    const mergedGateTSData = { ...existingStabilizingGateTSDataByGateKey };
+
+    console.log("Merging existing and extracted stabilizing gate data");
+    
+    // merge existing and extracted shadow depo data
+    
+    for(const { fileId, assetJSON, gateGameObj: gateGameObjJSON, pos } of ingameGatePositions) {
+        /** @type {string} */
+        const internalId = assetJSON.props["_id"];
+
+        // /** @type {string} */
+        // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
+
+        // for testing
+        // const stabilizingGateIdInternalToOld = (x) => undefined;
+        
+        const oldId = stabilizingGateIdInternalToOld(internalId);
+
+        let areaNameForKey;
+        // TODO determine area name?
+        // if(!oldId) {
+        //     // console.log("debug: fileKey: ", assetJSON.fileKey);
+        //     // make a best guess based on what scene file the asset was in.
+        //     console.log(assetJSON.fileKey);
+        //     areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+        //         ?? "undeterminedarea";
+        //     // areaNameForKey = "undeterminedarea";
+        // }
+        const tsDataKey = oldId ?? (`stabilizinggate_${internalId}`);
+
+        // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+        /** @type {undefined | existingStabilizingGateTSDataByGateKey[keyof existingStabilizingGateTSDataByGateKey]} */
+        const existingData = (
+            existingStabilizingGateTSDataByGateKey[oldId]
+            || existingStabilizingGateTSDataByGateKey[internalId]
+            || existingStabilizingGateTSDataByGateKey[tsDataKey]
+            || Object.values(existingStabilizingGateTSDataByGateKey).find(data => data.internalId === internalId)
+        );
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        for(const [k, v] of Object.entries(mergedGateTSData)) {
+            if(v === existingData) {
+                delete mergedGateTSData[k];
+                break;
+            }
+        }
+
+        // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+        /** @type {ExistingStabilizingGateDataType} */
+        const _mergedDataObj = { ...existingData,
+            internalId: internalId,
+            // name: existingData?.name ?? ["TODO retrieve name from translation table"],
+            // name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
+            // name: name,
+            // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+            position: { x: -pos.z, y: pos.x },
+            // image: image,
+            description: existingData?.description ?? "Todo: insert a description for this stabilizing gate " + internalId,
+            // dimension: existingData?.dimension ?? "MapType.overworld",
+            // dimension: existingData?.dimension ?? MapType.labyrinth,
+            // unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
+        };
+        // clear out all entries with undefined values
+        Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+        // save merged data back
+        mergedGateTSData[tsDataKey] = _mergedDataObj;
+
+        if(existingData)
+            console.log(`Merged extracted stabilizing gate ${internalId} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted stabilizing gate ${internalId} data to ${tsDataKey} data`)
+    }
+
+    console.log("Writing stabilizing gate data back to map data file");
+
+    fnWriteStabilizingGatesBackToFile(mergedGateTSData);
+}
+
+/** @typedef {{ internalId: string, description: string, position: { x: number, y: number }, [other]?: any }} ExistingStabilizingGateDataType */
+
+function readExistingStabilizingGatesTSData(/** @type {CacheOpts} */ cacheOpts) {
+    
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    const fileText = readFileSync(PATH_TO_STABILIZING_GATES_DATA_FILE, { encoding: "utf-8" });
+
+    const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*const\s+stabilizing_gates.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
+
+    const parsedObj = looseJsonParseWithEval(dataObjInJsCode);
+
+    const _objMatchesExpectedSchema = (
+        typeof parsedObj === "object"
+        && Object.keys(parsedObj).every(k => (
+            typeof parsedObj[k] === "object"
+            && setContains(new Set(Object.keys(parsedObj[k])), ["description", "position"])
+        ))
+    );
+
+    if(!_objMatchesExpectedSchema) {
+        console.log("dataObjAsInitText = ", dataObjInJsCode);
+        console.log("_obj = ", parsedObj);
+        for(const k of Object.keys(parsedObj)) {
+            if(!(
+                typeof parsedObj[k] === "object"
+                && setContains(new Set(Object.keys(parsedObj[k])), ["description", "position"])
+            )) {
+                console.log(k)
+            }
+        }
+        throw new Error("unexpected loose json parse result, did not match expected schema");
+    }
+
+    const fnWriteStabilizingGatesBackToFile = (/** @type {{ [tsDataStabilizingGateKey: string]: ExistingStabilizingGateDataType }} */ mergedPuzzleDoorTSData) => {
+        const dataObjAsJsCode = looseJsonStringify(
+            mergedPuzzleDoorTSData,
+            "    ",
+            _jsonStringifyTransformerFns
+        );
+        
+        const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
+
+        writeFileSync(PATH_TO_STABILIZING_GATES_DATA_FILE, newFileText);
+    };
+
+    return {
+        fnWriteStabilizingGatesBackToFile,
+        /** @type {{ [tsDataStabilizingGateKey: string]: ExistingStabilizingGateDataType }} */
+        existingStabilizingGateTSDataByGateKey: parsedObj
+    }
+}
+
 /** @typedef {{ internalId: string, type: "door" | "receptacle", doorId?: string, receptacleIds?: string[], name: string, plort: string, image: string, description: string, unlocks: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingPuzzleDoorDataType */
 
 function readExistingPuzzleDoorTSData(/** @type {CacheOpts} */ cacheOpts) {
@@ -1437,7 +1711,7 @@ function readExistingPuzzleDoorTSData(/** @type {CacheOpts} */ cacheOpts) {
     return {
         fnWritePuzzleDoorsBackToFile,
         /** @type {{ [tsDataPuzzleDoorKey: string]: ExistingPuzzleDoorDataType }} */
-        existingPuzzleDoorTSDataByDroneKey: parsedObj
+        existingPuzzleDoorTSDataByDoorKey: parsedObj
     }
 }
 
@@ -2040,6 +2314,26 @@ const _jsonStringifyTransformerFns = {
 
 
 /** old (ours) to internal @type {{ [oldId: string]: string }} */
+let _stabilizingGateIdMap = null;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function stabilizingGateIdInternalToOld(/** @type {string} */ internalId) {
+    if(_stabilizingGateIdMap === null) {
+        _stabilizingGateIdMap = JSON.parse(readFileSync("./id_mappings/stabilizingGateIdMap.json"));
+    }
+    return Object.entries(_stabilizingGateIdMap).find(([, v]) => v === internalId)?.[0];
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function stabilizingGateIdOldToInternal(/** @type {string} */ oldId) {
+    if(_stabilizingGateIdMap === null) {
+        _stabilizingGateIdMap = JSON.parse(readFileSync("./id_mappings/stabilizingGateIdMap.json"));
+    }
+    return _stabilizingGateIdMap[oldId];
+}
+
+
+/** old (ours) to internal @type {{ [oldId: string]: string }} */
 let _puzzleDoorIdMap = null;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -2355,4 +2649,5 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
 // exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false });
 // exportResearchDroneDepoCoordinatesFromAssetsMapping();
 // exportGordoCoordinatesFromAssetsMapping();
-exportPuzzleDoorCoordinatesFromAssetsMapping();
+// exportPuzzleDoorCoordinatesFromAssetsMapping();
+exportStabilizingGateCoordinatesFromAssetsMapping();

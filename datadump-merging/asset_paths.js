@@ -53,6 +53,7 @@ export const PATH_TO_SHADOW_DEPOS_DATA_FILE = "../src/data/shadow_doors.ts";
 export const PATH_TO_RESEARCH_DRONES_DATA_FILE = "../src/data/research_drones.ts";
 export const PATH_TO_GORDOS_DATA_FILE = "../src/data/gordos.ts";
 export const PATH_TO_PUZZLE_DOORS_DATA_FILE = "../src/data/locked_doors.ts";
+export const PATH_TO_STABILIZING_GATES_DATA_FILE = "../src/data/stabilizing_gates.ts";
 
 export const PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER = "../public/map_overworld";
 export const PATH_TO_LABYRINTH_TILEMAP_FOLDER = "../public/map_labyrinth";

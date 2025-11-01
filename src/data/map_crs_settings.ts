@@ -10,14 +10,14 @@ const gameMapWidthUnits: number = 6400;
 const tileSize: number = 256;
 
 // Rainbow Island settings
-const unitsPerPixel: number = 128;
-const mapWidthPx: number = 25600;
-// const mapWidthPx: number = 11468;
-// const mapHeightPx: number = 25600;
+// const unitsPerPixel: number = 128;
+// const mapWidthPx: number = 25600;
+// // const mapWidthPx: number = 11468;
+// // const mapHeightPx: number = 25600;
 
 // // Labyrinth settings
-// const unitsPerPixel: number = 64;
-// const mapWidthPx: number = 16003;
+const unitsPerPixel: number = 64;
+const mapWidthPx: number = 16003;
 
 // TODO Also find a way to swap out CRS dynamically? Or the L.Transformation? Do I need to move the L.Transformation 'logic' into a separate conditional function based on current_map?
 

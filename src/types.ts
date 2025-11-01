@@ -146,6 +146,7 @@ export interface PlannerIcons {
 }
 
 export interface StabilizingGate {
+    internalId: string;
     position: Vec2;
     description: string;
 }
