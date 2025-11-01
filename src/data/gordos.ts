@@ -2,61 +2,6 @@ import { Gordo } from "../types";
 import { MapType } from "../CurrentMapContext";
 
 export const gordos: { [key: string]: Gordo } = {
-    "battygordo_corescenelabyrinth_gordo0437136615": {
-        internalId: "gordo0437136615",
-        name: "Batty Gordo",
-        description: "Todo: insert a description for this gordo gordo0437136615",
-        pos: { x: 370.35, y: 93.6 },
-        dimension: MapType.labyrinth,
-        drops: [ "Todo: specify gordo drops" ],
-        unlocks: [ "Todo: specify gordo unlocks" ],
-        food: "x50 Fruit; or x25 Pomegranite",
-        image: "iconGordoBatty.png"
-    },
-    "dervishgordo_corescenelabyrinth_gordo0553712223": {
-        internalId: "gordo0553712223",
-        name: "Dervish Gordo",
-        description: "Todo: insert a description for this gordo gordo0553712223",
-        pos: { x: 354.70117, y: 303.88995 },
-        dimension: MapType.labyrinth,
-        drops: [ "Todo: specify gordo drops" ],
-        unlocks: [ "Todo: specify gordo unlocks" ],
-        food: "x50 Fruit; or x25 Pear",
-        image: "iconGordoDervish.png"
-    },
-    "quantumgordo_corescenelabyrinth_gordo1865116509": {
-        internalId: "gordo1865116509",
-        name: "Quantum Gordo",
-        description: "Todo: insert a description for this gordo gordo1865116509",
-        pos: { x: 235.4, y: 190.8 },
-        dimension: MapType.labyrinth,
-        drops: [ "Todo: specify gordo drops" ],
-        unlocks: [ "Todo: specify gordo unlocks" ],
-        food: "x50 Fruit; or x25 Lemon",
-        image: "iconGordoQuantum.png"
-    },
-    "radgordo_corescenelabyrinth_gordo1649061164": {
-        internalId: "gordo1649061164",
-        name: "Rad Gordo",
-        description: "Todo: insert a description for this gordo gordo1649061164",
-        pos: { x: 329.2, y: 420.6 },
-        dimension: MapType.labyrinth,
-        drops: [ "Todo: specify gordo drops" ],
-        unlocks: [ "Todo: specify gordo unlocks" ],
-        food: "x50 Veggie; or x25 Ocaoca",
-        image: "iconGordoRad.png"
-    },
-    "tanglegordo_corescenelabyrinth_gordo0026007518": {
-        internalId: "gordo0026007518",
-        name: "Tangle Gordo",
-        description: "Todo: insert a description for this gordo gordo0026007518",
-        pos: { x: 363.6, y: 295.1 },
-        dimension: MapType.labyrinth,
-        drops: [ "Todo: specify gordo drops" ],
-        unlocks: [ "Todo: specify gordo unlocks" ],
-        food: "x50 Meat; or x25 Painted Hen",
-        image: "iconGordoTangle.png"
-    },
     "battygordo_embervalley_1": {
         name: "Batty Gordo",
         food: "x50 Fruit; or x25 Pomegranite",
@@ -202,7 +147,7 @@ export const gordos: { [key: string]: Gordo } = {
     },
     "honeygordo_starlightstrand_1": {
         name: "Honey Gordo",
-        food: "x50 Fruit; or x25 Mango",
+        food: "x50 Fruit; or x25 Mint Mango",
         pos: { x: 238.79998, y: 227.59998869999998 },
         image: "iconGordoHoney.png",
         drops: [ "x12 Honey Slimes", "x1 Jar" ],

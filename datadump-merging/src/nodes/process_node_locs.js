@@ -7,6 +7,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
 import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
+import { entryExportFilter } from "./entries_export_filter.js";
 
 
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
@@ -61,7 +62,7 @@ export async function exportNodeCoordsFromScenesJSON(
     //===============
     // Stabilizing Gates
     
-    //...
+    await exportStabilizingGateCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Radiant Projector Puzzles
@@ -1602,9 +1603,9 @@ function readExistingStabilizingGatesTSData(/** @type {CacheOpts} */ cacheOpts) 
         throw new Error("unexpected loose json parse result, did not match expected schema");
     }
 
-    const fnWriteStabilizingGatesBackToFile = (/** @type {{ [tsDataStabilizingGateKey: string]: ExistingStabilizingGateDataType }} */ mergedPuzzleDoorTSData) => {
+    const fnWriteStabilizingGatesBackToFile = (/** @type {{ [tsDataStabilizingGateKey: string]: ExistingStabilizingGateDataType }} */ mergedGateTSData) => {
         const dataObjAsJsCode = looseJsonStringify(
-            mergedPuzzleDoorTSData,
+            filterDataObjBeforeExport(PATH_TO_STABILIZING_GATES_DATA_FILE, mergedGateTSData),
             "    ",
             _jsonStringifyTransformerFns
         );
@@ -1657,7 +1658,7 @@ function readExistingPuzzleDoorTSData(/** @type {CacheOpts} */ cacheOpts) {
 
     const fnWritePuzzleDoorsBackToFile = (/** @type {{ [tsDataPuzzleDoorKey: string]: ExistingPuzzleDoorDataType }} */ mergedPuzzleDoorTSData) => {
         const dataObjAsJsCode = looseJsonStringify(
-            mergedPuzzleDoorTSData,
+            filterDataObjBeforeExport(PATH_TO_PUZZLE_DOORS_DATA_FILE, mergedPuzzleDoorTSData),
             "    ",
             {
                 ..._jsonStringifyTransformerFns,
@@ -1751,7 +1752,7 @@ function readExistingGordoTSData(/** @type {CacheOpts} */ cacheOpts) {
 
     const fnWriteGordosBackToFile = (/** @type {{ [tsDataGordoKey: string]: ExistingGordoDataType }} */ mergedGordoTSData) => {
         const dataObjAsJsCode = looseJsonStringify(
-            mergedGordoTSData,
+            filterDataObjBeforeExport(PATH_TO_GORDOS_DATA_FILE, mergedGordoTSData),
             "    ",
             {..._jsonStringifyTransformerFns,
                 shouldSortKeys: (key, depth, keysChain, obj) => {
@@ -1847,7 +1848,7 @@ function readExistingResearchDroneTSData(/** @type {CacheOpts} */ cacheOpts) {
 
     const fnWriteDronesBackToFile = (/** @type {{ [tsDataDroneKey: string]: ExistingDroneDataType }} */ mergedDroneTSData) => {
         const dataObjAsJsCode = looseJsonStringify(
-            mergedDroneTSData,
+            filterDataObjBeforeExport(PATH_TO_RESEARCH_DRONES_DATA_FILE, mergedDroneTSData),
             "    ",
             _jsonStringifyTransformerFns
         );
@@ -2584,7 +2585,7 @@ function extractPodIdGroupsToCache(/** @type {CacheOpts} */ cacheOpts) {
 }
 
 function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
-    /** @type {{ [lang: string]: { [translationKeyId: string | number]: string }} */
+    /** @type {{ [lang: string]: { [translationKeyId: string | number]: string }}} */
     let droneL10nData = { };
 
     const files = globSync(GLOBS_TO_DRONE_LOCALIZATION_TABLES);
@@ -2636,6 +2637,31 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
     return droneL10nData;
 }
 
+/**
+ * @template {Record<string, Record<string, any>>} T
+ * @param {string} targetFilePath
+ * @param {T} dataObj
+ * @returns {T}
+*/
+function filterDataObjBeforeExport(targetFilePath, dataObj) {
+    dataObj = {...dataObj};
+    for(const key of Object.keys(dataObj)) {
+        const filtered = entryExportFilter(targetFilePath, key, dataObj[key]);
+        
+        if(filtered === true) {
+            continue;
+        }
+        else if(filtered === false) {
+            delete dataObj[key];
+            continue;
+        }
+        else {
+            dataObj[key] = filtered;
+            continue;
+        }
+    }
+    return dataObj;
+}
 
 // extractScenesToCacheJSON();
 // exportNodeCoordsFromScenesJSON(undefined, true);
@@ -2650,4 +2676,4 @@ function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
 // exportResearchDroneDepoCoordinatesFromAssetsMapping();
 // exportGordoCoordinatesFromAssetsMapping();
 // exportPuzzleDoorCoordinatesFromAssetsMapping();
-exportStabilizingGateCoordinatesFromAssetsMapping();
+// exportStabilizingGateCoordinatesFromAssetsMapping();
