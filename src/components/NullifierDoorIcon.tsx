@@ -39,7 +39,7 @@ export function NullifierDoorIcon({
 
     const icon = L.icon({
         ...icon_template,
-        iconUrl: "/icons/lockedIcon.png",
+        iconUrl: "/icons/iconGadgetHarmonizer.png",
         className: `${checked && icon_opacity}`
     });
 
