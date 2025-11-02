@@ -17,6 +17,7 @@ import { TeleportLineIcons } from "./components/TeleportLineIcon";
 import { TreasurePodIcons } from "./components/TreasurePodIcon";
 import { icon_template } from "./globals";
 import { ScaledSimpleCRS } from "./data/map_crs_settings";
+import { NullifierDoorIcons } from "./components/NullifierDoorIcon";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
@@ -329,6 +330,9 @@ function App() {
                     </LayersControl.Overlay>
                     <LayersControl.Overlay checked name="Shadow Doors">
                         {current_map === MapType.labyrinth && <LayerGroup>{ShadowDoorIcons}</LayerGroup>}
+                    </LayersControl.Overlay>
+                    <LayersControl.Overlay checked name="Nullifier Doors">
+                        {current_map === MapType.labyrinth && <LayerGroup>{NullifierDoorIcons}</LayerGroup>}
                     </LayersControl.Overlay>
                     <LayersControl.Overlay checked name="User Pins">
                         <LayerGroup>{user_pin_list}</LayerGroup>
