@@ -1,11 +1,11 @@
 
-import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE } from "../../asset_paths.js";
 
 import { Glob, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPositions } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
 import { entryExportFilter } from "./entries_export_filter.js";
 
@@ -212,7 +212,8 @@ async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingTyp
             contents: existingData?.contents ?? ["Todo: Specify contents of this pod"],
             description: existingData?.description ?? "Todo: insert a description for this pod",
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
-            pos: /*existingData?.pos ??*/ { x: -position.z, y: position.x },
+            // pos: /*existingData?.pos ??*/ { x: -position.z, y: position.x },
+            pos: transformIngameToMapPositions(position),
             dimension: existingData?.dimension ?? "MapType.overworld",
             _otherLines: existingData?._otherLines,
         };
@@ -402,7 +403,8 @@ async function exportShadowPlortDepoCoordinatesFromAssetsMapping(/** @type {Asse
             unlocks: existingData?.unlocks ?? ["Todo: Specify unlocks of this shadow door"],
             description: existingData?.description ?? "Todo: insert a description for this shadow door " + internalDepoId,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
-            position: { x: -position.z, y: position.x },
+            // position: { x: -position.z, y: position.x },
+            position: transformIngameToMapPositions(position),
             // position: { x: position.x, y: position.z },
             // position: { x: -position.x, y: -position.z },
             _otherLines: existingData?._otherLines,
@@ -617,7 +619,8 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
             archive: archive ?? existingData?.archive ?? [],
             description: existingData?.description ?? "Todo: insert a description for this research drone " + internalDroneId,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
-            pos: { x: -pos.z, y: pos.x },
+            // pos: { x: -pos.z, y: pos.x },
+            pos: transformIngameToMapPositions(pos),
             // dimension: existingData?.dimension ?? "MapType.overworld",
             dimension: existingData?.dimension ?? MapType.overworld,
             _otherLines: existingData?._otherLines,
@@ -885,7 +888,8 @@ async function exportGordoCoordinatesFromAssetsMapping(/** @type {AssetsMappingT
             name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
             description: existingData?.description ?? "Todo: insert a description for this gordo " + internalGordoId,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
-            pos: { x: -pos.z, y: pos.x },
+            // pos: { x: -pos.z, y: pos.x },
+            pos: transformIngameToMapPositions(pos),
             // dimension: existingData?.dimension ?? "MapType.overworld",
             // dimension: existingData?.dimension ?? MapType.overworld,
             dimension: dimension,
@@ -1309,7 +1313,8 @@ async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMap
             name: name,
             plort: plortText,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
-            pos: { x: -pos.z, y: pos.x },
+            // pos: { x: -pos.z, y: pos.x },
+            pos: transformIngameToMapPositions(pos),
             image: image,
             type: type,
             doorId: type === "door" ? undefined : puzdoorJSON?.props["_id"],
@@ -1546,7 +1551,8 @@ async function exportStabilizingGateCoordinatesFromAssetsMapping(/** @type {Asse
             // name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
             // name: name,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
-            position: { x: -pos.z, y: pos.x },
+            // position: { x: -pos.z, y: pos.x },
+            position: transformIngameToMapPositions(pos),
             // image: image,
             description: existingData?.description ?? "Todo: insert a description for this stabilizing gate " + internalId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
@@ -1568,6 +1574,315 @@ async function exportStabilizingGateCoordinatesFromAssetsMapping(/** @type {Asse
 
     fnWriteStabilizingGatesBackToFile(mergedGateTSData);
 }
+
+async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ fileId: string, assetJSON: AssetJSONType, doorGameObj: AssetJSONType, pos: { x: number, y: number, z: number } }[]} */
+    let ingameNullifierDoorPositions;
+    
+    if(cacheOpts.useCache && existsSync("./data_cache/nullifierDoorAssetsAndPositions.json")) {
+    // if(false) {  // for debugging
+        
+        console.log("Reading cached nullifier door coordinates...");
+
+        ingameNullifierDoorPositions = JSON.parse(readFileSync("./data_cache/nullifierDoorAssetsAndPositions.json"));
+
+        console.log(`Read (${ingameNullifierDoorPositions.length}) nullifier door coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting nullifier door coordinates from assets JSON...");
+
+        const doorMonoBehavioursEntries = Object.entries(assetsMapping)
+            .filter(([, assetJSON]) => {
+            
+                // const _id = assetJSON.props["_id"];
+            
+                // if(!_id) return false;
+
+                // if(!/^nullifierdoor[0-9]+$/.test(_id)) return false;
+
+                // if it's for a Discordant Wall, I expect it to have both of these properties. Otherwise, I expect it to have neither.
+                const prop_holeTransform = assetJSON.props["_holeTransform"];
+                const prop_wallTransform = assetJSON.props["_wallTransform"];
+
+                if(!prop_holeTransform && !prop_wallTransform) {
+                    // has neither
+                    return false;
+                }
+
+                if(!prop_holeTransform || !prop_wallTransform) {
+                    console.log(assetJSON);
+                    throw new Error(`Asset had only one of \"_holeTransform\" and \"_wallTransform\" props! (!!prop_holeTransform = ${!!prop_holeTransform}, !!prop_wallTransform = ${!!prop_wallTransform})`)
+                }
+
+                if(assetJSON.typeName !== "MonoBehaviour") {
+                    console.log(assetJSON);
+                    throw new Error("found asset with a \"_holeTransform\" and \"_wallTransform\" props, but it was not a MonoBehaviour?");
+                }
+
+                return true;
+
+            });
+        console.log(`Retrieved ${doorMonoBehavioursEntries.length} nullifierdoor MonoBehaviour entries.`);
+
+        // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+        // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+        // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+        // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+        // await Promise.all(identsAndDefsFilePaths.map(
+        //     async (assetpath) => {
+        //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+        //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+        //         const guid = metaFileGuidRegex.exec(metadata)[1];
+                
+        //         /** @type {AssetsMappingType} */
+        //         const identOrDefAssetsMapping = { }
+        //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+        //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+        //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+        //         }
+        //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+        //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+        //     }
+        // ));
+        // throw new Error("temp");
+
+        // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+        ingameNullifierDoorPositions = await Promise.all(doorMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+            console.log(`[Nullifier Door (assetJSON fileKeyFileId: ${assetJSON.fileKey + '&' + assetJSON.fileId})]: Determining position of nullifier door`);
+
+            const { gameObj: doorGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+            // for(const child of transformChainChildToParent) {
+            //     console.log(child.typeName);
+            //     console.log(child.fileKey);
+            //     console.log(child.fileId);
+            //     console.log(child.props["m_LocalPosition"]);
+            //     console.log(child.props["m_LocalRotation"]);
+            //     console.log(child.props["m_LocalScale"]);
+            // }
+
+            console.log(`[Nullifier Door ${manufactureNullifierDoorIdFromAssets(assetJSON, doorGameObj, pos)}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+            // return { fileId, assetJSON, gordoGameObj, targetCount, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, pos };
+            return { fileId, assetJSON, doorGameObj, pos };
+
+        }));
+
+        console.log(`Determined ${ingameNullifierDoorPositions.length} nullifier door assets and their positions.`);
+        
+        // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        // for(const d of ingameDronePositions) {
+        //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+        //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+        //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+        //         return { ...c, gameObject: gameObj };
+        //     });
+        // }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/nullifierDoorAssetsAndPositions.json", JSON.stringify(ingameNullifierDoorPositions));
+                console.log("Exported nullifier door assets and their positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting nullifier door assets and their positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+    
+    // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+    // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+    // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+
+    // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+    // await Promise.all(identsAndDefsFilePaths.map(
+    //     async (assetpath) => {
+    //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+    //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+    //         const guid = metaFileGuidRegex.exec(metadata)[1];
+            
+    //         /** @type {AssetsMappingType} */
+    //         const identOrDefAssetsMapping = { }
+    //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+    //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+    //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+    //         }
+    //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+    //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+    //     }
+    // ));
+
+
+    console.log("Parsing existing nullifier door data in the map data files...")
+
+    const { fnWriteNullifierDoorsBackToFile, existingNullifierDoorTSDataByGateKey } = readExistingNullifierDoorsTSData(cacheOpts);
+
+    console.log(`Parsed ${Object.keys(existingNullifierDoorTSDataByGateKey).length} existing nullifier door data entries.`);
+
+    const mergedDoorTSData = { ...existingNullifierDoorTSDataByGateKey };
+
+    console.log("Merging existing and extracted nullifier door data");
+    
+    // merge existing and extracted shadow depo data
+    
+    for(const { fileId, assetJSON, doorGameObj: doorGameObjJSON, pos } of ingameNullifierDoorPositions) {
+        /** @type {string} */
+        const manufacturedInternalId = manufactureNullifierDoorIdFromAssets(assetJSON, doorGameObjJSON, pos);
+
+        // /** @type {string} */
+        // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
+
+        // for testing
+        const nullifierDoorIdInternalToOld = (x) => undefined;
+        
+        const oldId = nullifierDoorIdInternalToOld(manufacturedInternalId);
+
+        let areaNameForKey;
+        // TODO determine area name?
+        // if(!oldId) {
+        //     // console.log("debug: fileKey: ", assetJSON.fileKey);
+        //     // make a best guess based on what scene file the asset was in.
+        //     console.log(assetJSON.fileKey);
+        //     areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+        //         ?? "undeterminedarea";
+        //     // areaNameForKey = "undeterminedarea";
+        // }
+        const tsDataKey = oldId ?? (`nullifierdoor_${manufacturedInternalId}`);
+
+        // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+        /** @type {undefined | existingNullifierDoorTSDataByGateKey[keyof existingNullifierDoorTSDataByGateKey]} */
+        const existingData = (
+            existingNullifierDoorTSDataByGateKey[oldId]
+            || existingNullifierDoorTSDataByGateKey[manufacturedInternalId]
+            || existingNullifierDoorTSDataByGateKey[tsDataKey]
+            || Object.values(existingNullifierDoorTSDataByGateKey).find(data => data.internalId === manufacturedInternalId)
+        );
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        for(const [k, v] of Object.entries(mergedDoorTSData)) {
+            if(v === existingData) {
+                delete mergedDoorTSData[k];
+                break;
+            }
+        }
+
+        // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+        /** @type {ExistingNullifierDoorDataType} */
+        const _mergedDataObj = { ...existingData,
+            // internalId: internalId,
+            // name: existingData?.name ?? ["TODO retrieve name from translation table"],
+            // name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
+            // name: name,
+            // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+            // position: { x: -pos.z, y: pos.x },
+            position: transformIngameToMapPositions(pos),
+            // image: image,
+            description: existingData?.description ?? "Todo: insert a description for this nullifier door " + manufacturedInternalId,
+            // dimension: existingData?.dimension ?? "MapType.overworld",
+            // dimension: existingData?.dimension ?? MapType.labyrinth,
+            // unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
+        };
+        // clear out all entries with undefined values
+        Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+        // save merged data back
+        mergedDoorTSData[tsDataKey] = _mergedDataObj;
+
+        if(existingData)
+            console.log(`Merged extracted nullifier door ${manufacturedInternalId} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted nullifier door ${manufacturedInternalId} data to ${tsDataKey} data`)
+    }
+
+    console.log("Writing nullifier door data back to map data file");
+
+    fnWriteNullifierDoorsBackToFile(mergedDoorTSData);
+}
+
+/** @typedef {{ description: string, position: { x: number, y: number }, [other]?: any }} ExistingNullifierDoorDataType */
+
+function readExistingNullifierDoorsTSData(/** @type {CacheOpts} */ cacheOpts) {
+    
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    // let fileTextPrefix, fileTextPostfix;
+
+    // if(!existsSync(PATH_TO_NULLIFIER_DOORS_DATA_FILE)) {
+    //     fileTextPrefix = "import { NullifierDoor } from \"../types\";\n\nexport const nullifier_doors: { [key: string]: NullifierDoor } = ";
+    // }
+    // else {
+    //     //
+    // }
+
+    const fileText = readFileSync(PATH_TO_NULLIFIER_DOORS_DATA_FILE, { encoding: "utf-8" });
+
+    const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*const\s+nullifier_doors.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
+
+    const parsedObj = looseJsonParseWithEval(dataObjInJsCode);
+
+    const _objMatchesExpectedSchema = (
+        typeof parsedObj === "object"
+        && Object.keys(parsedObj).every(k => (
+            typeof parsedObj[k] === "object"
+            && setContains(new Set(Object.keys(parsedObj[k])), ["description", "position"])
+        ))
+    );
+
+    if(!_objMatchesExpectedSchema) {
+        console.log("dataObjAsInitText = ", dataObjInJsCode);
+        console.log("_obj = ", parsedObj);
+        for(const k of Object.keys(parsedObj)) {
+            if(!(
+                typeof parsedObj[k] === "object"
+                && setContains(new Set(Object.keys(parsedObj[k])), ["description", "position"])
+            )) {
+                console.log(k)
+            }
+        }
+        throw new Error("unexpected loose json parse result, did not match expected schema");
+    }
+
+    const fnWriteNullifierDoorsBackToFile = (/** @type {{ [tsDataNullifierDoorKey: string]: ExistingNullifierDoorDataType }} */ mergedNullifierDoorTSData) => {
+        const dataObjAsJsCode = looseJsonStringify(
+            filterDataObjBeforeExport(PATH_TO_NULLIFIER_DOORS_DATA_FILE, mergedNullifierDoorTSData),
+            "    ",
+            _jsonStringifyTransformerFns
+        );
+        
+        const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
+
+        writeFileSync(PATH_TO_NULLIFIER_DOORS_DATA_FILE, newFileText);
+    };
+
+    return {
+        fnWriteNullifierDoorsBackToFile,
+        /** @type {{ [tsDataNullifierDoorKey: string]: ExistingNullifierDoorDataType }} */
+        existingNullifierDoorTSDataByGateKey: parsedObj
+    }
+}
+
 
 /** @typedef {{ internalId: string, description: string, position: { x: number, y: number }, [other]?: any }} ExistingStabilizingGateDataType */
 
@@ -2663,6 +2978,13 @@ function filterDataObjBeforeExport(targetFilePath, dataObj) {
     return dataObj;
 }
 
+function manufactureNullifierDoorIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ doorGameObjJSON, /** @type {position: { x: number, y: number, z: number }} */ ingamePos) {
+    // return assetJSON.props["_id"];
+    // return assetJSON.fileKey + '&' + assetJSON.fileId;
+    // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
+    return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
+}
+
 // extractScenesToCacheJSON();
 // exportNodeCoordsFromScenesJSON(undefined, true);
 // extractPodIdGroupsToCache();
@@ -2677,3 +2999,4 @@ function filterDataObjBeforeExport(targetFilePath, dataObj) {
 // exportGordoCoordinatesFromAssetsMapping();
 // exportPuzzleDoorCoordinatesFromAssetsMapping();
 // exportStabilizingGateCoordinatesFromAssetsMapping();
+exportNullifierDoorCoordinatesFromAssetsMapping();

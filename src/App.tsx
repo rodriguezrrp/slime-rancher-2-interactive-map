@@ -23,7 +23,8 @@ const map_center: { [key in MapType]: LatLngTuple } = {
     // [MapType.overworld]: [30, 30],
     // [MapType.overworld]: [0, 0],
     [MapType.overworld]: [-320, 525],
-    [MapType.labyrinth]: [-16, -60],
+    // [MapType.labyrinth]: [-16, -60],
+    [MapType.labyrinth]: [1154, 1350],
     [MapType.sr1]: [70, -80]
 };
 

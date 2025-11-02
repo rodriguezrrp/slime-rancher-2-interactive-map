@@ -151,6 +151,11 @@ export interface StabilizingGate {
     description: string;
 }
 
+export interface NullifierDoor {
+    position: Vec2;
+    description: string;
+}
+
 export interface ShadowDoor {
     internalId: string;
     position: Vec2;

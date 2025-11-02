@@ -29,6 +29,17 @@ const { streamObject } = _pkg2_streamjson_StreamObject;
 export const defaultCacheSettings = { useCache: true, exportToCache: "async" };
 
 
+/**
+ * @param {{ x: number, y: number, z: number }} ingamePos
+ * @returns {{ x: number, y: number }}
+*/
+export function transformIngameToMapPositions(ingamePos) {
+    // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+    // Also, in-game coordinates use y axis as height, so use in-game z for our y.
+    return { x: -ingamePos.z, y: ingamePos.x };
+}
+
+
 export function followMonoBehaviourGameObjectTransformChain(
     /** @type {AssetsMappingType} */ assetsMapping,
     /** @type {AssetJSONType} */ assetJSON,
