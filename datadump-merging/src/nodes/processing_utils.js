@@ -409,7 +409,7 @@ export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { b
 // get MapType in here for the eval.?() resolution
 // import { MapType } from "../../../src/CurrentMapContext.js";
 // import { MapType } from "../../../src/CurrentMapContext.tsx";
-const MapType = {
+export const MapType = {
     overworld: "map_overworld",
     labyrinth: "map_labyrinth",
     sr1: "map_sr1"

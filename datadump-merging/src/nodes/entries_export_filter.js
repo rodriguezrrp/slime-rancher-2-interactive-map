@@ -8,6 +8,8 @@ const keyCannotIncludeAsSubstring = [
     "gordo0026007518",  // Tangle Gordo from coreSceneLabyrinth -- seems to be unused / unobtainable / out of bounds?
     "stabilizinggate0654469445",  // seems to be unused / unobtainable / out of bounds?
     "stabilizinggate1617779913",  // seems to be unused / unobtainable / out of bounds?
+    "gigihologram_x82_y2225",  // seems to be unused / unobtainable / out of bounds?
+    "gigihologram_x134_y2247",  // seems to be unused / unobtainable / out of bounds?
 ];
 const keyDisallowedSubstringRegex = new RegExp(`(${keyCannotIncludeAsSubstring.join('|')})`);
 

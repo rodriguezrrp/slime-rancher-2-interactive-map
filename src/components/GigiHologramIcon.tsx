@@ -6,20 +6,8 @@ import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { MapType } from "../CurrentMapContext";
 import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiHologram } from "../types";
-import { handleChecked } from "../util";
+import { gigiExpressionImageUrls, handleChecked } from "../util";
 import { gigi_holograms } from "../data/gigi_holograms";
-
-import happy1 from "/gigi/happy1.png";
-import thinking1 from "/gigi/thinking1.png";
-import pointing1 from "/gigi/pointing1.png";
-import surprised1 from "/gigi/surprised1.png";
-
-const gigiImgs: { [expression in NonNullable<GigiDialogueToTextEntry["expression"]>]: string } = {
-    happy1: happy1,
-    surprised1: surprised1,
-    thinking1: thinking1,
-    pointing1: pointing1,
-}
 
 // TODO: move this to a configuration or settings area?
 const curLanguage = "en";
@@ -207,7 +195,7 @@ export function GigiConvo({
     return (
         <div className={`max-w-fit gigi-convo p-7 pl-0`}>
             <div className="flex-grow flex flex-col justify-between overflow-y-hidden">
-                <div className="flex justify-between items-center mb-7 ml-7">
+                <div className="flex justify-between items-center mb-5 ml-7">
                     <span className="font-medium text-2xl">{gigi_hologram.name}</span>
                     <AiOutlineClose
                         onClick={() => setShowConvo(false)}
@@ -216,8 +204,8 @@ export function GigiConvo({
                     />
                 </div>
                 {/* <div className="flex-grow flex-shrink"></div> */}
-                <div ref={convoLogRef} className="flex flex-col flex-grow gap-2 overflow-y-scroll *:ml-7">
-                    { dialogueEntries && <div className="gigi-convo-top-spacer flex-grow"></div> }
+                <div ref={convoLogRef} className="flex flex-col flex-grow gap-2 overflow-y-auto pt-2 *:ml-7">
+                    { dialogueEntries && <div className="gigi-convo-top-spacer flex-grow overflow-x-hidden"></div> }
                     {
                         !dialogueEntries
                         ? (<div className="gigi-text-entry">
@@ -257,17 +245,11 @@ export function GigiConvo({
                                     className="gigi-text-entry"
                                 >
                                     <img
-                                        src={gigiImgs[latestExpression]}
+                                        src={gigiExpressionImageUrls[latestExpression]}
                                         alt={`Portrait of Gigi with a ${latestExpression.replace(/\d+$/ig,"").toLowerCase()} expression as shown in game.`}
                                         aria-hidden
                                         className="gigi-portrait"
                                     />
-                                    {/* <div className="gigi-portrait">
-                                        <img
-                                            src={gigiImgs[expression]}
-                                            alt=""
-                                        />
-                                    </div> */}
                                     <p>{convoEntry.text}</p>
                                     {isLastEntry && <GigiConvoTextNextButton
                                         hasMoreConvo={!!(convoEntry.nextTextId || convoEntry.nextOptionsIds)}
@@ -368,9 +350,9 @@ function GigiConvoTextNextButton<type_nextEntryAsConvoLogEntry extends (o: any) 
         return <div className="flex flex-row justify-end font-normal text-slate-600">
             <button
                 ref={btnRef}
-                className="p-2 px-4 -m-2 mt-0 hover:bg-slate-100 hover:rounded-xl focus:bg-slate-100 focus:rounded-xl"
+                className="p-1 px-4 -m-1 mt-0 rounded-xl cursor-default"
             >
-                End of conversation
+                End of conversation path
             </button>
         </div>;
     }
@@ -378,7 +360,7 @@ function GigiConvoTextNextButton<type_nextEntryAsConvoLogEntry extends (o: any) 
     return <div className="flex flex-row justify-end font-normal text-slate-800">
         <button
             ref={btnRef}
-            className="p-2 px-4 -m-2 mt-0 hover:bg-slate-200 hover:rounded-xl focus:bg-slate-200 focus:rounded-xl"
+            className="p-2 px-4 -m-2 mt-0 rounded-xl hover:bg-slate-200 focus:bg-slate-200"
             onClick={() => {
                 setConvoLog([
                     ...convoLog,

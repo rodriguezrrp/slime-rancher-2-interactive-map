@@ -19,6 +19,7 @@ import { icon_template } from "./globals";
 import { ScaledSimpleCRS } from "./data/map_crs_settings";
 import { NullifierDoorIcons } from "./components/NullifierDoorIcon";
 import { GigiHologramIcons } from "./components/GigiHologramIcon";
+import { gigiExpressionImageUrls } from "./util";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
@@ -170,6 +171,102 @@ function MapUpdater({
     return null;
 }
 
+/**
+ * Tag body with .hasHover CSS class if mouse hovering is applicable (e.g. no touchscreen).
+ * 
+ * Adapted for React from https://stackoverflow.com/a/30303898/14390381
+ * */
+function useWatchForHoverCapability() {
+    let isCancelled = false;
+
+    // lastTouchTime is used for ignoring emulated mousemove events
+    let lastTouchTime = 0
+    // let lastTouchTime = new Date(0);
+
+    function enableHover() {
+        if ((new Date()).getTime() - lastTouchTime < 500) return;
+        document.body.classList.add('hasHover');
+    }
+
+    function disableHover() {
+        document.body.classList.remove('hasHover');
+    }
+
+    function updateLastTouchTime() {
+        lastTouchTime = (new Date()).getTime();
+    }
+
+    
+    useEffect(() => {
+        console.debug('Added hover capability listeners.')
+        document.addEventListener('touchstart', updateLastTouchTime, true)
+        document.addEventListener('touchstart', disableHover, true)
+        document.addEventListener('mousemove', enableHover, true)
+        
+        return () => {
+            console.debug('Removed hover capability listeners.')
+            document.removeEventListener('touchstart', updateLastTouchTime, true)
+            document.removeEventListener('touchstart', disableHover, true)
+            document.removeEventListener('mousemove', enableHover, true)
+        };
+    }, []);
+
+
+  enableHover();
+}
+
+/** https://stackoverflow.com/a/69325090 */
+function preloadImage(src: string) {
+    return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.onload = function () {
+            resolve(img)
+        }
+        img.onerror = img.onabort = function () {
+            reject(src)
+        }
+        img.src = src
+    })
+}
+
+/** https://stackoverflow.com/a/69325090 */
+function useImagePreloader(imageList: string[]) {
+    const [imagesPreloaded, setImagesPreloaded] = useState<boolean>(false)
+
+    useEffect(() => {
+        let isCancelled = false
+
+        async function effect() {
+            //   console.log('PRELOAD')
+
+            if (isCancelled) {
+                return
+            }
+
+            const imagesPromiseList: Promise<any>[] = []
+            for (const i of imageList) {
+                imagesPromiseList.push(preloadImage(i))
+            }
+
+            await Promise.all(imagesPromiseList)
+
+            if (isCancelled) {
+                return
+            }
+
+            setImagesPreloaded(true)
+        }
+
+        effect()
+
+        return () => {
+            isCancelled = true
+        }
+    }, [imageList])
+
+    return { imagesPreloaded }
+}
+
 function App() {
     const [show_log, setShowLog] = useState(false);
     const [current_log, setCurrentLog] = useState(<></>);
@@ -182,6 +279,11 @@ function App() {
         else
             document.body.classList.remove("cursor-cell");
     }, []);
+
+    // Todo: are any of these "global" react hooks causing <App> to re-render unnecessarily?
+    useWatchForHoverCapability();
+    const { imagesPreloaded: gigiImagesPreloaded } = useImagePreloader(Object.values(gigiExpressionImageUrls));
+    console.debug("gigiImagesPreloaded variable:", gigiImagesPreloaded);
 
     let parsed_user_pins = [];
     try {

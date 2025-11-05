@@ -164,9 +164,7 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         ru: "Ладно, похоже, ты меня знаешь, а вот я тебя — нет...",
                         de: "Okay, du scheinst mich zu kennen, aber ich kenne dich nicht …"
                     },
-                    nextTextById: "418299640694861827",
-                    isOption: {
-                    }
+                    nextTextById: "418299640694861827"
                 },
                 "418299640694861827": {
                     internalTranslationId: "418299640694861827",
@@ -213,9 +211,7 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         ru: "То есть это ты прислала мне письмо и лодку, на которой я сюда приплыла?",
                         de: "Du hast mir also den Brief und das Boot geschickt, das mich hierhergebracht hat?"
                     },
-                    nextTextById: "418299640694861829",
-                    isOption: {
-                    }
+                    nextTextById: "418299640694861829"
                 },
                 "418299640694861829": {
                     internalTranslationId: "418299640694861829",
@@ -245,9 +241,7 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         ru: "Помочь?",
                         de: "Wobei soll ich dir helfen?"
                     },
-                    nextTextById: "418299640694861830",
-                    isOption: {
-                    }
+                    nextTextById: "418299640694861830"
                 },
                 "418299640694861830": {
                     internalTranslationId: "418299640694861830",
@@ -356,9 +350,7 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         ru: "Как нам его остановить?",
                         de: "Wie halten wir das auf?"
                     },
-                    nextTextById: "418299640694861836",
-                    isOption: {
-                    }
+                    nextTextById: "418299640694861836"
                 },
                 "418299640694861836": {
                     internalTranslationId: "418299640694861836",
@@ -423,9 +415,7 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         ru: "Повтори-ка, зачем тебе нужна моя помощь.",
                         de: "Sag mir noch mal, wobei du meine Hilfe brauchst."
                     },
-                    nextTextById: "418299640694861838",
-                    isOption: {
-                    }
+                    nextTextById: "418299640694861838"
                 },
                 "418299640694861838": {
                     internalTranslationId: "418299640694861838",
@@ -454,9 +444,7 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         ru: "Хорошо, Джиджи, увидимся внутри.",
                         de: "Okay, Gigi, wir sehen uns drinnen."
                     },
-                    nextTextById: "418299640694861846",
-                    isOption: {
-                    }
+                    nextTextById: "418299640694861846"
                 },
                 "418299640694861846": {
                     internalTranslationId: "418299640694861846",

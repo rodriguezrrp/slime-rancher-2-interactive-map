@@ -49,12 +49,19 @@
   height: 80%;
 
   --gigi-portrait-max-h: 20vh;
+  --gigi-portrait-max-w: 15%;
 }
 
 .gigi-text-entry {
-  @apply p-3 m-1 rounded-xl bg-white text-slate-950 font-medium text-xl drop-shadow-md relative z-20;
-  &:hover .gigi-portrait, &:has(:focus) .gigi-portrait {
-    /* display: inline-block; */
+  @apply p-4 px-5 m-1 rounded-xl bg-white text-slate-950 font-medium text-xl drop-shadow-md relative z-20;
+}
+
+body.hasHover .gigi-convo {
+  /* show gigi portrait of hovered text entry, or the last text entry if none are hovered */
+  /* note: uses selector list argument "of" in :nth-last-child, which is relatively newly-available Baseline 2023 (see https://caniuse.com/css-nth-child-of) */
+  & .gigi-text-entry:hover .gigi-portrait,
+  &:not(:has(.gigi-text-entry:hover)) .gigi-text-entry:nth-last-child(1 of .gigi-text-entry) .gigi-portrait
+  {
     @apply opacity-90;
   }
 }
@@ -68,7 +75,11 @@
   transition: all 0.5s;
   /* display: none; */
   @apply opacity-0;
-  @apply absolute bottom-full -left-4 max-w-[15%] max-h-[--gigi-portrait-max-h] aspect-auto;
+  @apply absolute bottom-full -left-4 max-w-[--gigi-portrait-max-w] max-h-[--gigi-portrait-max-h] aspect-auto;
+}
+
+.gigi-option-group-entry {
+  @apply self-end w-[calc(100%-0.8*var(--gigi-portrait-max-w,_0))];
 }
 
 .gigi-option-button {

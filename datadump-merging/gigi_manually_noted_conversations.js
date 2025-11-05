@@ -20,7 +20,7 @@
         }
     };
 }} */
-export const gigi_manual_extracted_conversations = {
+export const gigi_manually_noted_conversations = {
     "gigihologram_x1364_y1007": {
         firstVisitStartEntryId: "418299640669696000",
         // subsequentStartEntryId: ,

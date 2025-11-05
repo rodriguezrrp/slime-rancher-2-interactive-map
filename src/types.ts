@@ -33,6 +33,7 @@ export interface LockedDoor {
 }
 
 export interface MapNode {
+    internalId?: string;
     name: string;
     pos: Vec2;
     description: string;
@@ -165,17 +166,14 @@ export interface ShadowDoor {
 }
 
 interface GigiDialogueEntryBase {
+    internalTranslationId?: string;
     text: TranslatedType<string>;
     expression?: "surprised1" | "happy1" | "thinking1" | "pointing1";
-    isOption?: boolean;
 }
 export interface GigiDialogueToTextEntry extends GigiDialogueEntryBase {
-    internalTranslationId?: string;
     nextTextById?: string;
 }
-
 export interface GigiDialogueToOptionsEntry extends GigiDialogueEntryBase {
-    internalTranslationId?: string;
     nextOptionsById: string[];
 }
 

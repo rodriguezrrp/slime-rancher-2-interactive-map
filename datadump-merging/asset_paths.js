@@ -67,6 +67,7 @@ export const PATH_TO_PUZZLE_DOORS_DATA_FILE = "../src/data/locked_doors.ts";
 export const PATH_TO_STABILIZING_GATES_DATA_FILE = "../src/data/stabilizing_gates.ts";
 export const PATH_TO_NULLIFIER_DOORS_DATA_FILE = "../src/data/nullifier_doors.ts";
 export const PATH_TO_GIGI_HOLOGRAMS_DATA_FILE = "../src/data/gigi_holograms.ts";
+export const PATH_TO_MAP_NODES_DATA_FILE = "../src/data/map_nodes.ts";
 
 export const PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER = "../public/map_overworld";
 export const PATH_TO_LABYRINTH_TILEMAP_FOLDER = "../public/map_labyrinth";

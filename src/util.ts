@@ -1,4 +1,4 @@
-import { LocalStoragePlotPlan, LocalStorageSitePlan, Vec2 } from "./types";
+import { GigiDialogueToTextEntry, LocalStoragePlotPlan, LocalStorageSitePlan, Vec2 } from "./types";
 import L from "leaflet";
 
 export function handleChecked(
@@ -60,3 +60,15 @@ export function vecToLatLng(coord: Vec2): L.LatLngExpression {
     return [coord.x, coord.y];
 }
 
+
+import happy1 from "/gigi/happy1.png";
+import thinking1 from "/gigi/thinking1.png";
+import pointing1 from "/gigi/pointing1.png";
+import surprised1 from "/gigi/surprised1.png";
+
+export const gigiExpressionImageUrls: { [expression in NonNullable<GigiDialogueToTextEntry["expression"]>]: string } = {
+    happy1: happy1,
+    surprised1: surprised1,
+    thinking1: thinking1,
+    pointing1: pointing1,
+}

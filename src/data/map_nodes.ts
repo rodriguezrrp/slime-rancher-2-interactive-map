@@ -2,96 +2,123 @@ import { MapNode } from "../types";
 import { MapType } from "../CurrentMapContext";
 
 export const map_nodes: { [key: string]: MapNode } = {
-    // TODO(24-12-24): These keys should be how the other data keys are, 
-    // e.g. rainbowfields_1, greylabyrinth_1, etc...
-    "rainbowfields_1": {
-        name: "Southern Node",
-        pos: { x: 26.78, y: -38.93 },
-        description: "Next to a big rock near the edge of a ledge over the water.",
-        dimension: MapType.overworld,
-    },
-    "rainbowfields_2": {
-        name: "Western Node",
-        pos: { x: 32.26, y: -46.27 },
-        description: "Near the edge of the top of a cliff.",
-        dimension: MapType.overworld,
-    },
     "embervalley_1": {
+        internalId: "idk_todo",
         name: "North Node",
-        pos: { x: 64.97, y: -119.17 },
+        pos: { x: -747.052411, y: -560.942036 },
         description: "On a ledge overlooking a pit and a pond across from a waterfall.",
-        dimension: MapType.overworld,
+        dimension: MapType.overworld
     },
     "embervalley_2": {
+        internalId: "idk_todo",
         name: "Center Node",
-        pos: { x: 55.26, y: -106.67 },
+        pos: { x: -560.294312, y: -443.20144700000003 },
         description: "On a ledge up a cliff in front of a large fossilized shell.",
-        dimension: MapType.overworld,
+        dimension: MapType.overworld
     },
     "embervalley_3": {
+        internalId: "idk_todo",
         name: "West Node",
-        pos: { x: 48.56, y: -140.49 },
+        pos: { x: -461.091585, y: -756.646716 },
         description: "On top of a plateau above the lava",
-        dimension: MapType.overworld,
-    },
-    "starlightstrand_1": {
-        name: "North Node",
-        pos: { x: 2.46, y: -58.84 },
-        description: "On the edge of a high ledge on an island.",
-        dimension: MapType.overworld,
-    },
-    "starlightstrand_2": {
-        name: "Center Node",
-        pos: { x: -24.86, y: -40.34 },
-        description: "On a ledge next to a rock.",
-        dimension: MapType.overworld,
-    },
-    "starlightstrand_3": {
-        name: "South Node",
-        pos: { x: -54.63, y: -30.2 },
-        description: "On top of a ruin ledge between two ruin walls.",
-        dimension: MapType.overworld,
-    },
-    "powderfallbluffs_1": {
-        name: "West Node",
-        pos: { x: 82.62, y: -140.6 },
-        description: "On a grass ledge near some trees over the water.",
-        dimension: MapType.overworld,
-    },
-    "powderfallbluffs_2": {
-        name: "East Node",
-        pos: { x: 80.73, y: -117.35 },
-        description: "On an ice cube next to a patch of deep snow.",
-        dimension: MapType.overworld,
+        dimension: MapType.overworld
     },
     "greylabyrinth_1": {
+        internalId: "idk_todo",
         name: "Grey Labyrinth Dream Land Node",
-        pos: { x: 67.2, y: -111.8 },
+        pos: { x: 434.04491725321327, y: 925.7777088848449 },
         description: "South of the Sloomber Gordo located on the edge of the cliff.",
-        dimension: MapType.labyrinth,
+        dimension: MapType.labyrinth
     },
     "greylabyrinth_2": {
+        internalId: "idk_todo",
         name: "Grey Labyrinth West Node",
-        pos: { x: 6.1, y: -135.5 },
+        pos: { x: 997.5882389579517, y: 770.5989776463325 },
         description: "Located directly next to the nearby Shadow Plort Door, at the end of the hedge maze.",
-        dimension: MapType.labyrinth,
+        dimension: MapType.labyrinth
     },
     "greylabyrinth_3": {
+        internalId: "idk_todo",
         name: "Grey Labyrinth Aquarium Node",
-        pos: { x: -49.1, y: -61.1 },
+        pos: { x: 1426.1785855643661, y: 1274.9988537914337 },
         description: "Right above the Batty Plort Statue in the room with the large glass tower.",
-        dimension: MapType.labyrinth,
+        dimension: MapType.labyrinth
     },
     "greylabyrinth_4": {
+        internalId: "idk_todo",
         name: "Grey Labyrinth Prismacore Surroundings Node",
-        pos: { x: -15.4, y: -32.5 },
+        pos: { x: 1148.5830833231096, y: 1472.3360379927092 },
         description: "Inside of the grey tower with many water spouts.",
-        dimension: MapType.labyrinth,
+        dimension: MapType.labyrinth
     },
     "greylabyrinth_5": {
+        internalId: "idk_todo",
         name: "Grey Labyrinth Lava Node",
-        pos: { x: -17.9, y: 13.7 },
+        pos: { x: 1164.768404664093, y: 1781.5292654516552 },
         description: "Located inside the hallway locked by Plort Doors. Use the surrounding Rock Plort Statues to access it.",
-        dimension: MapType.labyrinth,
+        dimension: MapType.labyrinth
     },
+    "mapnode_zonelabyrinthterrariumjungleglacier_x772_y2170": {
+        internalId: "idk_todo",
+        name: "Todo: give this Map Node a name",
+        pos: { x: 771.882142256032, y: 2170.9392104896056 },
+        description: "Todo: insert a description for this map node x772_y2170",
+        dimension: MapType.labyrinth
+    },
+    "mapnode_zonerainbowcore_x969_y2019": {
+        internalId: "idk_todo",
+        name: "Todo: give this Map Node a name",
+        pos: { x: 968.9766990621447, y: 2019.5693339100158 },
+        description: "Todo: insert a description for this map node x969_y2019",
+        dimension: MapType.overworld
+    },
+    "powderfallbluffs_1": {
+        internalId: "idk_todo",
+        name: "West Node",
+        pos: { x: -1708.571414, y: -820.881837 },
+        description: "On a grass ledge near some trees over the water.",
+        dimension: MapType.overworld
+    },
+    "powderfallbluffs_2": {
+        internalId: "idk_todo",
+        name: "East Node",
+        pos: { x: -1579.0279926711185, y: -574.9129736918427 },
+        description: "On an ice cube next to a patch of deep snow.",
+        dimension: MapType.overworld
+    },
+    "rainbowfields_1": {
+        internalId: "idk_todo",
+        name: "Southern Node",
+        pos: { x: -216.3259983, y: 187.817991 },
+        description: "Next to a big rock near the edge of a ledge over the water.",
+        dimension: MapType.overworld
+    },
+    "rainbowfields_2": {
+        internalId: "idk_todo",
+        name: "Western Node",
+        pos: { x: -289.993927, y: 103.15115399999999 },
+        description: "Near the edge of the top of a cliff.",
+        dimension: MapType.overworld
+    },
+    "starlightstrand_1": {
+        internalId: "idk_todo",
+        name: "North Node",
+        pos: { x: 16.954713999999967, y: -7.839307000000005 },
+        description: "On the edge of a high ledge on an island.",
+        dimension: MapType.overworld
+    },
+    "starlightstrand_2": {
+        internalId: "idk_todo",
+        name: "Center Node",
+        pos: { x: 283.94998, y: 166.47998869999998 },
+        description: "On a ledge next to a rock.",
+        dimension: MapType.overworld
+    },
+    "starlightstrand_3": {
+        internalId: "idk_todo",
+        name: "South Node",
+        pos: { x: 655.497, y: 260.8189987 },
+        description: "On top of a ruin ledge between two ruin walls.",
+        dimension: MapType.overworld
+    }
 };
