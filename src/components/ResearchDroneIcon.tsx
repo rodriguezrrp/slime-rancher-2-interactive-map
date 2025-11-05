@@ -83,7 +83,7 @@ export function ResearchDroneIcon({
                     </div> */}
 
                     <button
-                        className="border w-[5rem] mt-2 self-end"
+                        className="border w-[5rem] mt-2 p-1 self-end"
                         onClick={() => {
                             setShowLog(true);
                             setCurrentLog(<Log research_drone={research_drone} setShowLog={setShowLog} />);

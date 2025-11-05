@@ -40,7 +40,7 @@ export function NullifierDoorIcon({
     const icon = L.icon({
         ...icon_template,
         iconUrl: "/icons/iconGadgetHarmonizer.png",
-        className: `${checked && icon_opacity}`
+        className: `${checked && icon_opacity} testing-class-on-leaflet-icons`
     });
 
     return (

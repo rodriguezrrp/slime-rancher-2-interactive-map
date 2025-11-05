@@ -1,13 +1,16 @@
 
-import { GLOBS_TO_DRONE_LOCALIZATION_TABLES, GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE, L10N_TABLES_GLOBS, PATH_TO_GIGI_HOLOGRAMS_DATA_FILE } from "../../asset_paths.js";
 
 import { Glob, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPositions } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPositions, extractL10nTablesToCache } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
 import { entryExportFilter } from "./entries_export_filter.js";
+import { gigi_manual_extracted_conversations } from "../../gigi_manual_extracted_conversations.js";
+// import { transpile } from "typescript";
+// const gigi_manual_extracted_conversations = eval(transpile(readFileSync("../../gigi_manual_extracted_conversations.ts")));
 
 
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
@@ -37,7 +40,7 @@ export async function exportNodeCoordsFromScenesJSON(
     //===============
     // Research Drones
     
-    await exportResearchDroneDepoCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportResearchDroneCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
     
     //
     //////////////////////
@@ -52,12 +55,12 @@ export async function exportNodeCoordsFromScenesJSON(
     //===============
     // Gigi Holograms
     
-    //...
+    await exportGigiHologramCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Nullifier Doors
     
-    //...
+    await exportNullifierDoorCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Stabilizing Gates
@@ -423,7 +426,7 @@ async function exportShadowPlortDepoCoordinatesFromAssetsMapping(/** @type {Asse
     fnWriteShDeposBackToFile(mergedShDepoTSData);
 }
 
-async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportResearchDroneCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -605,7 +608,7 @@ async function exportResearchDroneDepoCoordinatesFromAssetsMapping(/** @type {As
         const _translationsOfPage = page => {
             if(page["m_LocalVariables"] && page["m_LocalVariables"].length > 0)
                 throw new Error(`Was not ready to handle page's m_LocalVariables ${JSON.stringify(page["m_LocalVariables"])}`);
-            return dronePageTranslationsFor(page["m_TableEntryReference"]["m_KeyId"], cacheOpts, translation => translation.split(/\n{2,}/));
+            return dronePageTranslationsFor(page["m_TableEntryReference"]["m_KeyId"], cacheOpts);
         };
 
         const log = referenceAssetJSON.props["pages"].map(_translationsOfPage);
@@ -1821,6 +1824,582 @@ async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {Assets
     fnWriteNullifierDoorsBackToFile(mergedDoorTSData);
 }
 
+// async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+//     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+//     /** @type {{ fileId: string, assetJSON: AssetJSONType, droneGameObj: AssetJSONType, referenceAssetJSON: AssetJSONType, archiveAssetJSON?: AssetJSONType, position: { x: number, y: number, z: number } }[]} */
+//     let ingameDronePositions;
+    
+//     if(cacheOpts.useCache && existsSync("./data_cache/gigiHologramAssetsAndPositions.json")) {
+//     // if(false) {  // for debugging
+        
+//         console.log("Reading cached Gigi hologram coordinates...");
+
+//         ingameDronePositions = JSON.parse(readFileSync("./data_cache/gigiHologramAssetsAndPositions.json"));
+
+//         console.log(`Read (${ingameDronePositions.length}) Gigi hologram coordinates from cache file.`);
+
+//     } else {
+
+//         assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+//         console.log("Extracting Gigi hologram coordinates from assets JSON...");
+
+//         const droneEntryMonoBehavioursEntries = Object.entries(assetsMapping)
+//             .filter(([, assetJSON]) => {
+            
+//                 const droneEntry = assetJSON.props["_researchDroneEntry"];
+            
+//                 if(!droneEntry) return false;
+
+//                 if(assetJSON.typeName !== "MonoBehaviour") {
+//                     console.log(assetJSON);
+//                     throw new Error("found asset with a _researchDroneEntry, but it was not a MonoBehaviour?");
+//                 }
+
+//                 return true;
+
+//             });
+
+//         console.log(`Retrieved ${droneEntryMonoBehavioursEntries.length} Gigi hologram entry MonoBehaviour entries.`);
+
+//         /** @type {{ [fileGUID: string]: AssetJSONType }} */
+//         const mapDroneEntryGUIDtoAssetJSONs = { };
+
+//         const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+//         const droneEntryAssetFilePaths = globSync(GLOBS_TO_INDIVIDUAL_DRONE_ASSETS);
+
+//         await Promise.all(droneEntryAssetFilePaths.map(
+//             async (assetpath) => {
+//                 // const filenameNoExt = basename(assetpath).split(".")[0];
+
+//                 const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+//                 const guid = metaFileGuidRegex.exec(metadata)[1];
+                
+//                 /** @type {AssetsMappingType} */
+//                 const droneEntryAssetsMapping = { }
+//                 parseUnityFileYamlIntoAssetsMapping(assetpath, droneEntryAssetsMapping, undefined, (/** @type {string} */ fileData) => {
+//                     // Because yaml library tries to parse the key id as number and loses precision. Surround it in quotes.
+//                     return fileData.replaceAll(/(m_TableEntryReference:\s+m_KeyId:\s+)(\d+)(\s)/g, "$1\"$2\"$3");
+//                 });
+//                 if(Object.keys(droneEntryAssetsMapping).length !== 1) {
+//                     throw new Error("Expected only one asset to be in the drone asset file");
+//                 }
+//                 const droneEntryAssetJSON = Object.values(droneEntryAssetsMapping)[0];
+
+//                 mapDroneEntryGUIDtoAssetJSONs[guid] = droneEntryAssetJSON;
+//             }
+//         ));
+//         // throw new Error("temp");
+
+//         // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+//         ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+            
+//             const referenceAssetJSON = mapDroneEntryGUIDtoAssetJSONs[assetJSON.props["_researchDroneEntry"]["guid"]];
+
+//             console.log(`[Research Drone ${referenceAssetJSON.props["referenceId"]}]: Extracting drone log and archive (if archive exists)`);
+
+//             const _archiveGUID = referenceAssetJSON.props["archivedEntry"]?.["guid"];
+//             const archiveAssetJSON = _archiveGUID && mapDroneEntryGUIDtoAssetJSONs[_archiveGUID];
+//             if(_archiveGUID && !archiveAssetJSON) {
+//                 throw new Error(`There was an archiveEntry GUID of ${JSON.stringify(_archiveGUID)}, but no asset matching that GUID was found?`);
+//             }
+
+//             console.log(`[Research Drone ${referenceAssetJSON.props["referenceId"]}]: Determining position of drone`);
+
+//             const { gameObj: droneGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+//             // for(const child of transformChainChildToParent) {
+//             //     console.log(child.typeName);
+//             //     console.log(child.fileKey);
+//             //     console.log(child.fileId);
+//             //     console.log(child.props["m_LocalPosition"]);
+//             //     console.log(child.props["m_LocalRotation"]);
+//             //     console.log(child.props["m_LocalScale"]);
+//             // }
+
+//             console.log(`[Research Drone ${referenceAssetJSON.props["referenceId"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+//             return { fileId, assetJSON, droneGameObj, referenceAssetJSON, archiveAssetJSON, pos };
+
+//         }));
+
+//         console.log(`Determined ${ingameDronePositions.length} research drone assets and their positions.`);
+        
+//         // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+//         // for(const d of ingameDronePositions) {
+//         //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+//         //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+//         //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+//         //         return { ...c, gameObject: gameObj };
+//         //     });
+//         // }
+
+//         if(cacheOpts.exportToCache) {
+//             const _export = () => {
+//                 writeFileSync("./data_cache/droneAssetsAndPositions.json", JSON.stringify(ingameDronePositions));
+//                 console.log("Exported research drone assets and their positions to cache.");
+//             };
+//             if(cacheOpts.exportToCache === "sync") {
+//                 console.log("Exporting research drone assets and their positions to cache...")
+//                 _export();
+//             }
+//             else (async () => { _export(); })();
+//         }
+
+//     }
+
+
+//     console.log("Parsing existing research drone data in the map data files...")
+
+//     const { fnWriteDronesBackToFile, existingDroneTSDataByDroneKey } = readExistingResearchDroneTSData(cacheOpts);
+
+//     console.log(`Parsed ${Object.keys(existingDroneTSDataByDroneKey).length} existing research drone data entries.`);
+
+//     /** @type {{ [tsDataDroneKey: string]: ExistingDroneDataType }} */
+//     const mergedDroneTSData = { ...existingDroneTSDataByDroneKey };
+
+//     console.log("Merging existing and extracted research drone data");
+    
+//     // merge existing and extracted shadow depo data
+    
+//     for(const { assetJSON, droneGameObj: droneGameObjJSON, referenceAssetJSON, archiveAssetJSON, pos } of ingameDronePositions) {
+//         /** @type {string} */
+//         // const internalDroneId = assetJSON.props["_id"];
+//         const internalDroneId = referenceAssetJSON.props["referenceId"];
+
+//         // /** @type {string} */
+//         // const internalName = droneGameObjJSON.props["m_Name"];
+
+//         const oldDroneId = droneIdInternalToOld(internalDroneId);
+
+//         let areaNameForKey;
+//         // TODO determine area name?
+//         if(!oldDroneId) {
+//             // areaNameForKey = groupOfDroneId(internalDroneId, cacheOpts)?.toLowerCase().replace(" ","")
+//             //     ?? "undeterminedarea";
+//             areaNameForKey = "undeterminedarea";
+//         }
+//         const tsDataKey = oldDroneId ?? (`research_${areaNameForKey}_${internalDroneId}`);
+
+//         // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+//         /** @type {undefined | existingDroneTSDataByDroneKey[keyof existingDroneTSDataByDroneKey]} */
+//         const existingData = (
+//             existingDroneTSDataByDroneKey[oldDroneId]
+//             || existingDroneTSDataByDroneKey[internalDroneId]
+//             || existingDroneTSDataByDroneKey[tsDataKey]
+//             || Object.values(existingDroneTSDataByDroneKey).find(data => data.internalId === internalDroneId)
+//         );
+
+//         // remove existingData object from the merged data mapping;
+//         // we will be overwriting it later with the "standardized" tsDataKey
+//         for(const [k, v] of Object.entries(mergedDroneTSData)) {
+//             if(v === existingData) {
+//                 delete mergedDroneTSData[k];
+//                 break;
+//             }
+//         }
+
+//         const _translationsOfPage = page => {
+//             if(page["m_LocalVariables"] && page["m_LocalVariables"].length > 0)
+//                 throw new Error(`Was not ready to handle page's m_LocalVariables ${JSON.stringify(page["m_LocalVariables"])}`);
+//             return dronePageTranslationsFor(page["m_TableEntryReference"]["m_KeyId"], cacheOpts);
+//         };
+
+//         const log = referenceAssetJSON.props["pages"].map(_translationsOfPage);
+//         const archive = archiveAssetJSON?.props["pages"].map(_translationsOfPage);
+
+//         const _mergedDataObj = {
+//             internalId: internalDroneId,
+//             // name: existingData?.name ?? ["TODO retrieve name from translation table"],
+//             name: existingData?.name ?? "Research Drone",
+//             log: log ?? existingData?.log ?? [{"en":["Todo: insert the correct log for this research drone"]}],
+//             archive: archive ?? existingData?.archive ?? [],
+//             description: existingData?.description ?? "Todo: insert a description for this research drone " + internalDroneId,
+//             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+//             // pos: { x: -pos.z, y: pos.x },
+//             pos: transformIngameToMapPositions(pos),
+//             // dimension: existingData?.dimension ?? "MapType.overworld",
+//             dimension: existingData?.dimension ?? MapType.overworld,
+//             _otherLines: existingData?._otherLines,
+//         };
+//         // clear out all entries with undefined values
+//         Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+//         // save merged data back
+//         mergedDroneTSData[tsDataKey] = _mergedDataObj;
+
+//         if(existingData)
+//             console.log(`Merged extracted research drone ${internalDroneId} data with existing ${tsDataKey} data`);
+//         else
+//             console.log(`Inserted extracted research drone ${internalDroneId} data to ${tsDataKey} data`)
+//     }
+
+//     console.log("Writing research drone data back to map data file");
+
+//     fnWriteDronesBackToFile(mergedDroneTSData);
+// }
+
+async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ fileId: string, assetJSON: AssetJSONType, gigiGameObj: AssetJSONType, pos: { x: number, y: number, z: number } }[]} */
+    let ingameGigiHologramPositions;
+    
+    if(cacheOpts.useCache && existsSync("./data_cache/gigiHologramAssetsAndPositions.json")) {
+    // if(false) {  // for debugging
+        
+        console.log("Reading cached Gigi hologram coordinates...");
+
+        ingameGigiHologramPositions = JSON.parse(readFileSync("./data_cache/gigiHologramAssetsAndPositions.json"));
+
+        console.log(`Read (${ingameGigiHologramPositions.length}) Gigi hologram coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting Gigi hologram coordinates from assets JSON...");
+
+        const doorMonoBehavioursEntries = Object.entries(assetsMapping)
+            .filter(([, assetJSON]) => {
+            
+                // const _id = assetJSON.props["_id"];
+            
+                // if(!_id) return false;
+
+                // if(!/^nullifierdoor[0-9]+$/.test(_id)) return false;
+
+                // if it's for a Discordant Wall, I expect it to have both of these properties. Otherwise, I expect it to have neither.
+                const prop_gigi = assetJSON.props["_gigi"];
+                const prop_gigiAnimator = assetJSON.props["_gigiAnimator"];
+
+                if(!prop_gigi && !prop_gigiAnimator) {
+                    // has neither
+                    return false;
+                }
+
+                if(!prop_gigi || !prop_gigiAnimator) {
+                    console.log(assetJSON);
+                    throw new Error(`Asset had only one of \"_gigi\" and \"_gigiAnimator\" props! (!!prop_gigi = ${!!prop_gigi}, !!prop_gigiAnimator = ${!!prop_gigiAnimator})`)
+                }
+
+                if(assetJSON.typeName !== "MonoBehaviour") {
+                    console.log(assetJSON);
+                    throw new Error("found asset with a \"_gigi\" and \"_gigiAnimator\" props, but it was not a MonoBehaviour?");
+                }
+
+                return true;
+
+            });
+        console.log(`Retrieved ${doorMonoBehavioursEntries.length} gigihologram MonoBehaviour entries.`);
+
+        // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+        // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+        // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+        // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+        // await Promise.all(identsAndDefsFilePaths.map(
+        //     async (assetpath) => {
+        //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+        //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+        //         const guid = metaFileGuidRegex.exec(metadata)[1];
+                
+        //         /** @type {AssetsMappingType} */
+        //         const identOrDefAssetsMapping = { }
+        //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+        //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+        //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+        //         }
+        //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+        //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+        //     }
+        // ));
+        // throw new Error("temp");
+
+        // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+        ingameGigiHologramPositions = await Promise.all(doorMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+            console.log(`[Gigi Hologram (assetJSON fileKeyFileId: ${assetJSON.fileKey + '&' + assetJSON.fileId})]: Determining position of Gigi hologram`);
+
+            const { gameObj: gigiGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+            // for(const child of transformChainChildToParent) {
+            //     console.log(child.typeName);
+            //     console.log(child.fileKey);
+            //     console.log(child.fileId);
+            //     console.log(child.props["m_LocalPosition"]);
+            //     console.log(child.props["m_LocalRotation"]);
+            //     console.log(child.props["m_LocalScale"]);
+            // }
+
+            console.log(`[Gigi Hologram ${manufactureGigiHologramIdFromAssets(assetJSON, gigiGameObj, pos)}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+            // return { fileId, assetJSON, gordoGameObj, targetCount, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, pos };
+            return { fileId, assetJSON, gigiGameObj, pos };
+
+        }));
+
+        console.log(`Determined ${ingameGigiHologramPositions.length} Gigi hologram assets and their positions.`);
+        
+        // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        // for(const d of ingameDronePositions) {
+        //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+        //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+        //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+        //         return { ...c, gameObject: gameObj };
+        //     });
+        // }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/gigiHologramAssetsAndPositions.json", JSON.stringify(ingameGigiHologramPositions));
+                console.log("Exported Gigi hologram assets and their positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting Gigi hologram assets and their positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+    
+    // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+    // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+    // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+
+    // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+    // await Promise.all(identsAndDefsFilePaths.map(
+    //     async (assetpath) => {
+    //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+    //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+    //         const guid = metaFileGuidRegex.exec(metadata)[1];
+            
+    //         /** @type {AssetsMappingType} */
+    //         const identOrDefAssetsMapping = { }
+    //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+    //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+    //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+    //         }
+    //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+    //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+    //     }
+    // ));
+
+
+    console.log("Parsing existing Gigi hologram data in the map data files...")
+
+    const { fnWriteGigiHologramsBackToFile, existingGigiHologramTSDataByGigiHologramKey } = readExistingGigiHologramsTSData(cacheOpts);
+
+    console.log(`Parsed ${Object.keys(existingGigiHologramTSDataByGigiHologramKey).length} existing Gigi hologram data entries.`);
+
+    const mergedGigiTSData = { ...existingGigiHologramTSDataByGigiHologramKey };
+    
+    const processedDialogues = processManualGigiConversations(cacheOpts);
+    // console.log(dialogues);
+
+    console.log("Merging existing and extracted Gigi hologram data");
+    
+    // merge existing and extracted shadow depo data
+    
+    for(const { fileId, assetJSON, gigiGameObj: gigiGameObjJSON, pos } of ingameGigiHologramPositions) {
+        /** @type {string} */
+        const manufacturedInternalId = manufactureGigiHologramIdFromAssets(assetJSON, gigiGameObjJSON, pos);
+
+        // /** @type {string} */
+        // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
+
+        // for testing
+        const gigiHologramIdInternalToOld = (x) => undefined;
+        
+        const oldId = gigiHologramIdInternalToOld(manufacturedInternalId);
+
+        let areaNameForKey;
+        // TODO determine area name?
+        // if(!oldId) {
+        //     // console.log("debug: fileKey: ", assetJSON.fileKey);
+        //     // make a best guess based on what scene file the asset was in.
+        //     console.log(assetJSON.fileKey);
+        //     areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+        //         ?? "undeterminedarea";
+        //     // areaNameForKey = "undeterminedarea";
+        // }
+        const tsDataKey = oldId ?? (`gigihologram_${manufacturedInternalId}`);
+
+        // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+        /** @type {undefined | existingGigiHologramTSDataByGigiHologramKey[keyof existingGigiHologramTSDataByGigiHologramKey]} */
+        const existingData = (
+            existingGigiHologramTSDataByGigiHologramKey[oldId]
+            || existingGigiHologramTSDataByGigiHologramKey[manufacturedInternalId]
+            || existingGigiHologramTSDataByGigiHologramKey[tsDataKey]
+            || Object.values(existingGigiHologramTSDataByGigiHologramKey).find(data => data.internalId === manufacturedInternalId)
+        );
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        for(const [k, v] of Object.entries(mergedGigiTSData)) {
+            if(v === existingData) {
+                delete mergedGigiTSData[k];
+                break;
+            }
+        }
+
+        // const processedManualDialogue = processedDialogues[tsDataKey];
+        // console.log(tsDataKey, processedManualDialogue);
+
+        // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+        /** @type {ExistingGigiHologramDataType} */
+        const _mergedDataObj = { ...existingData,
+            // internalId: internalId,
+            name: existingData?.name ?? "Gigi Hologram",
+            // name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
+            // name: name,
+            // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+            // position: { x: -pos.z, y: pos.x },
+            position: transformIngameToMapPositions(pos),
+            // image: image,
+            description: existingData?.description ?? "Todo: insert a description for this Gigi hologram " + manufacturedInternalId,
+            // dimension: existingData?.dimension ?? "MapType.overworld",
+            // dimension: existingData?.dimension ?? MapType.labyrinth,
+            // unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
+            dialogue: processedDialogues[tsDataKey],
+        };
+        // clear out all entries with undefined values
+        Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+        // save merged data back
+        mergedGigiTSData[tsDataKey] = _mergedDataObj;
+
+        if(existingData)
+            console.log(`Merged extracted Gigi hologram ${manufacturedInternalId} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted Gigi hologram ${manufacturedInternalId} data to ${tsDataKey} data`)
+    }
+
+    console.log("Writing Gigi hologram data back to map data file");
+
+    fnWriteGigiHologramsBackToFile(mergedGigiTSData);
+}
+
+
+/** @typedef {{
+    internalId?: string;
+    name: string;
+    position: Vec2;
+    description: string;
+    dialogue?: {
+        startEntryId: string,
+        entries: {
+            [id: string]: (
+                {
+                    text: TranslatedType<string>;
+                    internalId?: string;
+                    nextTextById?: string;
+                    nextOptionsById?: string[];
+                }
+            )
+        }
+    }
+}} ExistingGigiHologramDataType */
+
+function readExistingGigiHologramsTSData(/** @type {CacheOpts} */ cacheOpts) {
+    
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    const fileText = readFileSync(PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, { encoding: "utf-8" });
+
+    const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*gigi_holograms.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
+
+    const parsedObj = looseJsonParseWithEval(dataObjInJsCode);
+
+    const _objMatchesExpectedSchema = (
+        typeof parsedObj === "object"
+        && Object.keys(parsedObj).every(k => (
+            typeof parsedObj[k] === "object"
+            && setContains(new Set(Object.keys(parsedObj[k])), ["name", "position", "description"])
+        ))
+    );
+
+    if(!_objMatchesExpectedSchema) {
+        console.log("dataObjAsInitText = ", dataObjInJsCode);
+        console.log("_obj = ", parsedObj);
+        for(const k of Object.keys(parsedObj)) {
+            if(!(
+                typeof parsedObj[k] === "object"
+                && setContains(new Set(Object.keys(parsedObj[k])), ["name", "position", "description"])
+            )) {
+                console.log(k)
+            }
+        }
+        throw new Error("unexpected loose json parse result, did not match expected schema");
+    }
+
+    // const _jsonStringifyTransformerFns = {
+    //     transformer: (obj, key, keys) => {
+    //         if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
+    //         if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
+    //         if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
+    //     },
+    //     shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
+    //     shouldInlineObj: (key, depth, keysChain, obj) => {
+    //         // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
+    //         // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
+    //         // return null;
+    //         return (
+    //             (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
+    //             || (Array.isArray(obj) && obj.length <= 1)
+    //         ) ? false : null;
+    //     },
+    //     shouldSortKeys: (key, depth, keysChain, obj) => {
+    //         if(depth === 0) return sortStringsWithNumbers;
+    //         if(depth === 1) {
+    //             const _lookup = Object.fromEntries(["internalId", "name", "log", "archive", "pos", "position", "description", "dimension"].map((v, i) => [v, i]));
+    //             const _default = Object.keys(_lookup).length;
+    //             return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
+    //         }
+    //         if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
+    //             // put "en" lang as first item, order all other lang keys lexographically
+    //             return (a, b) => {
+    //                 a = a.toLowerCase(); b = b.toLowerCase();
+    //                 return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
+    //             };
+    //         }
+    //     }
+    // };
+
+    const fnWriteGigiHologramsBackToFile = (/** @type {{ [tsDataGigiHologramKey: string]: ExistingGigiHologramDataType }} */ mergedGigiHologramTSData) => {
+        const dataObjAsJsCode = looseJsonStringify(
+            filterDataObjBeforeExport(PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, mergedGigiHologramTSData),
+            "    ",
+            _jsonStringifyTransformerFns
+        );
+        
+        const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
+
+        writeFileSync(PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, newFileText);
+    };
+
+    return {
+        fnWriteGigiHologramsBackToFile,
+        /** @type {{ [tsDataGigiHologramKey: string]: ExistingGigiHologramDataType }} */
+        existingGigiHologramTSDataByGigiHologramKey: parsedObj
+    }
+}
+
 /** @typedef {{ description: string, position: { x: number, y: number }, [other]?: any }} ExistingNullifierDoorDataType */
 
 function readExistingNullifierDoorsTSData(/** @type {CacheOpts} */ cacheOpts) {
@@ -1882,7 +2461,6 @@ function readExistingNullifierDoorsTSData(/** @type {CacheOpts} */ cacheOpts) {
         existingNullifierDoorTSDataByGateKey: parsedObj
     }
 }
-
 
 /** @typedef {{ internalId: string, description: string, position: { x: number, y: number }, [other]?: any }} ExistingStabilizingGateDataType */
 
@@ -2770,37 +3348,67 @@ function podGroupOfPodId(/** @type {string} */ podId, /** @type {CacheOpts} */ c
     return Object.entries(_podIdGroups).find(([/*group*/, podIds]) => podIds.includes(podId))?.[0];
 }
 
-let _droneL10nTables = null;
-
+let _l10nTables = { };
 /**
  * Retrieves translations for a given drone page translation key across different languages.
- * @template T The return type of the translation processing function
+ * @overload
  * @param {string} translationKeyId - The key ID to look up translations for
  * @param {CacheOpts} cacheOpts - Options for caching behavior
- * @param {(translation: string) => T} [_processTrFn] - Optional function to process each translation string
+ * @returns {{ [lang: string]: string[] }} Object mapping language codes to processed drone page translations
+ */
+function dronePageTranslationsFor(translationKeyId, cacheOpts) {
+    return l10nTranslationsFor("ResearchDrone", translationKeyId, cacheOpts, translation => translation.split(/\n{2,}/));
+}
+
+/**
+ * Retrieves translations of a string for a given translation key across different languages.
+ * @overload
+ * @param {keyof L10N_TABLES_GLOBS} l10nCacheId - The localization file(s) key to retrieve file globs by
+ * @param {string} translationKeyId - The key ID to look up translations for
+ * @param {CacheOpts} cacheOpts - Options for caching behavior
+ * @returns {{ [lang: string]: string }} Object mapping language codes to raw translations
+ *//**
+ * Retrieves translations for a given translation key across different languages. Transforms the translated string using the passed _processTrFn parameter.
+ * @template T The return type of the translation processing function
+ * @overload
+ * @param {keyof L10N_TABLES_GLOBS} l10nCacheId - The localization file(s) key to retrieve file globs by
+ * @param {string} translationKeyId - The key ID to look up translations for
+ * @param {CacheOpts} cacheOpts - Options for caching behavior
+ * @param {(translation: string) => T} processTrFn - Optional function to process each translation string
+ * @returns {{ [lang: string]: T }} Object mapping language codes to processed translations
+ */
+/*
+ * Retrieves translations for a given translation key across different languages.
+ * @template T The return type of the translation processing function
+ * @overload
+ * @param {keyof L10N_TABLES_GLOBS} l10nCacheId - The localization file(s) key to retrieve file globs by
+ * @param {string} translationKeyId - The key ID to look up translations for
+ * @param {CacheOpts} cacheOpts - Options for caching behavior
+ * @param {(translation: string) => T} [processTrFn] - Optional function to process each translation string
  * @returns {{ [lang: string]: string | T }} Object mapping language codes to either raw translations or processed translations
  */
-function dronePageTranslationsFor(/** @type {string} */ translationKeyId, /** @type {CacheOpts} */ cacheOpts, /** @type {(translation: string) => any} */ _processTrFn) {
-    if(!_droneL10nTables && cacheOpts.useCache) {
+function l10nTranslationsFor(l10nCacheId, translationKeyId, cacheOpts, processTrFn) {
+    cacheOpts = { ...defaultCacheSettings, ...cacheOpts };
+    if(!_l10nTables[l10nCacheId] && cacheOpts.useCache) {
     // if(false) { // for debugging testing
         try {
-            console.log("Reading cached drone localization tables...");
-            _droneL10nTables = JSON.parse(readFileSync("./data_cache/droneL10nData.json"));
+            console.log(`Reading cached ${l10nCacheId} localization tables...`);
+            _l10nTables[l10nCacheId] = JSON.parse(readFileSync(`./data_cache/${l10nCacheId}L10nData.json`));
         } catch(e) {
-            console.log("Failed to read cached drone localization tables. Extracting anew.");
+            console.log(`Failed to read cached ${l10nCacheId} localization tables. Extracting anew.`);
         }
     }
-    if (!_droneL10nTables) {
-        _droneL10nTables = extractDroneL10nTablesToCache(cacheOpts);
+    if (!_l10nTables[l10nCacheId]) {
+        _l10nTables[l10nCacheId] = extractL10nTablesToCache(cacheOpts, l10nCacheId);
     }
 
-    /** @type {{ [lang: string]: string | any }} */
+    /** @type {{ [lang: string]: string | T }} */
     let result = { };
-    for (const lang of Object.keys(_droneL10nTables)) {
-        const tbl = _droneL10nTables[lang];
+    for (const lang of Object.keys(_l10nTables[l10nCacheId])) {
+        const tbl = _l10nTables[l10nCacheId][lang];
         const translation = tbl[translationKeyId];
         if(!translation) continue;
-        result[lang] = (_processTrFn ? _processTrFn(translation) : translation);
+        result[lang] = (processTrFn ? processTrFn(translation) : translation);
     }
     
     return result;
@@ -2899,58 +3507,63 @@ function extractPodIdGroupsToCache(/** @type {CacheOpts} */ cacheOpts) {
     return podIdGroups;
 }
 
-function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
-    /** @type {{ [lang: string]: { [translationKeyId: string | number]: string }}} */
-    let droneL10nData = { };
+// function extractDroneL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
+//     return extractL10nTablesToCache(cacheOpts, "ResearchDrone");
+//     // /** @type {{ [lang: string]: { [translationKeyId: string | number]: string }}} */
+//     // let droneL10nData = { };
 
-    const files = globSync(GLOBS_TO_DRONE_LOCALIZATION_TABLES);
+//     // const files = globSync(GLOBS_TO_DRONE_LOCALIZATION_TABLES);
 
-    for(const l10nFile of files) {
-        /** @type {AssetsMappingType} */
-        const assetsMapping = { };
-        parseUnityFileYamlIntoAssetsMapping(l10nFile, assetsMapping, undefined, (/** @type {string} */ fileData) => {
-            // Because yaml library tries to parse the key id as number and loses precision. Surround it in quotes.
-            return fileData.replaceAll(/(-\s+m_Id:\s+)(\d+)(\s)/g, "$1\"$2\"$3");
-        });
+//     // for(const l10nFile of files) {
+//     //     /** @type {AssetsMappingType} */
+//     //     const assetsMapping = { };
+//     //     parseUnityFileYamlIntoAssetsMapping(l10nFile, assetsMapping, undefined, (/** @type {string} */ fileData) => {
+//     //         // Because yaml library tries to parse the key id as number and loses precision. Surround it in quotes.
+//     //         return fileData.replaceAll(/(-\s+m_Id:\s+)(\d+)(\s)/g, "$1\"$2\"$3");
+//     //     });
 
-        if(Object.keys(assetsMapping).length !== 1) {
-            throw new Error("Expected only one asset to be in the drone asset file");
-        }
+//     //     if(Object.keys(assetsMapping).length !== 1) {
+//     //         throw new Error("Expected only one asset to be in the drone asset file");
+//     //     }
 
-        assert(Object.keys(assetsMapping).length === 1);
+//     //     assert(Object.keys(assetsMapping).length === 1);
 
-        const assetJSON = Object.values(assetsMapping)[0];
+//     //     const assetJSON = Object.values(assetsMapping)[0];
 
-        // const podIdsList = assetJSON.props["_treasurePodIDs"];
+//     //     // const podIdsList = assetJSON.props["_treasurePodIDs"];
 
-        const mapping = Object.fromEntries(assetJSON.props["m_TableData"].map(({ m_Id, m_Localized, m_Metadata }) => {
-            if(m_Metadata["m_Items"]["Array"] && m_Metadata["m_Items"]["Array"].length > 0) {
-                console.warn(`Was not expecting any m_Metadata["m_Items"]["Array"]! Found ${JSON.stringify(m_Metadata["m_Items"]["Array"])}`);
-            }
-            return [m_Id, m_Localized];
-        }));
+//     //     const mapping = Object.fromEntries(assetJSON.props["m_TableData"].map(({ m_Id, m_Localized, m_Metadata }) => {
+//     //         if(m_Metadata["m_Items"]["Array"] && m_Metadata["m_Items"]["Array"].length > 0) {
+//     //             console.warn(`Was not expecting any m_Metadata["m_Items"]["Array"]! Found ${JSON.stringify(m_Metadata["m_Items"]["Array"])}`);
+//     //         }
+//     //         return [m_Id, m_Localized];
+//     //     }));
 
-        const lang = /^ResearchDrone_(en|es|de|fr|ja|ko|pt|ru|zh).asset$/.exec(basename(l10nFile))[1];
+//     //     const lang = /^ResearchDrone_(en|es|de|fr|ja|ko|pt|ru|zh).asset$/.exec(basename(l10nFile))[1];
 
-        if(!lang) throw new Error(`Unexpected lang value ${lang}`);
+//     //     if(!lang) throw new Error(`Unexpected lang value ${lang}`);
 
-        droneL10nData[lang] = mapping;
-    }
+//     //     droneL10nData[lang] = mapping;
+//     // }
 
-    if(cacheOpts.exportToCache) {
-        const _export = () => {
-            writeFileSync("./data_cache/droneL10nData.json", JSON.stringify(droneL10nData));
-            console.log("Exported drone localization tables to cache.");
-        };
-        if(cacheOpts.exportToCache === "sync") {
-            console.log("Exporting drone localization tables to cache...");
-            _export();
-        }
-        else (async () => { _export(); })();
-    }
+//     // if(cacheOpts.exportToCache) {
+//     //     const _export = () => {
+//     //         writeFileSync("./data_cache/droneL10nData.json", JSON.stringify(droneL10nData));
+//     //         console.log("Exported drone localization tables to cache.");
+//     //     };
+//     //     if(cacheOpts.exportToCache === "sync") {
+//     //         console.log("Exporting drone localization tables to cache...");
+//     //         _export();
+//     //     }
+//     //     else (async () => { _export(); })();
+//     // }
 
-    return droneL10nData;
-}
+//     // return droneL10nData;
+// }
+
+// function extractCommL10nTablesToCache(/** @type {CacheOpts} */ cacheOpts) {
+//     return extractL10nTablesToCache(cacheOpts, "CommStation");
+// }
 
 /**
  * @template {Record<string, Record<string, any>>} T
@@ -2984,6 +3597,83 @@ function manufactureNullifierDoorIdFromAssets(/** @type {AssetJSONType} */ asset
     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
 }
+function manufactureGigiHologramIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ gigiGameObjJSON, /** @type {position: { x: number, y: number, z: number }} */ ingamePos) {
+    // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
+    return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
+}
+
+/*
+
+        internalTranslationId?: string | undefined;
+        nextTextById?: string | undefined;
+        text: TranslatedType<string>;
+        expression?: "surprised1" | "happy1" | "thinking1" | "pointing1";
+    } | {
+        internalTranslationId?: string;
+        nextOptionsById: string[];
+        text: TranslatedType<string>;
+        expression?: "surprised1" | "happy1" | "thinking1" | "pointing1";
+    };
+
+*/
+
+function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
+    cacheOpts = { ...defaultCacheSettings, ...cacheOpts };
+
+    /** @type {{ [hologramId: string]: import("../../../src/types.js").GigiHologram["dialogue"] }} */
+    const processedDialogues = {};
+
+    /** @type {Set<string>} */
+    const optionsIds = new Set();
+
+    for (const hologramId of Object.keys(gigi_manual_extracted_conversations)) {
+        const hologramConvo = gigi_manual_extracted_conversations[hologramId];
+
+        processedDialogues[hologramId] = {
+            firstVisitStartEntryId: hologramConvo.firstVisitStartEntryId,
+            entries: Object.fromEntries(Object.entries(hologramConvo.entries).filter(e => e[0] !== "")
+                .map(([translationId, info]) => {
+
+                    /** @type {NonNullable<import("../../../src/types.js").GigiHologram["dialogue"]>["entries"][string]} */
+                    const dialogueEntry = {
+                        internalTranslationId: translationId,
+                        text: l10nTranslationsFor("CommStation", translationId, cacheOpts),
+                    };
+
+                    if(info.changeExpression) {
+                        dialogueEntry.expression = info.changeExpression;
+                    }
+
+                    if(info.nextOptions) {
+                        dialogueEntry.nextOptionsById = info.nextOptions;
+                        for(const id of info.nextOptions) {
+                            optionsIds.add(id);
+                        }
+                    }
+                    else if(info.next) {
+                        dialogueEntry.nextTextById = info.next;
+                    }
+
+                    return [translationId, dialogueEntry];
+                })
+                .map(([translationId, v]) => {
+                    // console.log(translationId, optionsIds.has(translationId));
+                    if(optionsIds.has(translationId)) {
+                        v = { ...v, isOption: true };
+                    }
+
+                    return [translationId, v];
+                })
+            )
+        };
+
+        if(typeof hologramConvo.subsequentStartEntryId !== "undefined") {
+            processedDialogues[hologramId].subsequentStartEntryId = hologramConvo.subsequentStartEntryId;
+        }
+    }
+
+    return processedDialogues;
+}
 
 // extractScenesToCacheJSON();
 // exportNodeCoordsFromScenesJSON(undefined, true);
@@ -2993,10 +3683,12 @@ function manufactureNullifierDoorIdFromAssets(/** @type {AssetJSONType} */ asset
 // const { fnWriteShDeposBackToFile, existingShDepoTSDataByDepoKey } = readExistingShadowPlortDepoTSData();
 // console.log(Object.values(existingShDepoTSDataByDepoKey).map(e => `(${e.position.x}, ${e.position.y})`).join(', '));
 // exportShadowPlortDepoCoordinatesFromAssetsMapping();
-// exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false, exportToCache: false });
-// exportResearchDroneDepoCoordinatesFromAssetsMapping(undefined, { useCache: false });
-// exportResearchDroneDepoCoordinatesFromAssetsMapping();
+// exportResearchDroneCoordinatesFromAssetsMapping(undefined, { useCache: false, exportToCache: false });
+// exportResearchDroneCoordinatesFromAssetsMapping(undefined, { useCache: false });
+// exportResearchDroneCoordinatesFromAssetsMapping();
 // exportGordoCoordinatesFromAssetsMapping();
 // exportPuzzleDoorCoordinatesFromAssetsMapping();
 // exportStabilizingGateCoordinatesFromAssetsMapping();
-exportNullifierDoorCoordinatesFromAssetsMapping();
+// exportNullifierDoorCoordinatesFromAssetsMapping();
+exportGigiHologramCoordinatesFromAssetsMapping();
+// console.log(l10nTranslationsFor("CommStation", null));

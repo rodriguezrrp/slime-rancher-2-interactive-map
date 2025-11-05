@@ -1,4 +1,3 @@
-import internal from "stream";
 import { MapType } from "./CurrentMapContext";
 
 export interface Vec2 {
@@ -49,7 +48,8 @@ export interface TreasurePod {
     dimension: MapType;
 }
 
-export type TranslatedDronePage = { en: string[] } & { [lang in "es"|"de"|"fr"|"ja"|"ko"|"pt"|"ru"|"zh"]?: string[] };
+export type TranslatedType<T> = { en: T } & { [lang in "es"|"de"|"fr"|"ja"|"ko"|"pt"|"ru"|"zh"]?: T };
+export type TranslatedDronePage = TranslatedType<string[]>;
 
 export interface ResearchDrone {
     internalId: string;
@@ -162,4 +162,33 @@ export interface ShadowDoor {
     description: string;
     amount_required: number;
     unlocks: string[];
+}
+
+interface GigiDialogueEntryBase {
+    text: TranslatedType<string>;
+    expression?: "surprised1" | "happy1" | "thinking1" | "pointing1";
+    isOption?: boolean;
+}
+export interface GigiDialogueToTextEntry extends GigiDialogueEntryBase {
+    internalTranslationId?: string;
+    nextTextById?: string;
+}
+
+export interface GigiDialogueToOptionsEntry extends GigiDialogueEntryBase {
+    internalTranslationId?: string;
+    nextOptionsById: string[];
+}
+
+export interface GigiHologram {
+    internalId?: string;
+    name: string;
+    position: Vec2;
+    description: string;
+    dialogue?: {
+        firstVisitStartEntryId: string,
+        subsequentStartEntryId?: string,
+        entries: {
+            [id: string]: GigiDialogueToTextEntry | GigiDialogueToOptionsEntry;
+        }
+    }
 }

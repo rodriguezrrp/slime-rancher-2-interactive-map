@@ -1,5 +1,6 @@
 import React, { createContext, useState } from "react";
 import {
+    gigi_hologram_ls_key,
     gordo_ls_key,
     locked_door_ls_key,
     map_node_ls_key,
@@ -19,6 +20,7 @@ export interface Found {
     stabilizing_gates: string[];
     shadow_doors: string[];
     nullifier_doors: string[];
+    gigi_holograms: string[];
 }
 
 export const FoundContext: React.Context<{
@@ -34,6 +36,7 @@ export const FoundContext: React.Context<{
         stabilizing_gates: [],
         shadow_doors: [],
         nullifier_doors: [],
+        gigi_holograms: [],
     } as Found,
     setFound: {} as React.Dispatch<React.SetStateAction<Found>>,
 });
@@ -48,6 +51,7 @@ export function FoundProvider({ children }: { children: React.ReactNode }) {
         stabilizing_gates: JSON.parse(localStorage.getItem(stabilizing_gate_ls_key) ?? "[]") ?? [],
         shadow_doors: JSON.parse(localStorage.getItem(shadow_door_ls_key) ?? "[]") ?? [],
         nullifier_doors: JSON.parse(localStorage.getItem(nullifier_door_ls_key) ?? "[]") ?? [],
+        gigi_holograms: JSON.parse(localStorage.getItem(gigi_hologram_ls_key) ?? "[]") ?? [],
     });
 
     return (

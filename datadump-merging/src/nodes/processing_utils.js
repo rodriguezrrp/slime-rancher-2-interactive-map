@@ -1,6 +1,6 @@
-import { GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, L10N_TABLES_GLOBS, PATH_TO_TREASURE_PODS_DATA_FILE } from "../../asset_paths.js";
 
-import { Glob } from "glob";
+import { Glob, globSync } from "glob";
 import yaml from "js-yaml";
 import assert from "node:assert";
 import {
@@ -544,6 +544,68 @@ export function looseJsonStringify(
     str += (shouldNewline ? "\n" + _prevIndent : " ") + "}";
 
     return str;
+}
+
+
+/**
+ * 
+ * @param {CacheOpts} cacheOpts 
+ * @param {keyof L10N_TABLES_GLOBS} globsKey 
+ * @returns {{ [lang: string]: { [translationKeyId: string]: string }}}
+ */
+export function extractL10nTablesToCache(cacheOpts, globsKey) {
+    /** @type {{ [lang: string]: { [translationKeyId: string]: string }}} */
+    let l10nData = { };
+
+    const files = globSync(L10N_TABLES_GLOBS[globsKey]);
+
+    for(const l10nFile of files) {
+        /** @type {AssetsMappingType} */
+        const assetsMapping = { };
+        parseUnityFileYamlIntoAssetsMapping(l10nFile, assetsMapping, undefined, (/** @type {string} */ fileData) => {
+            // Because yaml library tries to parse the key id as number and loses precision. Surround it in quotes.
+            return fileData.replaceAll(/(-\s+m_Id:\s+)(\d+)(\s)/g, "$1\"$2\"$3");
+        });
+
+        if(Object.keys(assetsMapping).length !== 1) {
+            throw new Error("Expected only one asset to be in the drone asset file");
+        }
+
+        assert(Object.keys(assetsMapping).length === 1);
+
+        const assetJSON = Object.values(assetsMapping)[0];
+
+        // const podIdsList = assetJSON.props["_treasurePodIDs"];
+
+        /** @type {{ [translationKeyId: string]: string }} */
+        const mapping = Object.fromEntries(assetJSON.props["m_TableData"].map(({ m_Id, m_Localized, m_Metadata }) => {
+            if(m_Metadata["m_Items"]["Array"] && m_Metadata["m_Items"]["Array"].length > 0) {
+                console.warn(`Was not expecting any m_Metadata["m_Items"]["Array"]! Found ${JSON.stringify(m_Metadata["m_Items"]["Array"])}`);
+            }
+            return [m_Id, m_Localized];
+        }));
+
+        // expect camelcase text as the first part of filename (e.g. ResearchDrone, CommStation, ...)
+        const lang = /^(?:[A-Z][a-z]*)+_(en|es|de|fr|ja|ko|pt|ru|zh).asset$/.exec(basename(l10nFile))[1];
+
+        if(!lang) throw new Error(`Unexpected lang value in localization file name ${basename(l10nFile)} (${l10nFile})`);
+
+        l10nData[lang] = mapping;
+    }
+
+    if(cacheOpts.exportToCache) {
+        const _export = () => {
+            writeFileSync(`./data_cache/${globsKey}L10nData.json`, JSON.stringify(l10nData));
+            console.log("Exported drone localization tables to cache.");
+        };
+        if(cacheOpts.exportToCache === "sync") {
+            console.log("Exporting drone localization tables to cache...");
+            _export();
+        }
+        else (async () => { _export(); })();
+    }
+
+    return l10nData;
 }
 
 

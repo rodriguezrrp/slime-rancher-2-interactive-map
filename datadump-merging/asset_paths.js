@@ -36,11 +36,22 @@ export const GLOBS_TO_INDIVIDUAL_DRONE_ASSETS = [
     // "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/**/ResearchDrone/ResearchDrone*.asset",
 ];
 
-export const GLOBS_TO_DRONE_LOCALIZATION_TABLES = [
+const GLOBS_TO_DRONE_LOCALIZATION_TABLES = [
     "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Asset_Bundles/**/Localization/StringTable/ResearchDrone/ResearchDrone_{en,es,de,fr,ja,ko,pt,ru,zh}.asset",
     // in case it was extracted differently
     // "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/**/Localization/StringTable/ResearchDrone/ResearchDrone_{en,es,de,fr,ja,ko,pt,ru,zh}.asset",
 ];
+
+const GLOBS_TO_COMM_LOCALIZATION_TABLES = [
+    "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Asset_Bundles/**/Localization/StringTable/Comm/CommStation_{en,es,de,fr,ja,ko,pt,ru,zh}.asset",
+    // in case it was extracted differently
+    // "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/**/Localization/StringTable/Comm/CommStation_{en,es,de,fr,ja,ko,pt,ru,zh}.asset",
+];
+
+export const L10N_TABLES_GLOBS = {
+    "ResearchDrone": GLOBS_TO_DRONE_LOCALIZATION_TABLES,
+    "CommStation": GLOBS_TO_COMM_LOCALIZATION_TABLES,
+}
 
 export const GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES = [
     "./_ripped_unityproj/globalgamemanagers/ExportedProject/Assets/Asset_Bundles/1937414ef44dd74c104e9348d08dfa93.bundle/Actor/**/IdentifiableType/*.asset",
@@ -55,6 +66,7 @@ export const PATH_TO_GORDOS_DATA_FILE = "../src/data/gordos.ts";
 export const PATH_TO_PUZZLE_DOORS_DATA_FILE = "../src/data/locked_doors.ts";
 export const PATH_TO_STABILIZING_GATES_DATA_FILE = "../src/data/stabilizing_gates.ts";
 export const PATH_TO_NULLIFIER_DOORS_DATA_FILE = "../src/data/nullifier_doors.ts";
+export const PATH_TO_GIGI_HOLOGRAMS_DATA_FILE = "../src/data/gigi_holograms.ts";
 
 export const PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER = "../public/map_overworld";
 export const PATH_TO_LABYRINTH_TILEMAP_FOLDER = "../public/map_labyrinth";
