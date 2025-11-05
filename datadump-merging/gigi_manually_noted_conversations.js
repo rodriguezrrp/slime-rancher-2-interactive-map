@@ -13,8 +13,8 @@
     [hologramId: string]: Omit<NonNullable<import("../src/types.js").GigiHologram["dialogue"]>, "entries"> & {
         entries: {
             [translationId: string]: (
-                { next: string | null; changeExpression?: GigiDialogueTextEntry["expression"] }
-                | { nextOptions: string[]; changeExpression?: GigiDialogueTextEntry["expression"] }
+                { next: string | null; changeExpression?: import("../src/types.js").GigiDialogueToTextEntry["expression"] }
+                | { nextOptions: string[]; changeExpression?: import("../src/types.js").GigiDialogueToTextEntry["expression"] }
                 | null
             );
         }
@@ -68,17 +68,27 @@ export const gigi_manually_noted_conversations = {
             // [1/2] [Tell me again why you need my help.]
             "418299640694861851": { next: "418299640694861838" },
                 // I need you to help me save Rainbow Island... maybe even all of the Far, Far Range.
-                "418299640694861838": { next: "" },
-                //
-                "": { next: "" },
-                //
-                "": { next: "" },
-                //
-                "": { next: "" },
+                "418299640694861838": { next: "418299640694861839", changeExpression: "thinking1" },
+                // You see, when I first came to Rainbow Island I was so taken with its beauty. It was unlike anything I had ever seen before. But I eventually discovered this beauty came at a price.
+                "418299640694861839": { next: "418299640694861840", changeExpression: "surprised1" },
+                // Long ago, something from way out there in space crashed into what is now Rainbow Island. And slowly, it began to change things.
+                "418299640694861840": { next: "418299640694861841" },
+                // The rocks and cliffs blushed with color and then rippled with veins of the same prismatic hues that sprouted from the grasses and other flora.
+                "418299640694861841": { next: "418299640694861842" },
+                // Even the atmosphere here has a kind of hypercolor to it. It's everywhere. All spreading from the thing from space.
+                "418299640694861842": { next: "418299640694861843" },
+                // That thing, I call it the Prismacore, changes the properties of everything around it. It starts with color but then material and elemental changes begin...
+                "418299640694861843": { next: "418299640694861844", changeExpression: "thinking1" },
+                // I need you to traverse through the Grey Labyrinth and find me. I cannot leave my post but I can communicate with you from these devices as you find them.
+                "418299640694861844": { next: "418299640694861845" },
+                // I'll do my best to answer more questions as you think of them. But heck, it's even just good to chat to another human. It has been so long...
+                "418299640694861845": { nextOptions:["418299640694861851", "418299640694861852"], changeExpression: "happy1" },
             // [2/2] [Ok Gigi, I'll see you inside.]
             "418299640694861852": { next: "418299640694861846" },
                 // Good luck, Beatrix. And stay sharp when the colors here intensify. Things will get crazy.
-                "418299640694861846": { next: null },
+                "418299640694861846": { next: null, changeExpression: "thinking1" },
+            // [Subsequent Start] Hello again, Beatrix. Do you need something?
+            "433468706430545920": { nextOptions:["418299640694861851", "418299640694861852"], changeExpression: "happy1" },
         }
     },
     // "": {

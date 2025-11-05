@@ -90,7 +90,7 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Map Nodes
     
-    //...
+    await exportMapNodeCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Teleport Pads, Teleport Lines
@@ -4017,6 +4017,6 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 // exportPuzzleDoorCoordinatesFromAssetsMapping();
 // exportStabilizingGateCoordinatesFromAssetsMapping();
 // exportNullifierDoorCoordinatesFromAssetsMapping();
-exportGigiHologramCoordinatesFromAssetsMapping();
+// exportGigiHologramCoordinatesFromAssetsMapping();
 // console.log(l10nTranslationsFor("CommStation", null));
-exportMapNodeCoordinatesFromAssetsMapping();
+// exportMapNodeCoordinatesFromAssetsMapping();
