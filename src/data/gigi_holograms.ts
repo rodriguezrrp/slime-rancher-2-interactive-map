@@ -1,16 +1,6 @@
 import { GigiHologram } from "../types";
 
 export const gigi_holograms: { [key: string]: GigiHologram } = {
-    "gigihologram_x82_y2225": {
-        name: "Gigi Hologram",
-        position: { x: 81.34874224195573, y: 2225.019169196163 },
-        description: "Todo: insert a description for this Gigi hologram x82_y2225"
-    },
-    "gigihologram_x134_y2247": {
-        name: "Gigi Hologram",
-        position: { x: 133.2072698442903, y: 2247.5591600811076 },
-        description: "Todo: insert a description for this Gigi hologram x134_y2247"
-    },
     "gigihologram_x500_y1104": {
         name: "Gigi Hologram",
         position: { x: 499.6687333425035, y: 1104.6690703130685 },
@@ -429,7 +419,120 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         fr: "J'ai besoin de ton aide pour sauver l'Île Arc-en-Ciel... voire Far, Far Ouest tout entier.",
                         ru: "Помоги мне спасти Радужный остров... а то и всё Далёкое-Далёкое Запределье.",
                         de: "Du musst mir helfen, die Regenbogeninsel zu retten … Vielleicht sogar die ganze ferne, ferne Weite."
-                    }
+                    },
+                    expression: "thinking1",
+                    nextTextById: "418299640694861839"
+                },
+                "418299640694861839": {
+                    internalTranslationId: "418299640694861839",
+                    text: {
+                        en: "You see, when I first came to Rainbow Island I was so taken with its beauty. It was unlike anything I had ever seen before. But I eventually discovered this beauty came at a price.",
+                        zh: "你看，当我第一次来到彩虹岛的时候，我就被它美轮美奂的景色深深吸引了，那是我之前从未见过的美景。但我最终发现这种美是有代价的。",
+                        ja: "私が初めてレインボー島に来たときは、美しい景色にすっかり夢中になっちゃった。だってこんなに素敵なもの、それまでに見たことがなかったから。でも…この美しさにはそれなりの代償があるってことを、私は突き止めたの。",
+                        ko: "그게, 제가 처음 무지개 섬에 왔을 때는 그 아름다움에 정말 매료되었어요. 지금까지 봤던 것과는 전혀 달랐죠. 하지만 결국 그 아름다움에는 대가가 있다는 사실을 깨닫게 됐어요.",
+                        pt: "Sabe, quando eu vim para a Ilha Arco-Íris, fiquei maravilhada com a beleza daqui. Nunca tinha visto nada igual. Acabei descobrindo que essa beleza toda tem um preço.",
+                        es: "Verás, cuando llegué a la Isla Arcoíris, me deslumbró su belleza. No se parecía a ningún lugar que hubiera conocido antes. Pero, a la larga, descubrí que esta belleza tiene su precio.",
+                        fr: "En arrivant sur l'Île Arc-en-Ciel, j'ai été frappée par sa beauté. Je n'avais encore jamais vu un endroit pareil. Mais j'ai fini par comprendre que cette beauté avait un prix.",
+                        ru: "Когда я впервые оказалась на Радужном острове, его красота буквально заворожила меня. Это место не походило ни на одно из тех, что я видела раньше. Но вскоре я поняла, что за эту красоту приходится платить свою цену.",
+                        de: "Als ich das erste Mal die Regenbogeninsel sah, hat mich ihre Schönheit so völlig eingenommen. So etwas hatte ich noch nie zuvor gesehen. Aber dann habe ich entdeckt, dass diese Schönheit ihren Preis hat."
+                    },
+                    expression: "surprised1",
+                    nextTextById: "418299640694861840"
+                },
+                "418299640694861840": {
+                    internalTranslationId: "418299640694861840",
+                    text: {
+                        en: "Long ago, something from way out there in space crashed into what is now Rainbow Island. And slowly, it began to change things.",
+                        zh: "很久以前，从外太空来的东西撞上了现在的彩虹岛。慢慢地，这里的事物开始发生变化。",
+                        ja: "レインボー島はね、遠い昔、宇宙の果てから飛んできた何かがハルカーナ星にぶつかったときに誕生したの。それ以来、レインボー島は少しずつ\nハルカーナ星全体にいろいろな影響を与えてるんだ。",
+                        ko: "옛날, 저 멀리 있는 우주에서 무언가가 지금의 무지개 섬에 충돌했어요. 그리고 천천히 변화를 일으켰죠.",
+                        pt: "Há muito tempo, um objeto do espaço caiu no lugar que agora é a Ilha Arco-Íris. Lentamente, esse objeto começou a mudar as coisas.",
+                        es: "Hace mucho, algo del espacio exterior se estrelló contra lo que hoy es la Isla Arcoíris y, poco a poco, comenzó a cambiarlo todo.",
+                        fr: "Il y a longtemps, quelque chose venu de très loin dans l'espace s'est écrasé ici. Et petit à petit, les choses ont commencé à changer.",
+                        ru: "Много лет назад на этот остров обрушилось нечто из космоса, и с тех пор оно медленно начало изменять всё вокруг, пока остров не превратился в Радужный.",
+                        de: "Vor langer Zeit ist etwas von weit draußen im All auf das, was heute die Regenbogeninsel ist, gestürzt. Und das hat ganz langsam alles verändert."
+                    },
+                    nextTextById: "418299640694861841"
+                },
+                "418299640694861841": {
+                    internalTranslationId: "418299640694861841",
+                    text: {
+                        en: "The rocks and cliffs blushed with color and then rippled with veins of the same prismatic hues that sprouted from the grasses and other flora.",
+                        zh: "岩石和悬崖泛着色彩，并随着草地和其他植物同样色彩斑斓的纹理而波澜起伏。",
+                        ja: "その物体が落ちた地点を中心に、岩や崖が色づき、様々な草木にもプリズム色が波紋のように広がったの。",
+                        ko: "바위와 절벽에 색이 입혀져, 곧 잔디나 다른 식물에서 피어오른 무지갯빛 색과 똑같은 색으로 물결치기 시작했어요.",
+                        pt: "As rochas e montanhas ganharam cor e, delas, brotaram veias prismáticas iguais às que nasciam da grama e das plantas.",
+                        es: "Las rocas y los acantilados resplandecieron de color y luego ondularon con vetas de los mismos tonos prismáticos que brotaban de la hierba y demás flora.",
+                        fr: "Des couleurs sont apparues sur toutes les surfaces rocheuses, ainsi que des veines arborant les mêmes teintes prismatiques que l'herbe et les autres végétaux.",
+                        ru: "Скалы и утёсы сначала вспыхнули яркими красками, а затем покрылись прожилками тех же призматических оттенков, что и трава и остальная флора.",
+                        de: "Die Felsen und Klippen erstrahlten in Farben und wurden von flimmernden Adern in den gleichen prismatischen Tönen durchzogen, die aus dem Gras und den Pflanzen sprossen."
+                    },
+                    nextTextById: "418299640694861842"
+                },
+                "418299640694861842": {
+                    internalTranslationId: "418299640694861842",
+                    text: {
+                        en: "Even the atmosphere here has a kind of hypercolor to it. It's everywhere. All spreading from the thing from space.",
+                        zh: "甚至这里的大气都有一种超鲜艳的彩色。这种色彩无处不在，源头都是那个太空之物。",
+                        ja: "この辺りは空気でさえ少し不思議な色をしてるけど、この現象はこの星のあちこちで起きていてね。すべては、そもそも宇宙から飛んできた物体の影響みたい。",
+                        ko: "심지어 대기까지 일종의 초월색을 띄고 있어요. 어디나 그렇죠. 전부 우주에서 온 무언가에서 퍼지고 있어요.",
+                        pt: "Até mesmo a atmosfera aqui tem um tipo de hipercor. Ela está em toda a parte. Tudo se espalhando da mesma coisa espacial.",
+                        es: "Incluso en la atmósfera de aquí hay como un hipercolor. Está por todas partes. Todo se extiende desde aquello que vino del espacio.",
+                        fr: "Même l'atmosphère est chargée d'une sorte d'hyperchromie. Elle est partout. Et elle provient de cette chose venue de l'espace.",
+                        ru: "Даже атмосфера здесь пестрит яркими, насыщенными цветами. Они повсюду. А исходят они от этой космической штуковины.",
+                        de: "Hier hat sogar die Atmosphäre eine Art Hyperfarbe. Es ist überall. Und es kommt von dem Ding aus dem All."
+                    },
+                    nextTextById: "418299640694861843"
+                },
+                "418299640694861843": {
+                    internalTranslationId: "418299640694861843",
+                    text: {
+                        en: "That thing, I call it the Prismacore, changes the properties of everything around it. It starts with color but then material and elemental changes begin...",
+                        zh: "那个东西，我称之为棱镜核心，它改变了周遭一切的属性。首先是颜色，然后物质和元素也发生了变化……",
+                        ja: "その物体「プリズマコア」には、周りのものすべての性質を変えちゃう力があってね。まずは色、そして物質が変化して、やがて物質の構成要素まで変えちゃうみたい…",
+                        ko: "제가 프리즈마 코어라고 부르는 그 물체는 주위 모든 것의 성질을 바꿔요. 처음에는 색이 달라지고, 그 후엔 물질과 원소의 변화가 일어나죠...",
+                        pt: "Aquela coisa, eu a chamo de Núcleo Prismático, muda as propriedades de tudo ao redor dela. Começa apenas com a cor, mas depois as mudanças materiais e elementais começam...",
+                        es: "Aquello, que yo llamo Nucleoprisma, cambia las propiedades de todo a su alrededor. Primero empieza por los colores, pero luego se producen cambios materiales y elementales…",
+                        fr: "Cette entité, que j'ai baptisée Prismacœur, modifie les propriétés de tout ce qui l'entoure. D'abord les couleurs, puis les matériaux et les éléments...",
+                        ru: "Эта штуковина — я называю её призма-ядром — меняет свойства всего вокруг. Начиная с цвета и заканчивая химическим составом и элементами...",
+                        de: "Dieses Ding – ich nenne es Prismakern – verändert die Eigenschaften der Dinge in seiner Umgebung. Zuerst nur die Farbe, doch dann beginnen materielle und elementare Veränderungen …"
+                    },
+                    expression: "thinking1",
+                    nextTextById: "418299640694861844"
+                },
+                "418299640694861844": {
+                    internalTranslationId: "418299640694861844",
+                    text: {
+                        en: "I need you to traverse through the Grey Labyrinth and find me. I cannot leave my post but I can communicate with you from these devices as you find them.",
+                        zh: "我需要你穿过灰色迷宫找到我。我走不开，但是等你找到这些设备的时候，我可以用它们和你联络。",
+                        ja: "だから、どうかグレーラビリンスを旅して、私を見つけて欲しいの。私はここを離れるわけにはいかないけど、このデバイスが道中にいくつかあるはずだから、それを使えば私とコミュニケーションが取れるよ。",
+                        ko: "회색 미로를 건너서 절 찾아 주세요. 전 제 자리를 벗어날 수 없지만, 당신이 이런 장치를 찾아내면 연락은 가능해요.",
+                        pt: "Preciso que você atravesse o Labirinto Cinzento e me encontre. Não posso deixar meu posto, mas posso me comunicar com você por meio desses dispositivos, conforme você os encontrar.",
+                        es: "Necesito que atravieses el Laberinto Gris y que me busques. No puedo abandonar mi puesto, pero puedo comunicarme contigo con estos dispositivos a medida que te topes con ellos.",
+                        fr: "Il faut que tu traverses le Dédale Gris et que tu me retrouves. Je ne peux pas quitter mon poste, mais je pourrai te parler grâce à ces appareils.",
+                        ru: "Пройди через Серый лабиринт и найди меня. Я не могу покинуть пост, но могу общаться с тобой через эти устройства. Ты будешь находить их на своем пути.",
+                        de: "Du musst durch das Graue Labyrinth reisen und mich finden. Ich kann hier nicht weg, aber ich kann durch diese Geräte mit dir reden, wenn du sie findest."
+                    },
+                    nextTextById: "418299640694861845"
+                },
+                "418299640694861845": {
+                    internalTranslationId: "418299640694861845",
+                    text: {
+                        en: "I'll do my best to answer more questions as you think of them. But heck, it's even just good to chat to another human. It has been so long...",
+                        zh: "我会尽我所能回答你的奇思妙想。可是天呐，和另一个人类聊天真是太棒了。很久没这种体验了……",
+                        ja: "もし分からないことがあったら、できるだけ答えられるように私も頑張るね。っていうか、こうやってほかの誰かとおしゃべりできるだけでも、本当にうれしい！こんなの、いつぶりだろう…",
+                        ko: "질문이 생길 때마다 제가 최선을 다해서 답해 드릴게요. 정말이지, 다른 사람과 대화하는 것 자체가 좋네요. 너무 오래 지났어요...",
+                        pt: "Farei o possível para responder a mais perguntas à medida que você as fizer. Mas, caramba, é muito bom conversar com outra pessoa. Já faz tanto tempo...",
+                        es: "Haré lo posible por responder más preguntas cuando las vayas teniendo. Pero, demonios, se siente muy bien hablar con otro ser humano. Ha pasado tanto tiempo…",
+                        fr: "Si tu as d'autres questions, pose-les-moi et je tâcherai d'y répondre. N'empêche, qu'est-ce que ça fait du bien de discuter avec quelqu'un ! Ça fait si longtemps...",
+                        ru: "Я постараюсь ответить на все вопросы, которые будут у тебя возникать по ходу дела. Но чёрт возьми, как же здорово просто говорить с другим человеком! Давненько такого не было...",
+                        de: "Ich gebe mir Mühe, deine Fragen zu beantworten. Aber es ist auch einfach echt toll, mit einem anderen Menschen zu reden. Es ist so lange her …"
+                    },
+                    expression: "happy1",
+                    nextOptionsById: [
+                        "418299640694861851",
+                        "418299640694861852"
+                    ]
                 },
                 "418299640694861852": {
                     internalTranslationId: "418299640694861852",
@@ -458,7 +561,27 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         fr: "Bonne chance, Beatrix. Et reste sur tes gardes quand tu vois les couleurs s'intensifier. Tu risques d'en voir des vertes et des pas mûres, sans mauvais jeu de mots.",
                         ru: "Удачи, Беатрикс! И будь начеку, когда цвета станут более насыщенными. Всё вокруг начнёт сходить с ума.",
                         de: "Viel Glück, Beatrix. Und pass gut auf, wenn sich die Farben verstärken. Dann wird es echt verrückt."
-                    }
+                    },
+                    expression: "thinking1"
+                },
+                "433468706430545920": {
+                    internalTranslationId: "433468706430545920",
+                    text: {
+                        en: "Hello again, Beatrix. Do you need something?",
+                        zh: "又见面了，碧翠丝。有什么需要吗？",
+                        ja: "こんにちは、ベアトリクス！何かご用？",
+                        ko: "다시 만났네요, 베아트릭스. 뭔가 필요한 게 있나요?",
+                        pt: "Olá de novo, Beatrix. Você precisa de alguma coisa?",
+                        es: "Hola de nuevo, Beatrix. ¿Necesitas algo?",
+                        fr: "Te revoilà, Beatrix. Il te faut quelque chose ?",
+                        ru: "Еще раз привет, Беатрикс. Тебе что-то нужно?",
+                        de: "Hallo noch mal, Beatrix. Brauchst du etwas?"
+                    },
+                    expression: "happy1",
+                    nextOptionsById: [
+                        "418299640694861851",
+                        "418299640694861852"
+                    ]
                 }
             }
         }

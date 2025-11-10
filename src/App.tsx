@@ -20,6 +20,7 @@ import { ScaledSimpleCRS } from "./data/map_crs_settings";
 import { NullifierDoorIcons } from "./components/NullifierDoorIcon";
 import { GigiHologramIcons } from "./components/GigiHologramIcon";
 import { gigiExpressionImageUrls } from "./util";
+import { ProjectorPuzzleIcons } from "./components/ProjectorPuzzleIcon";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
@@ -436,6 +437,9 @@ function App() {
                     </LayersControl.Overlay>
                     <LayersControl.Overlay checked name="Nullifier Doors">
                         {current_map === MapType.labyrinth && <LayerGroup>{NullifierDoorIcons}</LayerGroup>}
+                    </LayersControl.Overlay>
+                    <LayersControl.Overlay checked name="Radiant Projector Puzzles">
+                        {current_map === MapType.labyrinth && <LayerGroup>{ProjectorPuzzleIcons}</LayerGroup>}
                     </LayersControl.Overlay>
                     <LayersControl.Overlay checked name="Gigi Holograms">
                         {current_map === MapType.labyrinth && <LayerGroup>{GigiHologramIcons(setShowLog, setCurrentLog)}</LayerGroup>}

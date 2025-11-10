@@ -1,11 +1,11 @@
 
-import { GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE, L10N_TABLES_GLOBS, PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, PATH_TO_MAP_NODES_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE, L10N_TABLES_GLOBS, PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, PATH_TO_MAP_NODES_DATA_FILE, PATH_TO_PROJECTOR_PUZZLES_DATA_FILE } from "../../asset_paths.js";
 
 import { Glob, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPositions, extractL10nTablesToCache, MapType } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPositions, extractL10nTablesToCache, MapType, iterChildGameObjects_DFS, iterGameObjectComponentObjs } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
 import { entryExportFilter } from "./entries_export_filter.js";
 import { gigi_manually_noted_conversations } from "../../gigi_manually_noted_conversations.js";
@@ -35,12 +35,12 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Treasure Pods
 
-    await exportPodCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportPodsFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Research Drones
     
-    await exportResearchDroneCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportResearchDronesFromAssetsMapping(assetsMapping, cacheOpts);
     
     //
     //////////////////////
@@ -50,22 +50,22 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Shadow Plort Depos
     
-    await exportShadowPlortDepoCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportShadowPlortDeposFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Gigi Holograms
     
-    await exportGigiHologramCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportGigiHologramsFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Nullifier Doors
     
-    await exportNullifierDoorCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportNullifierDoorsFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Stabilizing Gates
     
-    await exportStabilizingGateCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportStabilizingGatesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Radiant Projector Puzzles
@@ -80,17 +80,17 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Gordo Locations
 
-    await exportGordoCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportGordosFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Locked Doors, Plort Receptacle Statues
     
-    await exportPuzzleDoorCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportPuzzleDoorsFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Map Nodes
     
-    await exportMapNodeCoordinatesFromAssetsMapping(assetsMapping, cacheOpts);
+    await exportMapNodesFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Teleport Pads, Teleport Lines
@@ -125,7 +125,7 @@ async function getOrExtractScenesAssetsMapping(/** @type {CacheOpts} */ cacheOpt
     return assetsMapping;
 }
 
-async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportPodsFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
     
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -238,6 +238,7 @@ async function exportPodCoordinatesFromAssetsMapping(/** @type {AssetsMappingTyp
 /** @type {ShadowDepoPosCacheType} */
 let _shDepoPosCache = null;
 
+/** refactored this out and cached it because the shadow depo data is used both by the shadow plort depo extraction and the locked doors extraction */
 function getOrLoadShadowDepoPositionCache(/** @type {CacheOpts} */ cacheOpts, /** @type {ShadowDepoPosCacheType | null} */ defaultValueInstead = null) {
     if(typeof _shDepoPosCache === "undefined" || _shDepoPosCache === null) {
         if(defaultValueInstead) {
@@ -250,14 +251,15 @@ function getOrLoadShadowDepoPositionCache(/** @type {CacheOpts} */ cacheOpts, /*
                 console.log(`Read (${_shDepoPosCache.length}) shadow plort depo coordinates from cache file.`);
             }
             else {
-                throw new Error("todo need to generate and cache the shdepoPositions.json; move logic from the exportShadowPlortDepoCoordinatesFromAssetsMapping function?");
+                // TODO
+                throw new Error("todo need to generate and cache the shdepoPositions.json; move logic from the exportShadowPlortDeposFromAssetsMapping function?");
             }
         }
     }
     return _shDepoPosCache;
 }
 
-async function exportShadowPlortDepoCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportShadowPlortDeposFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
     
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -426,7 +428,7 @@ async function exportShadowPlortDepoCoordinatesFromAssetsMapping(/** @type {Asse
     fnWriteShDeposBackToFile(mergedShDepoTSData);
 }
 
-async function exportResearchDroneCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportResearchDronesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -644,7 +646,7 @@ async function exportResearchDroneCoordinatesFromAssetsMapping(/** @type {Assets
     fnWriteDronesBackToFile(mergedDroneTSData);
 }
 
-async function exportGordoCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportGordosFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -920,7 +922,7 @@ async function exportGordoCoordinatesFromAssetsMapping(/** @type {AssetsMappingT
     fnWriteGordosBackToFile(mergedGordoTSData);
 }
 
-async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportPuzzleDoorsFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -1346,7 +1348,7 @@ async function exportPuzzleDoorCoordinatesFromAssetsMapping(/** @type {AssetsMap
     fnWritePuzzleDoorsBackToFile(mergedPuzzleDoorTSData);
 }
 
-async function exportStabilizingGateCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportStabilizingGatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -1578,7 +1580,7 @@ async function exportStabilizingGateCoordinatesFromAssetsMapping(/** @type {Asse
     fnWriteStabilizingGatesBackToFile(mergedGateTSData);
 }
 
-async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportNullifierDoorsFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -1750,7 +1752,7 @@ async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {Assets
     
     for(const { fileId, assetJSON, doorGameObj: doorGameObjJSON, pos } of ingameNullifierDoorPositions) {
         /** @type {string} */
-        const manufacturedInternalId = manufactureNullifierDoorIdFromAssets(assetJSON, doorGameObjJSON, pos);
+        const manufacturedId = manufactureNullifierDoorIdFromAssets(assetJSON, doorGameObjJSON, pos);
 
         // /** @type {string} */
         // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
@@ -1758,7 +1760,7 @@ async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {Assets
         // for testing
         const nullifierDoorIdInternalToOld = (x) => undefined;
         
-        const oldId = nullifierDoorIdInternalToOld(manufacturedInternalId);
+        const oldId = nullifierDoorIdInternalToOld(manufacturedId);
 
         let areaNameForKey;
         // TODO determine area name?
@@ -1770,16 +1772,16 @@ async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {Assets
         //         ?? "undeterminedarea";
         //     // areaNameForKey = "undeterminedarea";
         // }
-        const tsDataKey = oldId ?? (`nullifierdoor_${manufacturedInternalId}`);
+        const tsDataKey = oldId ?? (`nullifierdoor_${manufacturedId}`);
 
         // console.log(internalPodId, internalName, oldPodId, tsDataKey);
 
         /** @type {undefined | existingNullifierDoorTSDataByGateKey[keyof existingNullifierDoorTSDataByGateKey]} */
         const existingData = (
             existingNullifierDoorTSDataByGateKey[oldId]
-            || existingNullifierDoorTSDataByGateKey[manufacturedInternalId]
+            || existingNullifierDoorTSDataByGateKey[manufacturedId]
             || existingNullifierDoorTSDataByGateKey[tsDataKey]
-            || Object.values(existingNullifierDoorTSDataByGateKey).find(data => data.internalId === manufacturedInternalId)
+            || Object.values(existingNullifierDoorTSDataByGateKey).find(data => data.internalId === manufacturedId)
         );
 
         // remove existingData object from the merged data mapping;
@@ -1803,7 +1805,7 @@ async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {Assets
             // position: { x: -pos.z, y: pos.x },
             position: transformIngameToMapPositions(pos),
             // image: image,
-            description: existingData?.description ?? "Todo: insert a description for this nullifier door " + manufacturedInternalId,
+            description: existingData?.description ?? "Todo: insert a description for this nullifier door " + manufacturedId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
             // dimension: existingData?.dimension ?? MapType.labyrinth,
             // unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
@@ -1814,9 +1816,9 @@ async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {Assets
         mergedDoorTSData[tsDataKey] = _mergedDataObj;
 
         if(existingData)
-            console.log(`Merged extracted nullifier door ${manufacturedInternalId} data with existing ${tsDataKey} data`);
+            console.log(`Merged extracted nullifier door ${manufacturedId} data with existing ${tsDataKey} data`);
         else
-            console.log(`Inserted extracted nullifier door ${manufacturedInternalId} data to ${tsDataKey} data`)
+            console.log(`Inserted extracted nullifier door ${manufacturedId} data to ${tsDataKey} data`)
     }
 
     console.log("Writing nullifier door data back to map data file");
@@ -1824,7 +1826,7 @@ async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {Assets
     fnWriteNullifierDoorsBackToFile(mergedDoorTSData);
 }
 
-// async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+// async function exportGigiHologramsFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
 //     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -2042,7 +2044,7 @@ async function exportNullifierDoorCoordinatesFromAssetsMapping(/** @type {Assets
 //     fnWriteDronesBackToFile(mergedDroneTSData);
 // }
 
-async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportGigiHologramsFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -2217,7 +2219,7 @@ async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsM
     
     for(const { fileId, assetJSON, gigiGameObj: gigiGameObjJSON, pos } of ingameGigiHologramPositions) {
         /** @type {string} */
-        const manufacturedInternalId = manufactureGigiHologramIdFromAssets(assetJSON, gigiGameObjJSON, pos);
+        const manufacturedId = manufactureGigiHologramIdFromAssets(assetJSON, gigiGameObjJSON, pos);
 
         // /** @type {string} */
         // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
@@ -2225,7 +2227,7 @@ async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsM
         // for testing
         const gigiHologramIdInternalToOld = (x) => undefined;
         
-        const oldId = gigiHologramIdInternalToOld(manufacturedInternalId);
+        const oldId = gigiHologramIdInternalToOld(manufacturedId);
 
         let areaNameForKey;
         // TODO determine area name?
@@ -2237,16 +2239,16 @@ async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsM
         //         ?? "undeterminedarea";
         //     // areaNameForKey = "undeterminedarea";
         // }
-        const tsDataKey = oldId ?? (`gigihologram_${manufacturedInternalId}`);
+        const tsDataKey = oldId ?? (`gigihologram_${manufacturedId}`);
 
         // console.log(internalPodId, internalName, oldPodId, tsDataKey);
 
         /** @type {undefined | existingGigiHologramTSDataByGigiHologramKey[keyof existingGigiHologramTSDataByGigiHologramKey]} */
         const existingData = (
             existingGigiHologramTSDataByGigiHologramKey[oldId]
-            || existingGigiHologramTSDataByGigiHologramKey[manufacturedInternalId]
+            || existingGigiHologramTSDataByGigiHologramKey[manufacturedId]
             || existingGigiHologramTSDataByGigiHologramKey[tsDataKey]
-            || Object.values(existingGigiHologramTSDataByGigiHologramKey).find(data => data.internalId === manufacturedInternalId)
+            || Object.values(existingGigiHologramTSDataByGigiHologramKey).find(data => data.internalId === manufacturedId)
         );
 
         // remove existingData object from the merged data mapping;
@@ -2273,7 +2275,7 @@ async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsM
             // position: { x: -pos.z, y: pos.x },
             position: transformIngameToMapPositions(pos),
             // image: image,
-            description: existingData?.description ?? "Todo: insert a description for this Gigi hologram " + manufacturedInternalId,
+            description: existingData?.description ?? "Todo: insert a description for this Gigi hologram " + manufacturedId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
             // dimension: existingData?.dimension ?? MapType.labyrinth,
             // unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
@@ -2285,9 +2287,9 @@ async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsM
         mergedGigiTSData[tsDataKey] = _mergedDataObj;
 
         if(existingData)
-            console.log(`Merged extracted Gigi hologram ${manufacturedInternalId} data with existing ${tsDataKey} data`);
+            console.log(`Merged extracted Gigi hologram ${manufacturedId} data with existing ${tsDataKey} data`);
         else
-            console.log(`Inserted extracted Gigi hologram ${manufacturedInternalId} data to ${tsDataKey} data`)
+            console.log(`Inserted extracted Gigi hologram ${manufacturedId} data to ${tsDataKey} data`)
     }
 
     console.log("Writing Gigi hologram data back to map data file");
@@ -2295,7 +2297,7 @@ async function exportGigiHologramCoordinatesFromAssetsMapping(/** @type {AssetsM
     fnWriteGigiHologramsBackToFile(mergedGigiTSData);
 }
 
-async function exportMapNodeCoordinatesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+async function exportMapNodesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
 
@@ -2467,7 +2469,7 @@ async function exportMapNodeCoordinatesFromAssetsMapping(/** @type {AssetsMappin
     
     for(const { fileId, assetJSON, gameObj: mapnodeGameObjJSON, pos } of ingameMapNodePositions) {
         /** @type {string} */
-        const manufacturedInternalId = manufactureMapNodeIdFromAssets(assetJSON, mapnodeGameObjJSON, pos);
+        const manufacturedId = manufactureMapNodeIdFromAssets(assetJSON, mapnodeGameObjJSON, pos);
 
         // /** @type {string} */
         // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
@@ -2475,7 +2477,7 @@ async function exportMapNodeCoordinatesFromAssetsMapping(/** @type {AssetsMappin
         // for testing
         // const mapNodeIdInternalToOld = (x) => undefined;
         
-        const oldId = mapNodeIdInternalToOld(manufacturedInternalId);
+        const oldId = mapNodeIdInternalToOld(manufacturedId);
 
         let areaNameForKey;
         // TODO determine area name?
@@ -2487,14 +2489,14 @@ async function exportMapNodeCoordinatesFromAssetsMapping(/** @type {AssetsMappin
                 ?? "undeterminedarea";
             // areaNameForKey = "undeterminedarea";
         }
-        const tsDataKey = oldId ?? (`mapnode_${areaNameForKey}_${manufacturedInternalId}`);
+        const tsDataKey = oldId ?? (`mapnode_${areaNameForKey}_${manufacturedId}`);
 
         /** @type {undefined | existingMapNodeTSDataByKey[keyof existingMapNodeTSDataByKey]} */
         const existingData = (
             existingMapNodeTSDataByKey[oldId]
-            || existingMapNodeTSDataByKey[manufacturedInternalId]
+            || existingMapNodeTSDataByKey[manufacturedId]
             || existingMapNodeTSDataByKey[tsDataKey]
-            || Object.values(existingMapNodeTSDataByKey).find(data => data.internalId === manufacturedInternalId)
+            || Object.values(existingMapNodeTSDataByKey).find(data => data.internalId === manufacturedId)
         );
 
         // remove existingData object from the merged data mapping;
@@ -2518,7 +2520,7 @@ async function exportMapNodeCoordinatesFromAssetsMapping(/** @type {AssetsMappin
             // position: { x: -pos.z, y: pos.x },
             pos: transformIngameToMapPositions(pos),
             // image: image,
-            description: existingData?.description ?? "Todo: insert a description for this map node " + manufacturedInternalId,
+            description: existingData?.description ?? "Todo: insert a description for this map node " + manufacturedId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
             // dimension: existingData?.dimension ?? MapType.overworld,
             dimension: dimension,
@@ -2530,9 +2532,9 @@ async function exportMapNodeCoordinatesFromAssetsMapping(/** @type {AssetsMappin
         mergedMapNodeTSData[tsDataKey] = _mergedDataObj;
 
         if(existingData)
-            console.log(`Merged extracted map node ${manufacturedInternalId} data with existing ${tsDataKey} data`);
+            console.log(`Merged extracted map node ${manufacturedId} data with existing ${tsDataKey} data`);
         else
-            console.log(`Inserted extracted map node ${manufacturedInternalId} data to ${tsDataKey} data`)
+            console.log(`Inserted extracted map node ${manufacturedId} data to ${tsDataKey} data`)
     }
 
     console.log("Writing map node data back to map data file");
@@ -2540,6 +2542,359 @@ async function exportMapNodeCoordinatesFromAssetsMapping(/** @type {AssetsMappin
     fnWriteMapNodesBackToFile(mergedMapNodeTSData);
 }
 
+/** @type {{[fileKey: string]: AssetsMappingType}} */
+let _sceneFileLineRendererAssetsMappingsCache = {};
+
+function getLineRendererAssetsMappingForSceneFile(sceneFile) {
+
+    if(typeof _sceneFileLineRendererAssetsMappingsCache[sceneFile] === "undefined") {
+
+        console.log(` Extracting LineRenderer assets from scene file ${sceneFile} ...`)
+        
+        /** @type {AssetsMappingType} */
+        const lineRenderersAssetsMappingForScene = {};
+        
+        parseUnityFileYamlIntoAssetsMapping(sceneFile, lineRenderersAssetsMappingForScene, n => /^(LineRenderer)$/i.test(n));
+
+        console.log(` Extracted ${Object.keys(lineRenderersAssetsMappingForScene).length} LineRenderer assets from scene file ${sceneFile}`)
+
+        _sceneFileLineRendererAssetsMappingsCache[sceneFile] = lineRenderersAssetsMappingForScene;
+
+    }
+
+    return _sceneFileLineRendererAssetsMappingsCache[sceneFile];
+    
+}
+
+async function exportProjectorPuzzlesFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ fileId: string, assetJSON: AssetJSONType, puzzleGameObj: AssetJSONType, beamPointType: "start" | "end", pos: { x: number, y: number, z: number } }[]} */
+    let ingameProjectorPuzzlePositions;
+    
+    if(cacheOpts.useCache && existsSync("./data_cache/projectorPuzzleAssetsAndPositions.json")) {
+    // if(false) {  // for debugging
+        
+        console.log("Reading cached projector puzzle coordinates...");
+
+        ingameProjectorPuzzlePositions = JSON.parse(readFileSync("./data_cache/projectorPuzzleAssetsAndPositions.json"));
+
+        console.log(`Read (${ingameProjectorPuzzlePositions.length}) projector puzzle coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting projector puzzle coordinates from assets JSON...");
+
+        const puzzleMonoBehavioursEntries = Object.entries(assetsMapping)
+            .filter(([, assetJSON]) => {
+            
+                // const _id = assetJSON.props["_id"];
+            
+                // if(!_id) return false;
+
+                // if(!/^nullifierdoor[0-9]+$/.test(_id)) return false;
+
+                // // if it's for an energy beam receiver or transmitter, I expect it to have both of these properties. Otherwise, I expect it to have neither.
+                // const prop_holeTransform = assetJSON.props["_holeTransform"];
+                // const prop_wallTransform = assetJSON.props["_wallTransform"];
+
+                /*
+                * example properties of interest:
+                * _emitAngleOffset: 0
+                * _emitAngleRange: 60
+                * _emitRadius: 30
+                * _receiveAngleOffset: 30
+                * _receiveAngleRange: 180
+                * _laserFireOrigin: {fileID: 5262}
+                * _laserReceiveOrigin: {fileID: 5262}
+                */
+                // if it's for an energy beam receiver or transmitter, I expect it to have all of these properties. Otherwise, I expect it to have none.
+                const expectedProperties = [
+                    "_emitAngleOffset",
+                    "_emitAngleRange",
+                    "_emitRadius",
+                    "_receiveAngleOffset",
+                    "_receiveAngleRange",
+                    "_laserFireOrigin",
+                    "_laserReceiveOrigin",
+                ]
+                const propsVals = Object.fromEntries(expectedProperties.map(prop => [prop, assetJSON.props[prop]]));
+
+                // if(!prop_holeTransform && !prop_wallTransform) {
+                //     // has neither
+                //     return false;
+                // }
+
+                const existingProps = new Set(Object.entries(propsVals).filter(([,v]) => typeof v !== "undefined").map(([k,]) => k));
+                const foundCt = existingProps.size;
+                const expectedCt = expectedProperties.length;
+
+                if(foundCt === 0) {
+                    // has none
+                    return false;
+                }
+
+                if(foundCt < expectedCt) {
+                    console.log(assetJSON);
+                    throw new Error(`Asset had only ${foundCt} of ${expectedCt} expected props! (${Object.keys(propsVals).map((k) => `has prop ${k} = ${existingProps.has(k)}`).join(", ")})`)
+                }
+
+                if(assetJSON.typeName !== "MonoBehaviour") {
+                    console.log(assetJSON);
+                    throw new Error("found asset with expected projector puzzle props, but it was not a MonoBehaviour?");
+                }
+
+                return true;
+
+            });
+        console.log(`Retrieved ${puzzleMonoBehavioursEntries.length} projector puzzle MonoBehaviour entries.`);
+
+        // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+        ingameProjectorPuzzlePositions = await Promise.all(puzzleMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+            console.log(`[Projector Puzzle (assetJSON fileKeyFileId: ${assetJSON.fileKey + '&' + assetJSON.fileId})]: Determining position of projector puzzle`);
+
+            const { gameObj: puzzleGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+            // for(const child of transformChainChildToParent) {
+            //     console.log(child.typeName);
+            //     console.log(child.fileKey);
+            //     console.log(child.fileId);
+            //     console.log(child.props["m_LocalPosition"]);
+            //     console.log(child.props["m_LocalRotation"]);
+            //     console.log(child.props["m_LocalScale"]);
+            // }
+
+            let hasLineRenderer = false;
+
+            for(const childGameObj of iterChildGameObjects_DFS(assetsMapping, puzzleGameObj, { includeTransforms: false, includeThisGameObj: true, recurse: true })) {
+
+                const lineRenderersAssetsMapping = getLineRendererAssetsMappingForSceneFile(childGameObj.fileKey);
+
+                // check if it's a game object with a line renderer component
+                const _ignoreFalsyComponentObjs = true;  // because some are not LineRenderer assets; e.g. the Transform assets, ...
+                for(const componentObj of iterGameObjectComponentObjs(lineRenderersAssetsMapping, childGameObj, _ignoreFalsyComponentObjs)) {
+                    if(componentObj.typeName === "LineRenderer") {
+                        hasLineRenderer = true;
+                        break;
+                    }
+                }
+            }
+
+            const beamPointType = hasLineRenderer ? "start" : "end";
+
+            console.log(`[Projector Puzzle ${manufactureProjectorPuzzleIdFromAssets(assetJSON, puzzleGameObj, pos)}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+            return { fileId, assetJSON, puzzleGameObj, pos, beamPointType };
+
+        }));
+
+        // reset the extra assets mapping cache for memory release purposes
+        _sceneFileLineRendererAssetsMappingsCache = { };
+
+        console.log(`Determined ${ingameProjectorPuzzlePositions.length} projector puzzle assets and their positions.`);
+        
+        // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        // for(const d of ingameDronePositions) {
+        //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+        //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+        //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+        //         return { ...c, gameObject: gameObj };
+        //     });
+        // }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/projectorPuzzleAssetsAndPositions.json", JSON.stringify(ingameProjectorPuzzlePositions));
+                console.log("Exported projector puzzle assets and their positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting projector puzzle assets and their positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+
+    console.log("Parsing existing projector puzzle data in the map data files...")
+
+    const { fnWriteProjectorPuzzlesBackToFile, existingProjectorPuzzleTSDataByKey } = readExistingProjectorPuzzlesTSData(cacheOpts);
+
+    console.log(`Parsed ${Object.keys(existingProjectorPuzzleTSDataByKey).length} existing projector puzzle data entries.`);
+
+    const mergedPuzzleTSData = { ...existingProjectorPuzzleTSDataByKey };
+
+    console.log("Merging existing and extracted projector puzzle data");
+
+    /** search through existing ts data, looking for entry that contains this beam point, matching by its beam point id */
+    const findPuzzleDataEntryWithBeamPointWithId = (
+        /** @type {ingameProjectorPuzzlePositions[number]} */ assetInfoAndPosition,
+        /** @type {string} */ beamPointId,
+        // /** @type {string} */ oldId,
+        // /** @type {string} */ tsDataKey,
+    ) => {
+        const { beamPointType } = assetInfoAndPosition;
+        /** @type {`${beamPointType}Point`} */
+        const typeSubkey = `${beamPointType}Point`;  // -> startPoint or endPoint
+        for(const tsDataEntryKey of Object.keys(existingProjectorPuzzleTSDataByKey)) {
+            const v = existingProjectorPuzzleTSDataByKey[tsDataEntryKey];
+            if(v[typeSubkey]?.id === beamPointId) {
+                return { tsDataEntryKey, typeSubkey, entry: v[typeSubkey] };
+            }
+        }
+        return undefined;
+    }
+    
+    // merge existing and extracted shadow depo data
+    
+    for(const assetInfoAndPosition of ingameProjectorPuzzlePositions) {
+        const { fileId, assetJSON, puzzleGameObj: puzzleGameObjJSON, pos, beamPointType } = assetInfoAndPosition;
+
+        /** @type {string} */
+        const manufacturedBeamPointId = manufactureProjectorPuzzleIdFromAssets(assetJSON, puzzleGameObjJSON, pos, beamPointType);
+
+        // /** @type {string} */
+        // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
+
+        // for testing
+        // const projectorPuzzleIdInternalToOld = (x) => undefined;
+        
+        // const oldId = projectorPuzzleIdInternalToOld(manufacturedId);
+
+        let areaNameForKey;
+        // TODO determine area name?
+        // if(!oldId) {
+        //     // console.log("debug: fileKey: ", assetJSON.fileKey);
+        //     // make a best guess based on what scene file the asset was in.
+        //     console.log(assetJSON.fileKey);
+        //     areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+        //         ?? "undeterminedarea";
+        //     // areaNameForKey = "undeterminedarea";
+        // }
+        // const tsDataKey = oldId ?? (`projectorpuzzle_${manufacturedId}`);
+
+        // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+        /* @type {undefined | existingProjectorPuzzleTSDataByKey[keyof existingProjectorPuzzleTSDataByKey]} */
+        // const existingData = (
+        //     existingProjectorPuzzleTSDataByKey[oldId]
+        //     || existingProjectorPuzzleTSDataByKey[manufacturedId]
+        //     || existingProjectorPuzzleTSDataByKey[tsDataKey]
+        //     || Object.values(existingProjectorPuzzleTSDataByKey).find(data => data.internalId === manufacturedId)
+        // );
+        const found = findPuzzleDataEntryWithBeamPointWithId(assetInfoAndPosition, manufacturedBeamPointId);
+
+        const tsDataKey = found?.tsDataEntryKey ?? `undeterminedpuzzle_beampoint_${manufacturedBeamPointId}`;
+
+        const tsDataBeamPointTypeSubkey = found?.typeSubkey ?? `${beamPointType}Point`;
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        // for(const [k, v] of Object.entries(mergedPuzzleTSData)) {
+        //     if(v === existingData) {
+        //         delete mergedPuzzleTSData[k];
+        //         break;
+        //     }
+        // }
+        if(found && mergedPuzzleTSData[tsDataKey]?.[tsDataBeamPointTypeSubkey]) {
+            delete mergedPuzzleTSData[tsDataKey][tsDataBeamPointTypeSubkey];
+        }
+
+        // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+        /** @type {ExistingProjectorPuzzleDataType["startPoint" | "endPoint"]} */
+        const _mergedBeamPointDataObj = { ...found?.entry,
+            id: manufacturedBeamPointId,
+            nameSuffix: found?.entry.nameSuffix ?? `Beam ${beamPointType === "start" ? "Emitter" : "Receiver"}`,
+            position: transformIngameToMapPositions(pos),
+            description: found?.entry.description ?? "Todo: insert a description for this projector puzzle beam point " + manufacturedBeamPointId,
+        };
+        // clear out all entries with undefined values
+        Object.keys(_mergedBeamPointDataObj).forEach(key => typeof _mergedBeamPointDataObj[key] === "undefined" && delete _mergedBeamPointDataObj[key]);
+
+        // const _existingRootPuzzleObj = mergedPuzzleTSData[tsDataKey];
+
+        // merge some data into parent puzzle object
+        mergedPuzzleTSData[tsDataKey] ??= { };
+        mergedPuzzleTSData[tsDataKey].unlocks ??= ["Todo: specify the unlocks of this radiant projector puzzle"];
+        mergedPuzzleTSData[tsDataKey].name ??= `${areaNameForKey ? areaNameForKey + " " : ""}Puzzle`;
+
+        // save merged data back
+        mergedPuzzleTSData[tsDataKey][tsDataBeamPointTypeSubkey] = _mergedBeamPointDataObj;
+
+        if(found)
+            console.log(`Merged extracted projector puzzle ${beamPointType} ${manufacturedBeamPointId} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted projector puzzle ${beamPointType} ${manufacturedBeamPointId} data to ${tsDataKey} data`)
+    }
+
+    console.log("Writing projector puzzle data back to map data file");
+
+    fnWriteProjectorPuzzlesBackToFile(mergedPuzzleTSData);
+}
+
+
+/** @typedef {import("../../../src/types.js").ProjectorPuzzle} ExistingProjectorPuzzleDataType */
+
+function readExistingProjectorPuzzlesTSData(/** @type {CacheOpts} */ cacheOpts) {
+    
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    const fileText = readFileSync(PATH_TO_PROJECTOR_PUZZLES_DATA_FILE, { encoding: "utf-8" });
+
+    const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*const\s+projector_puzzles.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
+
+    const parsedObj = looseJsonParseWithEval(dataObjInJsCode);
+
+    const _entryMatchesExpectedSchema = k => (
+        typeof parsedObj[k] === "object"
+        // should have at least one of startPoint or endPoint
+        && Object.keys(parsedObj[k]).some(k2 => (
+            (k2 === "startPoint" || k2 === "endPoint")
+            && typeof parsedObj[k][k2] === "object"
+            && setContains(new Set(Object.keys(parsedObj[k][k2])), ["id", "nameSuffix", "position", "description"])
+        ))
+    );
+
+    const _objMatchesExpectedSchema = (
+        typeof parsedObj === "object"
+        && Object.keys(parsedObj).every(_entryMatchesExpectedSchema)
+    );
+
+    if(!_objMatchesExpectedSchema) {
+        console.log("dataObjAsInitText = ", dataObjInJsCode);
+        console.log("_obj = ", parsedObj);
+        for(const k of Object.keys(parsedObj)) {
+            if(!_entryMatchesExpectedSchema(k)) {
+                console.log(k)
+            }
+        }
+        throw new Error("unexpected loose json parse result, did not match expected schema");
+    }
+
+    const fnWriteProjectorPuzzlesBackToFile = (/** @type {{ [tsDataProjectorPuzzleKey: string]: ExistingProjectorPuzzleDataType }} */ mergedProjectorPuzzleTSData) => {
+        const dataObjAsJsCode = looseJsonStringify(
+            filterDataObjBeforeExport(PATH_TO_PROJECTOR_PUZZLES_DATA_FILE, mergedProjectorPuzzleTSData),
+            "    ",
+            _jsonStringifyTransformerFns
+        );
+        
+        const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
+
+        writeFileSync(PATH_TO_PROJECTOR_PUZZLES_DATA_FILE, newFileText);
+    };
+
+    return {
+        fnWriteProjectorPuzzlesBackToFile,
+        /** @type {{ [tsDataProjectorPuzzleKey: string]: ExistingProjectorPuzzleDataType }} */
+        existingProjectorPuzzleTSDataByKey: parsedObj
+    }
+}
 
 /** @typedef {{ internalId?: string, name: string, description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingMapNodeDataType */
 
@@ -2599,25 +2954,7 @@ function readExistingMapNodesTSData(/** @type {CacheOpts} */ cacheOpts) {
     }
 }
 
-/** @typedef {{
-    internalId?: string;
-    name: string;
-    position: Vec2;
-    description: string;
-    dialogue?: {
-        startEntryId: string,
-        entries: {
-            [id: string]: (
-                {
-                    text: TranslatedType<string>;
-                    internalId?: string;
-                    nextTextById?: string;
-                    nextOptionsById?: string[];
-                }
-            )
-        }
-    }
-}} ExistingGigiHologramDataType */
+/** @typedef {import("../../../src/types.js").GigiHologram} ExistingGigiHologramDataType */
 
 function readExistingGigiHologramsTSData(/** @type {CacheOpts} */ cacheOpts) {
     
@@ -3400,6 +3737,7 @@ function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
     }
 }
 
+// TODO refactor - inline mapFnDeterminePodPosition?
 // outer function with (assetsMapping) param is just for providing assetsMapping to the returned async function,
 // leaving the returned async function still structured to be passable to .map().
 const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMapping) => (
@@ -3494,8 +3832,9 @@ const _jsonStringifyTransformerFns = {
     },
     shouldSortKeys: (key, depth, keysChain, obj) => {
         if(depth === 0) return sortStringsWithNumbers;
-        if(depth === 1) {
-            const _lookup = Object.fromEntries(["internalId", "name", "log", "archive", "food", "pos", "position", "image", "drops", "unlocks", "description", "dimension"].map((v, i) => [v, i]));
+        if(depth === 1 || (depth === 2 && (key === "startPoint" || key === "endPoint"))) {
+            // preferred sort order of the keys of each data object
+            const _lookup = Object.fromEntries(["internalId", "id", "name", "nameSuffix", "log", "archive", "food", "pos", "position", "image", "drops", "unlocks", "description", "dimension", "startPoint", "endPoint"].map((v, i) => [v, i]));
             const _default = Object.keys(_lookup).length;
             return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
         }
@@ -3914,44 +4253,30 @@ function filterDataObjBeforeExport(targetFilePath, dataObj) {
     return dataObj;
 }
 
-function manufactureNullifierDoorIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ doorGameObjJSON, /** @type {position: { x: number, y: number, z: number }} */ ingamePos) {
+function manufactureNullifierDoorIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ doorGameObjJSON, /** @type {{ x: number, y: number, z: number }} */ ingamePos) {
     // return assetJSON.props["_id"];
     // return assetJSON.fileKey + '&' + assetJSON.fileId;
     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
 }
-function manufactureGigiHologramIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ gigiGameObjJSON, /** @type {position: { x: number, y: number, z: number }} */ ingamePos) {
+function manufactureGigiHologramIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ gigiGameObjJSON, /** @type {{ x: number, y: number, z: number }} */ ingamePos) {
     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
 }
-function manufactureMapNodeIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ mapnodeGameObjJSON, /** @type {position: { x: number, y: number, z: number }} */ ingamePos) {
+function manufactureMapNodeIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ mapnodeGameObjJSON, /** @type {{ x: number, y: number, z: number }} */ ingamePos) {
     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
 }
-
-/*
-
-        internalTranslationId?: string | undefined;
-        nextTextById?: string | undefined;
-        text: TranslatedType<string>;
-        expression?: "surprised1" | "happy1" | "thinking1" | "pointing1";
-    } | {
-        internalTranslationId?: string;
-        nextOptionsById: string[];
-        text: TranslatedType<string>;
-        expression?: "surprised1" | "happy1" | "thinking1" | "pointing1";
-    };
-
-*/
+function manufactureProjectorPuzzleIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ puzzleGameObjJSON, /** @type {{ x: number, y: number, z: number }} */ ingamePos, /** @type {"start" | "end"} */ beamPointType) {
+    // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
+    return `${beamPointType}Point_x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}_h${Math.floor(ingamePos.y)}`;
+}
 
 function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
     cacheOpts = { ...defaultCacheSettings, ...cacheOpts };
 
     /** @type {{ [hologramId: string]: import("../../../src/types.js").GigiHologram["dialogue"] }} */
     const processedDialogues = {};
-
-    /** @type {Set<string>} */
-    const optionsIds = new Set();
 
     for (const hologramId of Object.keys(gigi_manually_noted_conversations)) {
         const hologramConvo = gigi_manually_noted_conversations[hologramId];
@@ -3973,9 +4298,6 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 
                     if(info.nextOptions) {
                         dialogueEntry.nextOptionsById = info.nextOptions;
-                        for(const id of info.nextOptions) {
-                            optionsIds.add(id);
-                        }
                     }
                     else if(info.next) {
                         dialogueEntry.nextTextById = info.next;
@@ -3983,14 +4305,6 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 
                     return [translationId, dialogueEntry];
                 })
-                // .map(([translationId, v]) => {
-                //     // console.log(translationId, optionsIds.has(translationId));
-                //     if(optionsIds.has(translationId)) {
-                //         v = { ...v, isOption: true };
-                //     }
-
-                //     return [translationId, v];
-                // })
             )
         };
 
@@ -4009,14 +4323,15 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 
 // const { fnWriteShDeposBackToFile, existingShDepoTSDataByDepoKey } = readExistingShadowPlortDepoTSData();
 // console.log(Object.values(existingShDepoTSDataByDepoKey).map(e => `(${e.position.x}, ${e.position.y})`).join(', '));
-// exportShadowPlortDepoCoordinatesFromAssetsMapping();
-// exportResearchDroneCoordinatesFromAssetsMapping(undefined, { useCache: false, exportToCache: false });
-// exportResearchDroneCoordinatesFromAssetsMapping(undefined, { useCache: false });
-// exportResearchDroneCoordinatesFromAssetsMapping();
-// exportGordoCoordinatesFromAssetsMapping();
-// exportPuzzleDoorCoordinatesFromAssetsMapping();
-// exportStabilizingGateCoordinatesFromAssetsMapping();
-// exportNullifierDoorCoordinatesFromAssetsMapping();
-// exportGigiHologramCoordinatesFromAssetsMapping();
+// exportShadowPlortDeposFromAssetsMapping();
+// exportResearchDronesFromAssetsMapping(undefined, { useCache: false, exportToCache: false });
+// exportResearchDronesFromAssetsMapping(undefined, { useCache: false });
+// exportResearchDronesFromAssetsMapping();
+// exportGordosFromAssetsMapping();
+// exportPuzzleDoorsFromAssetsMapping();
+// exportStabilizingGatesFromAssetsMapping();
+// exportNullifierDoorsFromAssetsMapping();
+exportGigiHologramsFromAssetsMapping();
 // console.log(l10nTranslationsFor("CommStation", null));
-// exportMapNodeCoordinatesFromAssetsMapping();
+// exportMapNodesFromAssetsMapping();
+exportProjectorPuzzlesFromAssetsMapping();

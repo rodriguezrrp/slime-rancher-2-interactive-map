@@ -4,9 +4,10 @@ import { Glob, globSync } from "glob";
 import yaml from "js-yaml";
 import assert from "node:assert";
 import {
-    createWriteStream, createReadStream, readFileSync, writeFileSync,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- because WriteStream is used in a @type jsdoc
-    WriteStream,
+    createWriteStream,
+    createReadStream,
+    readFileSync,
+    writeFileSync,
     readdirSync,
     mkdirSync,
     existsSync,
@@ -14,6 +15,7 @@ import {
     unlinkSync,
     statSync
 } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 import { Quaternion } from "quaternion";
 import _pkg_streamjson from "stream-json";
@@ -40,6 +42,92 @@ export function transformIngameToMapPositions(ingamePos) {
 }
 
 
+export function* iterChildGameObjects_DFS(
+    /** @type {AssetsMappingType} */ assetsMapping,
+    /** @type {AssetJSONType} */ gameObj,
+    /** @type {{
+        includeTransforms?: boolean,
+        recurse?: boolean,
+        includeThisGameObj?: boolean,
+        transformTypeName?: string,
+    }} */ options = { }
+) {
+    options = {
+        includeTransforms: false,
+        recurse: true,
+        includeThisGameObj: true,
+        transformTypeName: "Transform",
+        ...options
+    };
+
+    if(options.includeThisGameObj)
+        yield gameObj;
+
+    let gameObjTransform = null;
+
+    for(const componentRef of gameObj.props["m_Component"]) {
+        
+        const componentObj = assetsMapping[gameObj.fileKey + "&" + componentRef["component"]["fileID"]];
+        if(!componentObj) throw new Error(`componentRef = ${JSON.stringify(componentRef)},\npodGameObj = ${JSON.stringify(gameObj, undefined, 4)}`);
+
+        if(componentObj.typeName === options.transformTypeName) {
+            gameObjTransform = componentObj;
+            break;
+        }
+
+    }
+
+    // queue "unvisited" transforms' fileIDs in stack; Depth First Search (DFS)
+
+    /** @type {number[]} */
+    const transformFileIDsStack = gameObjTransform.props["m_Children"].map(({ fileID }) => fileID);
+
+    let nextFileID;
+    while(typeof (nextFileID = transformFileIDsStack.pop()) !== "undefined") {
+
+        const transformFileKeyFileId = gameObjTransform.fileKey + "&" + nextFileID;
+        const transform = assetsMapping[transformFileKeyFileId];
+
+        if(options.includeTransforms)
+            yield transform;
+
+        const gameObjFileKeyFileId = transform.fileKey + "&" + transform.props["m_GameObject"]["fileID"]
+        const gameObj = assetsMapping[gameObjFileKeyFileId];
+
+        if(!gameObj) {
+            throw new Error(`Could not find GameObject with fileKeyFileId ${gameObjFileKeyFileId} referenced by Transform ${transformFileKeyFileId} ${JSON.stringify(transform, undefined, 4)}`);
+        }
+
+        yield gameObj;
+
+        // recurse
+
+        if(options.recurse) {
+            transformFileIDsStack.push(...transform.props["m_Children"].map(({ fileID }) => fileID));
+        }
+
+    }
+
+}
+
+export function* iterGameObjectComponentObjs(
+    /** @type {AssetsMappingType} */ assetsMapping,
+    /** @type {AssetJSONType} */ gameObj,
+    ignoreFalsyComponentObjs = false
+) {
+    for(const componentRef of gameObj.props["m_Component"]) {
+        
+        const componentObj = assetsMapping[gameObj.fileKey + "&" + componentRef["component"]["fileID"]];
+        if(!componentObj) {
+            if(ignoreFalsyComponentObjs) continue;
+            throw new Error(`falsy componentObj.\n componentRef = ${JSON.stringify(componentRef)},\n gameObj = ${JSON.stringify(gameObj, undefined, 4)}`);
+        }
+
+        yield componentObj;
+
+    }
+}
+
 export function followMonoBehaviourGameObjectTransformChain(
     /** @type {AssetsMappingType} */ assetsMapping,
     /** @type {AssetJSONType} */ assetJSON,
@@ -51,16 +139,11 @@ export function followMonoBehaviourGameObjectTransformChain(
 
     let curTransform = null;
 
-    for(const componentRef of gameObj.props["m_Component"]) {
-        
-        const componentObj = assetsMapping[gameObj.fileKey + "&" + componentRef["component"]["fileID"]];
-        if(!componentObj) throw new Error(`componentRef = ${JSON.stringify(componentRef)},\npodGameObj = ${JSON.stringify(gameObj, undefined, 4)}`);
-
+    for(const componentObj of iterGameObjectComponentObjs(assetsMapping, gameObj)) {
         if(componentObj.typeName === transformTypeName) {
             curTransform = componentObj;
             break;
         }
-
     }
     
     let transformChainChildToParent = [];
@@ -84,7 +167,6 @@ export function followMonoBehaviourGameObjectTransformChain(
 
     const position = {x: 0, y: 0, z: 0};
 
-    // for (let i = transformChainChildToParent.length - 1; i >= 0; i--) {
     for (let i = 0; i <= transformChainChildToParent.length - 1; i++) {
 
         const transformObj = transformChainChildToParent[i];
@@ -104,23 +186,16 @@ export function followMonoBehaviourGameObjectTransformChain(
 
         let q = new Quaternion(r);  // r is object of form { x: .., y: .., z: .., w: .. }
 
-        // q = new Quaternion();
+        if(Math.abs(q.norm() - 1) > 0.00001)
+            throw Error("Quaternion magnitude was not approx. 1? q.norm(): " + q.norm().toString() + " , q: " + q.toString());
 
-        // let intermproduct = {
-        //     x: position.x,
-        //     y: position.y,
-        //     z: position.z,
-        // };
         let intermproduct = {
             x: position.x * s.x,
             y: position.y * s.y,
             z: position.z * s.z
         };
-        intermproduct = q.rotateVector(intermproduct);
 
-        // console.log('q.norm:', q.norm());
-        if(Math.abs(q.norm() - 1) > 0.00001)
-            throw Error("Quaternion magnitude was not approx. 1? " + q.norm().toString() + " , q:" + q.toString());
+        intermproduct = q.rotateVector(intermproduct);
 
         position.x = intermproduct.x + p.x;
         position.y = intermproduct.y + p.y;
@@ -131,28 +206,19 @@ export function followMonoBehaviourGameObjectTransformChain(
     return { gameObj, transformChainChildToParent, position };
 }
 
+/**
+ * 
+ * @param {string} sceneFilePath 
+ * @param {AssetsMappingType} assetsMappingToModify 
+ * @param {(objTypeName: string) => boolean} [objTypeNameFilter] 
+ * @param {(fileText: string) => string} [extraFileTextPreproccessor] 
+ */
 export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMappingToModify, objTypeNameFilter, extraFileTextPreproccessor) {
     
-    // const fileKey = path.basename(sceneFilePath);
     const fileKey = sceneFilePath;
 
     let fileData = readFileSync(sceneFilePath, "utf-8");
-    // .then((fileData) => {
-    //     // try {
-    //     //     return yaml.load(fileData);
-    //     // } catch (e) {
-    //     //     console.log(e.message);
-    //     //     // console.log(e.reason);
-    //     //     if(!e.message.includes("unknown tag !<tag:unity3d.com,")) {
-    //     //         throw e;
-    //     //     }
-    //     // }
-    //     // return yaml.load(fileData.replace(/!<tag:unity3d.com,[\.:0-9]*>/g, ''));
-    // })
-    // .then((/** @type string */ doc) => {
-    //     console.log(doc.substring(0, 200));
-    // })
-    // fileData = fileData.replace(/!<tag:unity3d.com,[\.:0-9]*>/, '');
+    
     fileData = fileData.replace(/^%YAML 1.1[\r\n]+%TAG !u! tag:unity3d\.com,[0-9]{4}:/, "");
 
     if(extraFileTextPreproccessor) fileData = extraFileTextPreproccessor(fileData);
@@ -162,45 +228,31 @@ export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMapping
         .filter(assetData => assetData.length > 0)
         .map(assetData => {
             const _out = /^!([0-9]+) &([0-9]+) *[\r\n]+(.*)$/sg.exec(assetData);
-            // console.log(_out);
             if(_out === null) {
                 throw new Error("Failed to parse assetYaml:\n", assetData);
-            // console.log(assetYaml.substring(0, 50));
-            // const enc = new TextEncoder().encode(assetYaml.substring(0, 50));
-            // console.log(enc);
-            // console.log(enc.map(b => b.toString(16)).join(' '));
-            // console.log(enc.map(b => (b >= 32 && b <= 126) ? String.fromCharCode(b) : '.').join(''));
             }
-            // else
-            //     console.log('ok');
             return _out;
         })
         .map(([, type, fileId, content]) => ({ type: Number(type), fileId: Number(fileId), content: content }));
 
-    // const assetsJSONmappingEntries = await Promise.all(
-    // await Promise.all(
-    // assetsYaml.map(async ({ type, fileId: fileId, content: assetYaml }) => {
     assetsYaml.map(({ type, fileId: fileId, content: assetYaml }) => {
 
         /** @type { {[objTypeName: string]: {[objProp: string]: unknown}} } */
         const assetJSON = yaml.load(assetYaml);
 
-        // console.log(assetJSON);
-        // return { type, fileId, assetJSON };
-
         const objKeys = Object.keys(assetJSON);
         assert(objKeys.length === 1, `Did not find exactly one key in root object of assetJSON as expected. assetJSON: ${JSON.stringify(assetJSON, undefined, 4)}`);
         const typeName = objKeys[0];
-        // return [fileId, { type: typeName, props: assetJSON[typeName] }];
+        
         assert(typeName, JSON.stringify(objKeys));
 
         if(objTypeNameFilter && !objTypeNameFilter(typeName)) {
-        // skip this asset
+            // skip this asset
             return;
         }
 
         const fileKeyFileId = fileKey + "&" + fileId;
-        assert(!Object.hasOwn(assetsMappingToModify, fileKeyFileId), `There was already a fileKeyFileId ${fileKeyFileId} in mapping.\nTried to insert asset:\n${JSON.stringify(assetJSON, undefined, 4)}\nFound existing entry:\n${JSON.stringify(assetsMappingToModify[fileKeyFileId], undefined, 4)}`);
+        if(Object.hasOwn(assetsMappingToModify, fileKeyFileId)) throw new Error(`There was already a fileKeyFileId ${fileKeyFileId} in mapping.\nTried to insert asset:\n${JSON.stringify(assetJSON, undefined, 4)}\nFound existing entry:\n${JSON.stringify(assetsMappingToModify[fileKeyFileId], undefined, 4)}`);
         assetsMappingToModify[fileKeyFileId] = {
             fileKey,
             fileId,
@@ -210,9 +262,8 @@ export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMapping
         }
 
     })
-    // )
 
-    assert(!Object.hasOwn(assetsMappingToModify, fileKey + "&0"), `Why was there a mapping for fileId 0 from scene ${sceneFilePath}? Found ${JSON.stringify(assetsMappingToModify[fileKey + "&0"], undefined, 4)}`);
+    if(Object.hasOwn(assetsMappingToModify, fileKey + "&0")) throw new Error(`Why was there a mapping for fileId 0 from scene ${sceneFilePath}? Found ${JSON.stringify(assetsMappingToModify[fileKey + "&0"], undefined, 4)}`);
 
 }
 
@@ -239,7 +290,7 @@ export function dumpMassiveHeckinBigObjectToJSON(
     object,
     /** @type { number | undefined } */ splitFilesMaxSize,
     /** @type { boolean | undefined } */ recurse,
-    /** @type { WriteStream } */ _stream
+    /** @type { import("node:fs").WriteStream } */ _stream
 ) {
     assert(typeof object === "object" && !Array.isArray(object));
 
@@ -362,13 +413,12 @@ export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { b
         /** @type {{ [k: string]: unknown }} */
         const obj = { };
         const files = readdirSync(filePath).filter(f => /^\d+\.json$/.test(f));
-        // for(const file of files) {
         let processedCt = 0;
         await Promise.all(files.map(async file => {
             const fp = join(filePath, file);
             let contents;
             try {
-                contents = JSON.parse(readFileSync(fp));
+                contents = JSON.parse(await readFile(fp));
             }
             catch(e) {
                 console.error(`Encountered error reading or parsing file path ${fp}`);
@@ -398,9 +448,6 @@ export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { b
         for await (const { key, value } of pipeline) {
             obj[key] = value;
         }
-        // await Promise.all(pipeline.map(async ({ key, value }) => {
-        //     obj[key] = value;
-        // }))
         return obj;
     }
 }
@@ -420,11 +467,11 @@ export function looseJsonParseWithEval(/** @type {string} */ str) {
     return eval?.(`"use strict";(${str})`);
 }
 /**
- * @template T
+ * @template T, U
  * @param {T} obj 
  * @param {number | string | null} indent 
  * @param {{
- *  transformer?: (obj: any, key: string | number, keys: (string | number)[]) => ({ raw: true, val: string } | { raw?: false, val: any } | undefined),
+ *  transformer?: (obj: any, key: string | number, keys: (string | number)[]) => ({ raw: true, val: string } | { raw?: false, val: U } | undefined),
  *  shouldQuoteKey?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
  *  shouldInlineObj?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
  *  shouldSortKeys?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | ((a: string, b: string) => number) | undefined)

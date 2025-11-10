@@ -100,6 +100,8 @@ export interface UserData {
     found_treasure_pods: string[];
     found_stabilizing_gates: string[];
     found_shadow_doors: string[];
+    found_gigi_holograms: string[];
+    found_projector_puzzles: string[];
 }
 
 export interface Pin {
@@ -188,5 +190,22 @@ export interface GigiHologram {
         entries: {
             [id: string]: GigiDialogueToTextEntry | GigiDialogueToOptionsEntry;
         }
+    }
+}
+
+export interface ProjectorPuzzle {
+    unlocks: string[];
+    name: string;
+    startPoint?: {
+        id: string;
+        nameSuffix: string;
+        position: Vec2;
+        description: string;
+    }
+    endPoint?: {
+        id: string;
+        nameSuffix: string;
+        position: Vec2;
+        description: string;
     }
 }

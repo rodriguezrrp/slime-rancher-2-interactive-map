@@ -36,11 +36,6 @@ export const stabilizing_gates: { [key: string]: StabilizingGate } = {
         position: { x: 818.1307908670938, y: 2038.8654771665385 },
         description: "Todo: insert a description for this stabilizing gate stabilizinggate0148392974"
     },
-    "stabilizinggate_stabilizinggate0344923807": {
-        internalId: "stabilizinggate0344923807",
-        position: { x: -926.4029504233495, y: 1123.5877500610238 },
-        description: "Todo: insert a description for this stabilizing gate stabilizinggate0344923807"
-    },
     "stabilizinggate_stabilizinggate1172010955": {
         internalId: "stabilizinggate1172010955",
         position: { x: 988.2619951287834, y: 828.6339026257912 },

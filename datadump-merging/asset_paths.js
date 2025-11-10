@@ -66,6 +66,7 @@ export const PATH_TO_GORDOS_DATA_FILE = "../src/data/gordos.ts";
 export const PATH_TO_PUZZLE_DOORS_DATA_FILE = "../src/data/locked_doors.ts";
 export const PATH_TO_STABILIZING_GATES_DATA_FILE = "../src/data/stabilizing_gates.ts";
 export const PATH_TO_NULLIFIER_DOORS_DATA_FILE = "../src/data/nullifier_doors.ts";
+export const PATH_TO_PROJECTOR_PUZZLES_DATA_FILE = "../src/data/projector_puzzles.ts";
 export const PATH_TO_GIGI_HOLOGRAMS_DATA_FILE = "../src/data/gigi_holograms.ts";
 export const PATH_TO_MAP_NODES_DATA_FILE = "../src/data/map_nodes.ts";
 
