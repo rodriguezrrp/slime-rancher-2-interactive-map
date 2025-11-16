@@ -1,4 +1,5 @@
 import { MapType } from "./CurrentMapContext";
+import { mapCRSsettings } from "./data/map_crs_settings";
 
 export interface Vec2 {
     x: number;
@@ -62,10 +63,27 @@ export interface ResearchDrone {
     dimension: MapType;
 }
 
+type PickByValue<T, V> = {
+  [K in keyof T as T[K] extends V ? K : never]: T[K];
+};
+type OmitByValue<T, V> = {
+  [K in keyof T as T[K] extends V ? never : K]: T[K];
+};
+
 export interface TeleportLine {
     name: string;
     positions: Vec2[];
     midpoint: Vec2;
+    dimension: keyof OmitByValue<typeof mapCRSsettings, { CRS: null }>;
+}
+
+export interface TeleportPad {
+    internalId: string,
+    name: string;
+    description: string;
+    image?: string;
+    position: Vec2;
+    dimension: keyof OmitByValue<typeof mapCRSsettings, { CRS: null }>;
 }
 
 export interface Resource {

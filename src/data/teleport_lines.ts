@@ -1,52 +1,77 @@
+import { MapType } from "../CurrentMapContext";
 import { TeleportLine } from "../types";
 
 export const teleport_lines: { [key: string]: TeleportLine } = {
-    "line_1": {
-        name: "RF to EV 1",
+    "line_Conservatory_Arboretum_Gorge": {
+        name: "Todo: insert a name for this teleporter line line_Conservatory_Arboretum_Gorge",
+        dimension: MapType.overworld,
         positions: [
-            { x: 39.77, y: -52.33 },
-            { x: 48.61, y: -81.36 },
+            { x: -394.32, y: 33.490009999999984 },
+            { x: -463.6939042629503, y: -205.30958241841563 }
         ],
-        midpoint: { x: 46, y: -65 },
+        midpoint: { x: -429.00695213147515, y: -85.90978620920782 }
     },
-    "line_2": {
-        name: "RF to EV 2",
+    "line_GorgeGateTransfer_BluffsNavigation": {
+        name: "Todo: insert a name for this teleporter line line_GorgeGateTransfer_BluffsNavigation",
+        dimension: MapType.overworld,
         positions: [
-            { x: 48.31, y: -31.13 },
-            { x: 70.49, y: -120.65 },
+            { x: -234.5980921945242, y: -624.9159343018114 },
+            { x: -1655.3422646888146, y: -618.8851018536452 }
         ],
-        midpoint: { x: 65, y: -70 },
+        midpoint: { x: -944.9701784416694, y: -621.9005180777283 }
     },
-    "line_3": {
-        name: "RF to SS 1",
+    "line_GorgeNavigation_Bluffs": {
+        name: "Todo: insert a name for this teleporter line line_GorgeNavigation_Bluffs",
+        dimension: MapType.overworld,
         positions: [
-            { x: 22.26, y: -50.91 },
-            { x: -8.71, y: -58.82 },
+            { x: -767.745936082538, y: -699.5367929140971 },
+            { x: -1343.1115851111438, y: -708.4533891542853 }
         ],
-        midpoint: { x: 10, y: -55 },
+        midpoint: { x: -1055.428760596841, y: -703.9950910341912 }
     },
-    "line_4": {
-        name: "RF to SS 2",
+    "line_GorgeNavigation_Conservatory_Digsite": {
+        name: "Todo: insert a name for this teleporter line line_GorgeNavigation_Conservatory_Digsite",
+        dimension: MapType.overworld,
         positions: [
-            { x: 21.14, y: -25.7 },
-            { x: -46.48, y: -21.97 },
+            { x: -884.0700671476657, y: -581.5115297610962 },
+            { x: -529.8301539258165, y: 274.19751675386937 }
         ],
-        midpoint: { x: -10, y: -21 },
+        midpoint: { x: -706.950110536741, y: -153.65700650361342 }
     },
-    "line_5": {
-        name: "EV to PB 1",
+    "line_LabyrinthCorePath_LabyrinthHub_C": {
+        name: "Todo: insert a name for this teleporter line line_LabyrinthCorePath_LabyrinthHub_C",
+        dimension: MapType.labyrinth,
         positions: [
-            { x: 77.13, y: -130.84 },
-            { x: 66.08, y: -134.67 },
+            { x: 407.0752270849671, y: 1465.0055712162446 },
+            { x: 159.2783520317082, y: 2247.370189230983 }
         ],
-        midpoint: { x: 72, y: -130 },
+        midpoint: { x: 283.17678955833765, y: 1856.1878802236138 }
     },
-    "line_6": {
-        name: "EV to PB 2",
+    "line_LabyrinthHub_LabyrinthWeather": {
+        name: "Todo: insert a name for this teleporter line line_LabyrinthHub_LabyrinthWeather",
+        dimension: MapType.labyrinth,
         positions: [
-            { x: 82.0, y: -122.95 },
-            { x: 28.32, y: -126.27 },
+            { x: 383.2116448162886, y: 917.3351884933705 },
+            { x: 769.2033059782564, y: 1874.6343695132564 }
         ],
-        midpoint: { x: 68, y: -150 },
+        midpoint: { x: 576.2074753972724, y: 1395.9847790033134 }
     },
+    "line_StrandNavigation_Conservatory_Digsite": {
+        name: "Todo: insert a name for this teleporter line line_StrandNavigation_Conservatory_Digsite",
+        dimension: MapType.overworld,
+        positions: [
+            { x: 529.4325760462142, y: 336.66512683503964 },
+            { x: -147.28200645349517, y: 335.8684569836389 }
+        ],
+        midpoint: { x: 191.0752847963595, y: 336.2667919093393 }
+    },
+    "line_Strand_Conservatory_Arboretum": {
+        name: "Todo: insert a name for this teleporter line line_Strand_Conservatory_Arboretum",
+        dimension: MapType.overworld,
+        positions: [
+            { x: 120.56663535451779, y: -6.602006493686105 },
+            { x: -162.20999999999998, y: 50.17000999999999 }
+        ],
+        midpoint: { x: -20.821682322741097, y: 21.784001753156943 }
+    }
 };

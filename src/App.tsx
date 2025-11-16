@@ -1,6 +1,6 @@
 import { CurrentMapContext, MapType } from "./CurrentMapContext";
-import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, icon } from "leaflet";
-import { LayerGroup, LayersControl, MapContainer, Marker, Popup, TileLayer, useMap, useMapEvents } from "react-leaflet";
+import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, MapOptions, icon } from "leaflet";
+import { LayerGroup, LayersControl, MapContainer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { LocalStoragePin, Pin } from "./types";
 import { useContext, useEffect, useRef, useState } from "react";
 import { FaCode } from "react-icons/fa6";
@@ -16,11 +16,12 @@ import { StabilizingGateIcons } from "./components/StabilizingGateIcon";
 import { TeleportLineIcons } from "./components/TeleportLineIcon";
 import { TreasurePodIcons } from "./components/TreasurePodIcon";
 import { icon_template } from "./globals";
-import { ScaledSimpleCRS } from "./data/map_crs_settings";
+import { mapCRSsettings } from "./data/map_crs_settings";
 import { NullifierDoorIcons } from "./components/NullifierDoorIcon";
 import { GigiHologramIcons } from "./components/GigiHologramIcon";
 import { gigiExpressionImageUrls } from "./util";
 import { ProjectorPuzzleIcons } from "./components/ProjectorPuzzleIcon";
+import { TeleportPadIcons } from "./components/TeleportPadIcon";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
@@ -137,12 +138,14 @@ function MapUpdater({
     center,
     maxBounds,
     maxZoom,
-    tileLayerOpts
+    tileLayerOpts,
+    crs
 }: {
     center: LatLngExpression;
     maxBounds: LatLngBoundsExpression,
     maxZoom: number,
-    tileLayerOpts: L.TileLayerOptions & { url: string }
+    tileLayerOpts: L.TileLayerOptions & { url: string },
+    crs: MapOptions["crs"]
 }) {
     const map = useMap();
 
@@ -169,13 +172,24 @@ function MapUpdater({
         map.addLayer(tileLayer.current!);
     }, [tileLayerOpts, map]);
 
+    useEffect(() => {
+        // https://github.com/Leaflet/Leaflet/issues/2553#issuecomment-762271734
+        const bounds = map.getBounds();
+        map.options.crs = crs;
+        // Ensure zoom is not affected by differing CRS scales
+        const zoomSnap = map.options.zoomSnap;
+        map.options.zoomSnap = 0;
+        map.fitBounds(bounds);
+        map.options.zoomSnap = zoomSnap;
+    }, [crs, map]);
+
     return null;
 }
 
 /**
  * Tag body with .hasHover CSS class if mouse hovering is applicable (e.g. no touchscreen).
  * 
- * Adapted for React from https://stackoverflow.com/a/30303898/14390381
+ * Adapted for React from https://stackoverflow.com/a/30303898
  * */
 function useWatchForHoverCapability() {
     let isCancelled = false;
@@ -383,7 +397,7 @@ function App() {
                 scrollWheelZoom={true}
                 maxBounds={map_bounds[current_map]}
                 style={{ height: "100vh", width: "100%", zIndex: 1 }}
-                crs={ScaledSimpleCRS}
+                crs={mapCRSsettings[current_map].CRS ?? L.CRS.EPSG3857}
             >
                 <ConfigureMapOptions />
                 {advanced_infos && <CursorCoordinates />}
@@ -397,6 +411,7 @@ function App() {
                         maxZoom: map_maxNativeZoom[current_map] + 1,
                         maxNativeZoom: map_maxNativeZoom[current_map]
                     }}
+                    crs={mapCRSsettings[current_map].CRS ?? L.CRS.EPSG3857}
                 />
 
                 {selected_pin &&
@@ -424,7 +439,10 @@ function App() {
                         <LayerGroup>{ResearchDroneIcons(setShowLog, setCurrentLog, current_map)}</LayerGroup>
                     </LayersControl.Overlay>
                     <LayersControl.Overlay checked name="Teleport Lines">
-                        {current_map === MapType.overworld && <LayerGroup>{TeleportLineIcons}</LayerGroup>}
+                        <LayerGroup>{TeleportLineIcons(current_map)}</LayerGroup>
+                    </LayersControl.Overlay>
+                    <LayersControl.Overlay checked name="Ancient Teleporters">
+                        <LayerGroup>{TeleportPadIcons(current_map)}</LayerGroup>
                     </LayersControl.Overlay>
                     <LayersControl.Overlay checked name="Plot Planner">
                         {current_map === MapType.overworld && <LayerGroup>{PlotPlanners}</LayerGroup>}

@@ -267,6 +267,61 @@ export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMapping
 
 }
 
+// Recursive type with specific depth is adapted from https://stackoverflow.com/a/66616799
+/**
+ * @template {readonly unknown[]} T 
+ * @typedef {(T extends [unknown, ...infer Rest] ? Rest : never)} Tail<T>
+ */
+/**
+ * @template V
+ * @template {number} N
+ * @typedef {RecurseTail_<V, N, []>} RecurseTail<V, N>
+ */
+/**
+ * @template V
+ * @template {number} N
+ * @template {unknown[]} Depth
+ * @typedef {N extends Depth['length'] ? V : Tail<RecurseTail_<V, N, [N, ...Depth]>>} RecurseTail_<V, N, Depth>
+ */
+
+/**
+ * @param {string | string[]} globs 
+ * @param {RecurseTail<Parameters<typeof parseUnityFileYamlIntoAssetsMapping>, 2>} parsingFunctionOptionalParams 
+ * @returns {Promise<{ [fileGUID: string]: AssetJSONType }>} 
+ */
+export async function fromGlobsMapAssetGUIDsToAssetJSONs(globs, ...parsingFunctionOptionalParams) {
+
+    /** @type {{ [fileGUID: string]: AssetJSONType }} */
+    const mapAssetGUIDsToAssetJSONs = { };
+
+    const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+
+    const filepaths = globSync(globs);
+
+    await Promise.all(filepaths.map(
+        async (assetpath) => {
+            // const filenameNoExt = basename(assetpath).split(".")[0];
+
+            const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+            const guid = metaFileGuidRegex.exec(metadata)[1];
+            
+            /** @type {AssetsMappingType} */
+            const singleAssetsMapping = { }
+            // parseUnityFileYamlIntoAssetsMapping(assetpath, singleAssetsMapping);
+            parseUnityFileYamlIntoAssetsMapping.apply(null, [assetpath, singleAssetsMapping, ...parsingFunctionOptionalParams]);
+            if(Object.keys(singleAssetsMapping).length !== 1) {
+                throw new Error(`Expected only one asset to be in the asset file. File path ${assetpath}`);
+            }
+            const teleporterAssetJSON = Object.values(singleAssetsMapping)[0];
+
+            mapAssetGUIDsToAssetJSONs[guid] = teleporterAssetJSON;
+        }
+    ));
+
+    return mapAssetGUIDsToAssetJSONs;
+
+}
+
 /** adapted from https://stackoverflow.com/a/53888894 */
 export function sortStringsWithNumbers (/**@type {string}*/ a, /**@type {string}*/ b) {
   a = a.toUpperCase().split(/(\d+)/g);
@@ -463,19 +518,24 @@ export const MapType = {
 };
 global.MapType = MapType;  // for indirect eval, global scoped
 
+/** @typedef {typeof MapType} _MapTypeType */
+
 export function looseJsonParseWithEval(/** @type {string} */ str) {
     return eval?.(`"use strict";(${str})`);
 }
+/** @typedef {{
+ *  transformer?: (obj: any, key: string | number, keys: (string | number)[]) => ({ raw: true, val: string } | { raw?: false, val: V } | undefined),
+ *  shouldQuoteKey?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
+ *  shouldInlineObj?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
+ *  shouldSortKeys?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | ((a: string, b: string) => number) | undefined)
+ * }} LooseStringifyTransformingFunctionsType<V>
+ * @template V
+ * */
 /**
  * @template T, U
  * @param {T} obj 
  * @param {number | string | null} indent 
- * @param {{
- *  transformer?: (obj: any, key: string | number, keys: (string | number)[]) => ({ raw: true, val: string } | { raw?: false, val: U } | undefined),
- *  shouldQuoteKey?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
- *  shouldInlineObj?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | null | undefined),
- *  shouldSortKeys?: (key: string | number, depth: number, keys: (string | number)[], obj: any) => (boolean | ((a: string, b: string) => number) | undefined)
- * }} transformingFns 
+ * @param {LooseStringifyTransformingFunctionsType<U>} transformingFns 
  * @param {*} [_prevIndent] 
  * @param {*} [_curIndent] 
  * @param {(string | number)[]} [_prevKeysChain] 
@@ -723,3 +783,58 @@ export function setsEqual(a, b) {
     }
     return true;
 }
+
+
+// export function latLngToYX(lat, lng, zoom) {
+//     return { y: latToY(lat, zoom), x: lonToX(lng, zoom) };
+// }
+
+// /** Adapted from https://stackoverflow.com/questions/1591902/converting-long-lat-to-pixel-x-y-given-a-zoom-level */
+// export function lonToX(lon, zoom) {
+//     let offset = 256 << (zoom - 1);
+//     return /*Math.floor*/(offset + (offset * lon / 180));
+// }
+// /** Adapted from https://stackoverflow.com/questions/1591902/converting-long-lat-to-pixel-x-y-given-a-zoom-level */
+// export function latToY(lat, zoom) {
+//     let offset = 256 << (zoom - 1);
+//     return /*Math.floor*/(offset - offset / Math.PI * Math.log((1 + Math.sin(lat * Math.PI / 180)) / (1 - Math.sin(lat * Math.PI / 180))) / 2);
+// }
+
+// /**
+//  * The value 85.051129° is the latitude at which the full projected map becomes a square.
+//  * (See https://en.wikipedia.org/wiki/Web_Mercator_projection#Formulas)
+// */
+// export const MAX_LAT = 85.051129;
+
+// function _testLatLng() {
+
+//     let zoom = 1;
+//     console.log(`Test zoom = ${zoom}`)
+//     console.log('Test: Latitude sweeping from -80 to 80:')
+//     let lat = -80;
+//     let lng = -90;
+//     while(lat < 85.0512) {
+//         let { y, x } = latLngToYX(lat, lng, zoom);
+//         console.log(`(lat ${lat.toFixed(2).padStart(7)}, lng ${lng.toFixed(2).padStart(7)}) -> (y ${y.toFixed(4).padStart(9)}, x ${x.toFixed(4).padStart(9)})`)
+//         lat += 20;
+//     }
+//     console.log('Test: Min latitude, min longitude (e.g., bottom left):');
+//     {
+//         // code block is for scoping of let { y, x } destructuring
+//         lat = -MAX_LAT;
+//         lng = -180;
+//         let { y, x } = latLngToYX(lat, lng, zoom);
+//         console.log(`(lat ${lat.toFixed(6).padStart(11)}, lng ${lng.toFixed(4).padStart(9)}) -> (y ${y.toFixed(4).padStart(9)}, x ${x.toFixed(4).padStart(9)})`)
+//     }
+//     console.log('Test: Max latitude, max longitude (e.g., top right):');
+//     {
+//         // code block is for scoping of let { y, x } destructuring
+//         lat = MAX_LAT;
+//         lng = 180;
+//         let { y, x } = latLngToYX(lat, lng, zoom);
+//         console.log(`(lat ${lat.toFixed(6).padStart(11)}, lng ${lng.toFixed(4).padStart(9)}) -> (y ${y.toFixed(4).padStart(9)}, x ${x.toFixed(4).padStart(9)})`)
+//     }
+
+// }
+
+// _testLatLng();

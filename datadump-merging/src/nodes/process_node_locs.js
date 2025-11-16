@@ -1,18 +1,23 @@
 
-import { GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE, L10N_TABLES_GLOBS, PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, PATH_TO_MAP_NODES_DATA_FILE, PATH_TO_PROJECTOR_PUZZLES_DATA_FILE } from "../../asset_paths.js";
+import { GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE, L10N_TABLES_GLOBS, PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, PATH_TO_MAP_NODES_DATA_FILE, PATH_TO_PROJECTOR_PUZZLES_DATA_FILE, PATH_TO_TELEPORT_PADS_DATA_FILE, PATH_TO_TELEPORT_LINES_DATA_FILE, GLOBS_TO_ANCIENT_TELEPORTER_ASSETS, GLOB_TO_TELEPORT_NETWORK_DEFINITION, GLOBS_TO_SCENE_GROUP_ASSETS } from "../../asset_paths.js";
 
 import { Glob, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPositions, extractL10nTablesToCache, MapType, iterChildGameObjects_DFS, iterGameObjectComponentObjs } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPositions, extractL10nTablesToCache, MapType, iterChildGameObjects_DFS, iterGameObjectComponentObjs, fromGlobsMapAssetGUIDsToAssetJSONs } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
 import { entryExportFilter } from "./entries_export_filter.js";
 import { gigi_manually_noted_conversations } from "../../gigi_manually_noted_conversations.js";
 // import { transpile } from "typescript";
 // const gigi_manually_noted_conversations = eval(transpile(readFileSync("../../gigi_manually_noted_conversations.ts")));
 
+// import { MapType } from "./processing_utils.js";
+/** typedef {typeof (import("./processing_utils.js")._MapTypeType)[keyof (import("./processing_utils.js")._MapTypeType)]} MapType */
+/** @typedef {(import("../../../src/CurrentMapContext.tsx").MapType)} MapType */
 
+/** @typedef {{ x: number, y: number }} Vec2 */
+/** @typedef {{ x: number, y: number, z: number }} Vec3 */
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
 /** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
 /** @typedef {{ useCache?: boolean, exportToCache?: "sync" | "async" | boolean }} CacheOpts */
@@ -21,7 +26,7 @@ import { gigi_manually_noted_conversations } from "../../gigi_manually_noted_con
 export async function exportAllNodeCoordsFromScenesJSON(
     /** @type {undefined | AssetsMappingType} */
     assetsMapping,
-    /** @type {CacheOpts} */
+    /** @type {undefined | CacheOpts} */
     cacheOpts
 ) {
     
@@ -41,6 +46,11 @@ export async function exportAllNodeCoordsFromScenesJSON(
     // Research Drones
     
     await exportResearchDronesFromAssetsMapping(assetsMapping, cacheOpts);
+
+    //===============
+    // Plots
+
+    //...
     
     //
     //////////////////////
@@ -70,7 +80,7 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Radiant Projector Puzzles
     
-    //...
+    await exportProjectorPuzzlesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //
     //////////////////////
@@ -95,34 +105,34 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Teleport Pads, Teleport Lines
     
-    //...
+    await exportTeleportersFromAssetsMapping(assetsMapping, cacheOpts);
 
 }
 
 /** @type {AssetsMappingType} */
-let assetsMapping = null;
+let _assetsMapping = null;
 
 async function getOrExtractScenesAssetsMapping(/** @type {CacheOpts} */ cacheOpts) {
-    if(!assetsMapping) {
+    if(!_assetsMapping) {
         if(cacheOpts.useCache) {
             try {
                 console.log("Reading cached asset JSON...");
                 const multiFile = true;  // TODO see if directory exists first?
-                assetsMapping = await readMassiveHeckinBigObjectFromJSON("./data_cache/assetsFileIdMapping.json", multiFile, (progress) => { console.log(`  - ${(progress*100).toFixed(0)}%`); });
+                _assetsMapping = await readMassiveHeckinBigObjectFromJSON("./data_cache/assetsFileIdMapping.json", multiFile, (progress) => { console.log(`  - ${(progress*100).toFixed(0)}%`); });
             } catch(e) {
                 console.error(`Failed to read cached asset JSON -- ${e}`);
                 console.log("Extracting anew instead.");
             }
         }
     
-        if(!assetsMapping) {
-            assetsMapping = await extractScenesToAssetsJSON(cacheOpts);
+        if(!_assetsMapping) {
+            _assetsMapping = await extractScenesToAssetsJSON(cacheOpts);
         }
 
-        assetsMapping = Object.freeze(assetsMapping);
+        _assetsMapping = Object.freeze(_assetsMapping);
     }
 
-    return assetsMapping;
+    return _assetsMapping;
 }
 
 async function exportPodsFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
@@ -2838,6 +2848,1166 @@ async function exportProjectorPuzzlesFromAssetsMapping(/** @type {AssetsMappingT
     fnWriteProjectorPuzzlesBackToFile(mergedPuzzleTSData);
 }
 
+async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ [sourceNodeFileGUID: string]: {
+     *      sourceTeleporterAssetInfo: { assetJSON: AssetJSONType, pos: Vec3 },
+     *      linkName: string,
+     *      destGUID: string,
+     *      destTeleporterAssetInfo: { assetJSON: AssetJSONType, pos: Vec3, dimension: MapType },
+     * }}} */
+    let networkNodeLinksMapping;
+    
+    if(cacheOpts.useCache && existsSync("./data_cache/teleporterNetworkAssetsAndPositions.json")) {
+    // if(false) {  // for debugging
+        
+        console.log("Reading cached teleporter network's assets and coordinates...");
+
+        networkNodeLinksMapping = JSON.parse(readFileSync("./data_cache/teleporterNetworkAssetsAndPositions.json"));
+
+        console.log(`Read (${Object.keys(networkNodeLinksMapping).length}) teleporter network's links' assets and coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting teleporter network's assets and coordinates from assets JSON...");
+
+        // const doorMonoBehavioursEntries = Object.entries(assetsMapping)
+        //     .filter(([, assetJSON]) => {
+            
+        //         // const _id = assetJSON.props["_id"];
+            
+        //         // if(!_id) return false;
+
+        //         // if(!/^nullifierdoor[0-9]+$/.test(_id)) return false;
+
+        //         // if it's for a Discordant Wall, I expect it to have both of these properties. Otherwise, I expect it to have neither.
+        //         const prop_holeTransform = assetJSON.props["_holeTransform"];
+        //         const prop_wallTransform = assetJSON.props["_wallTransform"];
+
+        //         if(!prop_holeTransform && !prop_wallTransform) {
+        //             // has neither
+        //             return false;
+        //         }
+
+        //         if(!prop_holeTransform || !prop_wallTransform) {
+        //             console.log(assetJSON);
+        //             throw new Error(`Asset had only one of \"_holeTransform\" and \"_wallTransform\" props! (!!prop_holeTransform = ${!!prop_holeTransform}, !!prop_wallTransform = ${!!prop_wallTransform})`)
+        //         }
+
+        //         if(assetJSON.typeName !== "MonoBehaviour") {
+        //             console.log(assetJSON);
+        //             throw new Error("found asset with a \"_holeTransform\" and \"_wallTransform\" props, but it was not a MonoBehaviour?");
+        //         }
+
+        //         return true;
+
+        //     });
+        // console.log(`Retrieved ${doorMonoBehavioursEntries.length} nullifierdoor MonoBehaviour entries.`);
+
+
+        const mapTeleporterAssetGUIDsToAssetJSONs = await fromGlobsMapAssetGUIDsToAssetJSONs(GLOBS_TO_ANCIENT_TELEPORTER_ASSETS);
+
+        const teleporterAssetGUIDsSet = new Set(Object.keys(mapTeleporterAssetGUIDsToAssetJSONs));
+
+        /** @type {{ [teleporterGUID: string]: { assetJSON: AssetJSONType, pos: Vec3 }} */
+        const mapTeleporterAssetGUIDsToAssetJSONInfo = Object.values(assetsMapping)
+            .filter(
+                (assetJSON) => {
+                    /** @type {UnityFileRefType} */
+                    const teleporterNodeDef = assetJSON.props["_nodeDefinition"];
+
+                    if(typeof teleporterNodeDef === "undefined") {
+                        return false;
+                    }
+
+                    if(teleporterNodeDef.fileID === 0 || typeof teleporterNodeDef.guid === "undefined") {
+                        console.warn("found asset with a \"_nodeDefinition\" prop, but it was a blank (fileID=0) reference! Skipping it for now.");
+                        console.warn(assetJSON);
+                        return false;
+                    }
+                    
+                    if(!teleporterAssetGUIDsSet.has(teleporterNodeDef.guid)) {
+                        console.error(assetJSON);
+                        throw new Error("found asset with a \"_nodeDefinition\" prop, but it was not a reference to a teleporter asset?");
+                    }
+
+                    if(assetJSON.typeName !== "MonoBehaviour") {
+                        console.error(assetJSON);
+                        throw new Error("found asset with a \"_nodeDefinition\" prop, but it was not a MonoBehaviour?");
+                    }
+
+                    return true;
+                }
+            ).map(
+                (assetJSON) => {
+                    /** @type {string} */
+                    const teleporterGUID = assetJSON.props["_nodeDefinition"].guid;
+                    const teleporterNodeAsset = assetJSON;
+                    const { gameObj, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, teleporterNodeAsset);
+                    return { teleporterGUID, assetJSON, pos };
+                }
+            ).reduce(
+                (accumObj, { teleporterGUID, assetJSON, pos }) => {
+                    if(Object.hasOwn(accumObj, teleporterGUID)) {
+                        console.error(`previously accumulated teleporter assetJSON:\n`, accumObj[teleporterGUID]);
+                        console.error(`current teleporter assetJSON:\n`, assetJSON);
+                        throw new Error("Found two extracted teleporter node definition file refs in scene(s) pointing to the same teleporter asset!");
+                    }
+                    console.log(teleporterGUID);
+                    accumObj[teleporterGUID] = { assetJSON, pos };
+                    return accumObj;
+                },
+                { }
+            );
+
+        /** @type {{ [fileGUID: string]: AssetJSONType }} */
+        const mapSceneGroupAssetGUIDtoAssetJSONs = await fromGlobsMapAssetGUIDsToAssetJSONs(GLOBS_TO_SCENE_GROUP_ASSETS);
+
+        /** @type {AssetsMappingType} */
+        const teleportNetworkAssetsMapping = { }
+
+        const teleportNetworkAssetsFilePaths = globSync(GLOB_TO_TELEPORT_NETWORK_DEFINITION);
+
+        // expecting only one network definition file
+        if(teleportNetworkAssetsFilePaths.length !== 1) {
+            console.warn(`Expected the glob to teleport network definition to only have one file! Found ${teleportNetworkAssetsFilePaths.length}. glob: ${GLOB_TO_TELEPORT_NETWORK_DEFINITION}`);
+        }
+
+        await Promise.all(teleportNetworkAssetsFilePaths.map(
+            async (assetpath) => {
+                parseUnityFileYamlIntoAssetsMapping(assetpath, teleportNetworkAssetsMapping);
+            }
+        ));
+
+        /*
+         * Example teleport network definition items of interest:
+         * ...
+         * items:
+         * - Name: FieldsToGorgeMain
+         *   SourceNode: {fileID: 11400000, guid: 759fb6beac478744cb786463b0ca774c, type: 2}
+         *   DestinationNodes:
+         *   - DestinationNode: {fileID: 11400000, guid: db65b5a3b5784904cb97dcb350145c76, type: 2}
+         *     DestinationSceneGroup: {fileID: 11400000, guid: 00fd5d1ba07c8b24b9e97f1cf7023590, type: 2}
+         *   ForceSceneTransition: 0
+         * - ...
+         */
+
+        /** @typedef {{ fileID: number, guid: string, type: number }} UnityFileRefType */
+
+        /** @type {{ Name: string, SourceNode: UnityFileRefType, DestinationNodes: Array<{ DestinationNode: UnityFileRefType, DestinationSceneGroup: UnityFileRefType }> }[]} */
+        const networkDefItems = Object.values(teleportNetworkAssetsMapping).flatMap(networkAssetJSON => networkAssetJSON.props["items"]);
+        console.debug(`  networkDefItems.length: ${networkDefItems.length}`);
+
+        /** @type {{ [sourceNodeFileGUID: string]: {
+         *      sourceTeleporterAssetInfo: { assetJSON: AssetJSONType, pos: Vec3 },
+         *      linkName: string,
+         *      destGUID: string,
+         *      destTeleporterAssetInfo: { assetJSON: AssetJSONType, pos: Vec3 },
+         *      destDimension: MapType
+         * }}} */
+        networkNodeLinksMapping = Object.fromEntries(networkDefItems.map(item => {
+
+            if(item.DestinationNodes.length !== 1) {
+                throw new Error(`Why was there not exactly one destination for this teleport network item? ${JSON.stringify(item)}`);
+            }
+
+            const sceneGroupGUID = item.DestinationNodes[0].DestinationSceneGroup.guid;
+            const destGUID = item.DestinationNodes[0].DestinationNode.guid;
+            const destSceneGroupDimension = (
+                /Labyrinth\.asset/i.test(mapSceneGroupAssetGUIDtoAssetJSONs[sceneGroupGUID].fileKey)
+                ? MapType.labyrinth
+                : MapType.overworld
+            );
+
+            if(!mapTeleporterAssetGUIDsToAssetJSONInfo[item.SourceNode.guid]) {
+                // console.log(mapTeleporterAssetGUIDsToAssetJSONInfo);
+                console.log("No extracted teleporter asset for item.SourceNode.guid ?")
+                console.log(item.SourceNode.guid);
+                console.log(item);
+            }
+
+            return [
+                item.SourceNode.guid,
+                {
+                    sourceTeleporterAssetInfo: mapTeleporterAssetGUIDsToAssetJSONInfo[item.SourceNode.guid],
+                    linkName: item.Name,
+                    destGUID: destGUID,
+                    destTeleporterAssetInfo: mapTeleporterAssetGUIDsToAssetJSONInfo[destGUID],
+                    destDimension: destSceneGroupDimension,
+                }
+            ];
+
+        }));
+
+        // throw new Error("temp");
+
+
+
+        // // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+        // ingameTeleporterAssetsAndPositions = await Promise.all(doorMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+        //     console.log(`[Nullifier Door (assetJSON fileKeyFileId: ${assetJSON.fileKey + '&' + assetJSON.fileId})]: Determining position of teleporter`);
+
+        //     const { gameObj: doorGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+        //     // for(const child of transformChainChildToParent) {
+        //     //     console.log(child.typeName);
+        //     //     console.log(child.fileKey);
+        //     //     console.log(child.fileId);
+        //     //     console.log(child.props["m_LocalPosition"]);
+        //     //     console.log(child.props["m_LocalRotation"]);
+        //     //     console.log(child.props["m_LocalScale"]);
+        //     // }
+
+        //     console.log(`[Nullifier Door ${manufactureTeleporterAssetsAndIdFromAssets(assetJSON, doorGameObj, pos)}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+        //     // return { fileId, assetJSON, gordoGameObj, targetCount, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, pos };
+        //     return { fileId, assetJSON, doorGameObj, pos };
+
+        // }));
+
+        // console.log(`Determined ${ingameTeleporterAssetsAndPositions.length} teleporter assets and their positions.`);
+        
+        // // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        // // for(const d of ingameDronePositions) {
+        // //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+        // //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+        // //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+        // //         return { ...c, gameObject: gameObj };
+        // //     });
+        // // }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/teleporterNetworkAssetsAndPositions.json", JSON.stringify(networkNodeLinksMapping));
+                console.log("Exported teleporter network's assets and their positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting teleporter network's assets and their positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+    //
+
+    console.log("Parsing existing teleporter data in the data files...");
+
+    const {
+        teleportLines: {
+            existingTSDataByTsDataKey: existingTeleportLinesTSDataByTsDataKey,
+            fnWriteTSDataBackToFile: fnWriteTeleportLinesTSDataBackToFile
+        },
+        teleportPads: {
+            existingTSDataByTsDataKey: existingTeleportPadsTSDataByTsDataKey,
+            fnWriteTSDataBackToFile: fnWriteTeleportPadsTSDataBackToFile
+        },
+    } = readExistingTeleportersTSData(cacheOpts);
+
+    console.log(
+        `Parsed ${Object.keys(existingTeleportLinesTSDataByTsDataKey).length} existing teleporter line entries`
+        + ` and ${Object.keys(existingTeleportPadsTSDataByTsDataKey).length} existing teleporter pad entries.`
+    );
+
+    //
+
+    console.log("Merging existing and extracted teleporter line data");
+
+    const mergedTeleportLinesTSData = { ...existingTeleportLinesTSDataByTsDataKey };
+
+    // extract the linked pairs of teleport pads
+
+    /** @type {{ [teleporterGUID: string]: { assetJSON: AssetJSONType, pos: Vec3, dimension: MapType } }} */
+    const teleporterGUIDsToAssetJSONsMapReconstructed = { };
+
+    /** @type {[guid1: string, guid2: string][]} */
+    const teleporterLinkPairs = [];
+
+    for(const sourceGUID of Object.keys(networkNodeLinksMapping)) {
+        const { linkName, sourceTeleporterAssetInfo, destGUID, destTeleporterAssetInfo, destDimension } = networkNodeLinksMapping[sourceGUID];
+
+        // reconstruct the mapping of teleporters as the links are iterated
+        if(sourceTeleporterAssetInfo) {
+            teleporterGUIDsToAssetJSONsMapReconstructed[sourceGUID] = {
+                dimension: /^(?:core|scene|environment)?lab/i.test(basename(sourceTeleporterAssetInfo.assetJSON.fileKey)) ? MapType.labyrinth : MapType.overworld,
+                // dimension: MapType.overworld,
+                ...teleporterGUIDsToAssetJSONsMapReconstructed[sourceGUID],
+                ...sourceTeleporterAssetInfo,
+            };
+        }
+        if(destTeleporterAssetInfo) {
+            teleporterGUIDsToAssetJSONsMapReconstructed[destGUID] = {
+                ...teleporterGUIDsToAssetJSONsMapReconstructed[destGUID],
+                ...destTeleporterAssetInfo,
+                dimension: destDimension,
+                // dimension: MapType.overworld,
+            };
+        }
+
+        assert(!!sourceGUID, `sourceGUID was not truthy? sourceGUID = ${sourceGUID}`);
+        assert(!!destGUID, `destGUID was not truthy? destGUID = ${destGUID}`);
+
+        if(!sourceTeleporterAssetInfo)
+            console.warn(`sourceTeleporterAssetInfo was not truthy? sourceGUID = ${sourceGUID} ; sourceTeleporterAssetInfo = ${sourceTeleporterAssetInfo}`);
+        if(!destTeleporterAssetInfo)
+            console.warn(`destTeleporterAssetInfo was not truthy? destGUID = ${destGUID} ; destTeleporterAssetInfo = ${destTeleporterAssetInfo}`);
+        if(!sourceTeleporterAssetInfo || !destTeleporterAssetInfo) {
+            // this link couldn't be made because one or both of the teleporter assets weren't found in the scenes
+            //  (e.g., they may be the gadget teleporters?)
+            continue;
+        }
+
+        // if this pair hasn't already been found,
+        //   from either teleportation direction (source->dest or dest->source),
+        //   then add it to the list of pairs.
+        if(!teleporterLinkPairs.find(([linkGUID1, linkGUID2]) => (linkGUID1 === sourceGUID && linkGUID2 === destGUID) || (linkGUID1 === destGUID && linkGUID2 === sourceGUID))) {
+            const linkPairSorted = sourceGUID < destGUID ? [sourceGUID, destGUID] : [destGUID, sourceGUID];
+            teleporterLinkPairs.push(linkPairSorted);
+        }
+    }
+
+    // merge/insert the linked pairs
+
+    for(const [ guid1, guid2 ] of teleporterLinkPairs) {
+
+        const teleporterAsset1Info = teleporterGUIDsToAssetJSONsMapReconstructed[guid1];
+        const teleporterAsset2Info = teleporterGUIDsToAssetJSONsMapReconstructed[guid2];
+
+        // console.log('guid1: ', guid1);
+        // console.log('guid2: ', guid2);
+
+        if(teleporterAsset1Info.dimension && teleporterAsset2Info.dimension && (teleporterAsset1Info.dimension !== teleporterAsset2Info.dimension)) {
+            // They're in separate dimensions. Don't try drawing a line between them.
+            continue;
+        }
+
+        // const teleporter1ShortName = basename(teleporterAsset1Info.assetJSON.fileKey).replaceAll(/[^A-Z0-9]+/g,"");
+        const teleporter1ShortName = basename(teleporterAsset1Info.assetJSON.fileKey).replaceAll(/(^zone|^scene|^environment|\..+$)/gi,"");
+        // const teleporter2ShortName = basename(teleporterAsset2Info.assetJSON.fileKey).replaceAll(/[^A-Z0-9]+/g,"");
+        const teleporter2ShortName = basename(teleporterAsset2Info.assetJSON.fileKey).replaceAll(/(^zone|^scene|^environment|\..+$)/gi,"");
+
+        const tsDataKey = `line_${teleporter1ShortName}_${teleporter2ShortName}`;
+
+        /** @type {undefined | mergedTeleportLinesTSData[keyof mergedTeleportLinesTSData]} */
+        const existingData = (
+            mergedTeleportLinesTSData[tsDataKey]
+        );
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        for(const [k, v] of Object.entries(mergedTeleportLinesTSData)) {
+            if(v === existingData) {
+                delete mergedTeleportLinesTSData[k];
+                break;
+            }
+        }
+
+        // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+        const pos1 = transformIngameToMapPositions(teleporterAsset1Info.pos);
+        const pos2 = transformIngameToMapPositions(teleporterAsset2Info.pos);
+
+        /** @type {ExistingTeleportLineDataType} */
+        const _mergedDataObj = { ...existingData,
+            name: existingData?.name ?? "Todo: insert a name for this teleporter line " + tsDataKey,
+            dimension: existingData?.dimension ?? teleporterAsset1Info.dimension ?? teleporterAsset2Info.dimension ?? MapType.overworld,
+            positions: existingData?.positions ?? [ pos1, pos2 ],
+            midpoint: existingData?.midpoint ?? { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 },
+        };
+        // clear out all entries with undefined values
+        Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+        // save merged data back
+        mergedTeleportLinesTSData[tsDataKey] = _mergedDataObj;
+
+        if(existingData)
+            console.log(`Merged extracted teleporter ${/*manufacturedId*/tsDataKey} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted teleporter ${/*manufacturedId*/tsDataKey} data to ${tsDataKey} data`)
+    }
+
+    console.log("Writing teleporter lines data back to data file");
+
+    fnWriteTeleportLinesTSDataBackToFile(mergedTeleportLinesTSData);
+
+    // merge/insert the pad
+    
+    console.log("Merging existing and extracted teleporter pad data");
+
+    const mergedTeleportPadsTSData = { ...existingTeleportPadsTSDataByTsDataKey };
+
+    for(const [teleporterGUID, teleporterAssetJSONInfo] of Object.entries(teleporterGUIDsToAssetJSONsMapReconstructed)) {
+        /** @type {string} */
+        const manufacturedId = manufactureTeleporterPadIdFromAssets(teleporterAssetJSONInfo.assetJSON, teleporterAssetJSONInfo.pos);
+
+        const oldId = undefined;
+
+        if(!teleporterAssetJSONInfo || !teleporterAssetJSONInfo.assetJSON) {
+            continue;
+        }
+
+        // const teleporterShortName = basename(teleporterAssetJSONInfo.assetJSON.fileKey).replaceAll(/[^A-Z0-9]+/g,"");
+        const teleporterShortName = basename(teleporterAssetJSONInfo.assetJSON.fileKey).replaceAll(/(^zone|^scene|^environment|\..+$)/gi,"");
+
+        const tsDataKey = `teleporter_${teleporterShortName}_${manufacturedId}`;
+
+        /** @type {undefined | mergedTeleportLinesTSData[keyof mergedTeleportLinesTSData]} */
+        const existingData = (
+            mergedTeleportLinesTSData[oldId]
+            || mergedTeleportLinesTSData[manufacturedId]
+            || mergedTeleportLinesTSData[tsDataKey]
+            || Object.values(mergedTeleportLinesTSData).find(data => data.internalId === manufacturedId)
+        );
+
+
+        // remove existingData object from the merged data mapping;
+        // we will be overwriting it later with the "standardized" tsDataKey
+        for(const [k, v] of Object.entries(mergedTeleportPadsTSData)) {
+            if(v === existingData) {
+                delete mergedTeleportPadsTSData[k];
+                break;
+            }
+        }
+
+        // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+        let dimension = existingData?.dimension ?? teleporterAssetJSONInfo.dimension;
+        // let dimension = teleporterAssetJSONInfo.dimension;
+        if(typeof dimension === "undefined") {
+            console.warn(`Could not find a dimension for teleporter asset ${(teleporterAssetJSONInfo.assetJSON.fileKey + "&" + teleporterAssetJSONInfo.assetJSON.fileId)} ;`);
+            // dimension = /^lab/i.test(teleporterShortName) ? MapType.labyrinth : MapType.overworld;
+            console.warn(`  Defaulting to overworld.`)
+            dimension = MapType.overworld;
+        }
+
+        /** @type {ExistingTeleportPadDataType} */
+        const _mergedDataObj = { ...existingData,
+            internalId: manufacturedId,
+            name: existingData?.name ?? ((teleporterShortName + " ") + "Ancient Teleporter"),
+            position: transformIngameToMapPositions(teleporterAssetJSONInfo.pos),
+            description: existingData?.description ?? "Todo: insert a description for this teleporter " + manufacturedId,
+            dimension: dimension,
+        };
+        // clear out all entries with undefined values
+        Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+        // save merged data back
+        mergedTeleportPadsTSData[tsDataKey] = _mergedDataObj;
+
+        if(existingData)
+            console.log(`Merged extracted teleporter ${manufacturedId} data with existing ${tsDataKey} data`);
+        else
+            console.log(`Inserted extracted teleporter ${manufacturedId} data to ${tsDataKey} data`)
+
+
+        
+    }
+
+    console.log("Writing teleporter pads data back to data file");
+
+    fnWriteTeleportPadsTSDataBackToFile(mergedTeleportPadsTSData);
+
+    return;
+
+
+
+    // for(const { fileId, assetJSON, doorGameObj: doorGameObjJSON, pos } of ingameTeleporterAssetsAndPositions) {
+    //     /** @type {string} */
+    //     const manufacturedId = manufactureTeleporterAssetsAndIdFromAssets(assetJSON, doorGameObjJSON, pos);
+
+    //     // /** @type {string} */
+    //     // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
+
+    //     // for testing
+    //     const teleporterLineIdInternalToOld = (x) => undefined;
+        
+    //     const oldId = teleporterLineIdInternalToOld(manufacturedId);
+
+    //     let areaNameForKey;
+    //     // TODO determine area name?
+    //     // if(!oldId) {
+    //     //     // console.log("debug: fileKey: ", assetJSON.fileKey);
+    //     //     // make a best guess based on what scene file the asset was in.
+    //     //     console.log(assetJSON.fileKey);
+    //     //     areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+    //     //         ?? "undeterminedarea";
+    //     //     // areaNameForKey = "undeterminedarea";
+    //     // }
+    //     const tsDataKey = oldId ?? (`nullifierdoor_${manufacturedId}`);
+
+    //     // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+    //     /** @type {undefined | existingTeleporterAssetsAndTSDataByGateKey[keyof existingTeleporterAssetsAndTSDataByGateKey]} */
+    //     const existingData = (
+    //         existingTeleporterAssetsAndTSDataByGateKey[oldId]
+    //         || existingTeleporterAssetsAndTSDataByGateKey[manufacturedId]
+    //         || existingTeleporterAssetsAndTSDataByGateKey[tsDataKey]
+    //         || Object.values(existingTeleporterAssetsAndTSDataByGateKey).find(data => data.internalId === manufacturedId)
+    //     );
+
+    //     // remove existingData object from the merged data mapping;
+    //     // we will be overwriting it later with the "standardized" tsDataKey
+    //     for(const [k, v] of Object.entries(mergedDoorTSData)) {
+    //         if(v === existingData) {
+    //             delete mergedDoorTSData[k];
+    //             break;
+    //         }
+    //     }
+
+    //     // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+    //     /** @type {ExistingTeleporterAssetsAndDataType} */
+    //     const _mergedDataObj = { ...existingData,
+    //         // internalId: internalId,
+    //         // name: existingData?.name ?? ["TODO retrieve name from translation table"],
+    //         // name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
+    //         // name: name,
+    //         // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+    //         // position: { x: -pos.z, y: pos.x },
+    //         position: transformIngameToMapPositions(pos),
+    //         // image: image,
+    //         description: existingData?.description ?? "Todo: insert a description for this teleporter " + manufacturedId,
+    //         // dimension: existingData?.dimension ?? "MapType.overworld",
+    //         // dimension: existingData?.dimension ?? MapType.labyrinth,
+    //         // unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
+    //     };
+    //     // clear out all entries with undefined values
+    //     Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+    //     // save merged data back
+    //     mergedDoorTSData[tsDataKey] = _mergedDataObj;
+
+    //     if(existingData)
+    //         console.log(`Merged extracted teleporter ${manufacturedId} data with existing ${tsDataKey} data`);
+    //     else
+    //         console.log(`Inserted extracted teleporter ${manufacturedId} data to ${tsDataKey} data`)
+    // }
+
+    // console.log("Writing teleporter data back to map data file");
+
+    // fnWriteTeleporterAssetsAndsBackToFile(mergedDoorTSData);
+
+}
+
+// /**
+//  * @param {AssetsMappingType | undefined} assetsMapping 
+//  * @param {CacheOpts | undefined} cacheOpts 
+//  * @param {string} nameForLogging 
+//  * @param {string} assetsAndPositionsCacheFile 
+//  * @param {(([fileKeyFileId, assetJSON]: [string, AssetJSONType]) => boolean)} monoBehaviourAssetFilter 
+//  */
+// async function exportObjectsFromAssetsMapping(
+//     assetsMapping,
+//     cacheOpts,
+//     nameForLogging,
+//     assetsAndPositionsCacheFile,
+//     monoBehaviourAssetFilter
+// ) {
+
+//     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+//     /** @type {{ fileId: string, assetJSON: AssetJSONType, doorGameObj: AssetJSONType, pos: { x: number, y: number, z: number } }[]} */
+//     let assetsAndIngamePositions;
+    
+//     if(cacheOpts.useCache && existsSync(assetsAndPositionsCacheFile)) {
+//     // if(false) {  // for debugging
+        
+//         console.log(`Reading cached ${nameForLogging} coordinates...`);
+
+//         assetsAndIngamePositions = JSON.parse(readFileSync(assetsAndPositionsCacheFile));
+
+//         console.log(`Read (${assetsAndIngamePositions.length}) ${nameForLogging} coordinates from cache file.`);
+
+//     } else {
+
+//         assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+//         console.log(`Extracting ${nameForLogging} coordinates from assets JSON...`);
+
+//         const doorMonoBehavioursEntries = Object.entries(assetsMapping)
+//             .filter(([, assetJSON]) => {
+            
+//                 // const _id = assetJSON.props["_id"];
+            
+//                 // if(!_id) return false;
+
+//                 // if(!/^nullifierdoor[0-9]+$/.test(_id)) return false;
+
+//                 // if it's for a Discordant Wall, I expect it to have both of these properties. Otherwise, I expect it to have neither.
+//                 const prop_holeTransform = assetJSON.props["_holeTransform"];
+//                 const prop_wallTransform = assetJSON.props["_wallTransform"];
+
+//                 if(!prop_holeTransform && !prop_wallTransform) {
+//                     // has neither
+//                     return false;
+//                 }
+
+//                 if(!prop_holeTransform || !prop_wallTransform) {
+//                     console.log(assetJSON);
+//                     throw new Error(`Asset had only one of \"_holeTransform\" and \"_wallTransform\" props! (!!prop_holeTransform = ${!!prop_holeTransform}, !!prop_wallTransform = ${!!prop_wallTransform})`)
+//                 }
+
+//                 if(assetJSON.typeName !== "MonoBehaviour") {
+//                     console.log(assetJSON);
+//                     throw new Error("found asset with a \"_holeTransform\" and \"_wallTransform\" props, but it was not a MonoBehaviour?");
+//                 }
+
+//                 return true;
+
+//             });
+//         console.log(`Retrieved ${doorMonoBehavioursEntries.length} ${nameForLogging} MonoBehaviour entries.`);
+
+//         // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+//         // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+//         // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+//         // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+//         // await Promise.all(identsAndDefsFilePaths.map(
+//         //     async (assetpath) => {
+//         //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+//         //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+//         //         const guid = metaFileGuidRegex.exec(metadata)[1];
+                
+//         //         /** @type {AssetsMappingType} */
+//         //         const identOrDefAssetsMapping = { }
+//         //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+//         //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+//         //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+//         //         }
+//         //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+//         //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+//         //     }
+//         // ));
+//         // throw new Error("temp");
+
+//         const _capitalizedNameForLogging = nameForLogging.split(" ").map(word => word && /^[a-z]$/.test(word) ? capitalizeFirst(word) : word).join(" ");
+
+//         // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+//         assetsAndIngamePositions = await Promise.all(doorMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+//             console.log(`[${_capitalizedNameForLogging} (assetJSON fileKeyFileId: ${assetJSON.fileKey + '&' + assetJSON.fileId})]: Determining position of ${nameForLogging}`);
+
+//             const { gameObj: doorGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+//             // for(const child of transformChainChildToParent) {
+//             //     console.log(child.typeName);
+//             //     console.log(child.fileKey);
+//             //     console.log(child.fileId);
+//             //     console.log(child.props["m_LocalPosition"]);
+//             //     console.log(child.props["m_LocalRotation"]);
+//             //     console.log(child.props["m_LocalScale"]);
+//             // }
+
+//             console.log(`[${_capitalizedNameForLogging} ${manufactureNullifierDoorIdFromAssets(assetJSON, doorGameObj, pos)}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+//             // return { fileId, assetJSON, gordoGameObj, targetCount, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, pos };
+//             return { fileId, assetJSON, doorGameObj, pos };
+
+//         }));
+
+//         console.log(`Determined ${assetsAndIngamePositions.length} ${nameForLogging} assets and their positions.`);
+        
+//         // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+//         // for(const d of ingameDronePositions) {
+//         //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+//         //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+//         //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+//         //         return { ...c, gameObject: gameObj };
+//         //     });
+//         // }
+
+//         if(cacheOpts.exportToCache) {
+//             const _export = () => {
+//                 writeFileSync(assetsAndPositionsCacheFile, JSON.stringify(assetsAndIngamePositions));
+//                 console.log(`Exported ${nameForLogging} assets and their positions to cache.`);
+//             };
+//             if(cacheOpts.exportToCache === "sync") {
+//                 console.log(`Exporting ${nameForLogging} assets and their positions to cache...`);
+//                 _export();
+//             }
+//             else (async () => { _export(); })();
+//         }
+
+//     }
+
+    
+//     // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+//     // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+//     // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+
+//     // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+//     // await Promise.all(identsAndDefsFilePaths.map(
+//     //     async (assetpath) => {
+//     //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+//     //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+//     //         const guid = metaFileGuidRegex.exec(metadata)[1];
+            
+//     //         /** @type {AssetsMappingType} */
+//     //         const identOrDefAssetsMapping = { }
+//     //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+//     //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+//     //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+//     //         }
+//     //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+//     //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+//     //     }
+//     // ));
+
+
+//     console.log(`Parsing existing ${nameForLogging} data in the map data files...`);
+
+//     const { fnWriteNullifierDoorsBackToFile, existingNullifierDoorTSDataByGateKey } = readExistingNullifierDoorsTSData(cacheOpts);
+
+//     console.log(`Parsed ${Object.keys(existingNullifierDoorTSDataByGateKey).length} existing ${nameForLogging} data entries.`);
+
+//     const mergedDoorTSData = { ...existingNullifierDoorTSDataByGateKey };
+
+//     console.log(`Merging existing and extracted ${nameForLogging} data`);
+    
+//     // merge existing and extracted shadow depo data
+    
+//     for(const { fileId, assetJSON, doorGameObj: doorGameObjJSON, pos } of assetsAndIngamePositions) {
+//         /** @type {string} */
+//         const manufacturedId = manufactureNullifierDoorIdFromAssets(assetJSON, doorGameObjJSON, pos);
+
+//         // /** @type {string} */
+//         // const slimetype = slimeDefinitionAssetJSON.props["Name"]?.toLowerCase() ?? "unknownslimetype";
+
+//         // for testing
+//         const nullifierDoorIdInternalToOld = (x) => undefined;
+        
+//         const oldId = nullifierDoorIdInternalToOld(manufacturedId);
+
+//         let areaNameForKey;
+//         // TODO determine area name?
+//         // if(!oldId) {
+//         //     // console.log("debug: fileKey: ", assetJSON.fileKey);
+//         //     // make a best guess based on what scene file the asset was in.
+//         //     console.log(assetJSON.fileKey);
+//         //     areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+//         //         ?? "undeterminedarea";
+//         //     // areaNameForKey = "undeterminedarea";
+//         // }
+//         const tsDataKey = oldId ?? (`nullifierdoor_${manufacturedId}`);
+
+//         // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+//         /** @type {undefined | existingNullifierDoorTSDataByGateKey[keyof existingNullifierDoorTSDataByGateKey]} */
+//         const existingData = (
+//             existingNullifierDoorTSDataByGateKey[oldId]
+//             || existingNullifierDoorTSDataByGateKey[manufacturedId]
+//             || existingNullifierDoorTSDataByGateKey[tsDataKey]
+//             || Object.values(existingNullifierDoorTSDataByGateKey).find(data => data.internalId === manufacturedId)
+//         );
+
+//         // remove existingData object from the merged data mapping;
+//         // we will be overwriting it later with the "standardized" tsDataKey
+//         for(const [k, v] of Object.entries(mergedDoorTSData)) {
+//             if(v === existingData) {
+//                 delete mergedDoorTSData[k];
+//                 break;
+//             }
+//         }
+
+//         // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+//         /** @type {ExistingNullifierDoorDataType} */
+//         const _mergedDataObj = { ...existingData,
+//             // internalId: internalId,
+//             // name: existingData?.name ?? ["TODO retrieve name from translation table"],
+//             // name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
+//             // name: name,
+//             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+//             // position: { x: -pos.z, y: pos.x },
+//             position: transformIngameToMapPositions(pos),
+//             // image: image,
+//             description: existingData?.description ?? `Todo: insert a description for this ${nameForLogging ?? ""} ${manufacturedId}`,
+//             // dimension: existingData?.dimension ?? "MapType.overworld",
+//             // dimension: existingData?.dimension ?? MapType.labyrinth,
+//             // unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
+//         };
+//         // clear out all entries with undefined values
+//         Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+//         // save merged data back
+//         mergedDoorTSData[tsDataKey] = _mergedDataObj;
+
+//         if(existingData)
+//             console.log(`Merged extracted ${nameForLogging} ${manufacturedId} data with existing ${tsDataKey} data`);
+//         else
+//             console.log(`Inserted extracted ${nameForLogging} ${manufacturedId} data to ${tsDataKey} data`)
+//     }
+
+//     console.log(`Writing ${nameForLogging} data back to map data file`);
+
+//     fnWriteNullifierDoorsBackToFile(mergedDoorTSData);
+// }
+
+
+/** @typedef {{ internalId: string, name: string, description: string, position: Vec2, dimension: MapType, [other]?: any }} ExistingTeleportPadDataType */
+/** @typedef {{ name: string, positions: Vec2[], midpoint: Vec2, dimension: MapType, [other]?: any }} ExistingTeleportLineDataType */
+
+/** @type {ExpectedSchemaType} */
+const _schema_Vec2 = {
+    schematype: "object",
+    subschema: { "x": "number", "y": "number" }
+};
+/** @type {ExpectedSchemaType} */
+const _schema_MapType = {
+    schematype: "union",
+    anyof: Object.values(MapType).map(v => ({ schematype: "literal", value: v }))
+};
+
+function readExistingTeleportersTSData(/** @type {CacheOpts} */ cacheOpts) {
+    return {
+        teleportPads: /** @type {ReturnType<typeof makeTSDataFileParserFn<ExistingTeleportPadDataType>>} */(makeTSDataFileParserFn(
+            PATH_TO_TELEPORT_PADS_DATA_FILE,
+            "teleport_pads",
+            schemautils.objectAnyKey({
+                schematype: "object",
+                subschema: {
+                    "name": "string",
+                    "description": "string",
+                    "position": _schema_Vec2,
+                    "dimension": _schema_MapType
+                }
+            })
+        ))(cacheOpts),
+        teleportLines: /** @type {ReturnType<typeof makeTSDataFileParserFn<ExistingTeleportLineDataType>>} */(makeTSDataFileParserFn(
+            PATH_TO_TELEPORT_LINES_DATA_FILE,
+            "teleport_lines",
+            schemautils.objectAnyKey({
+                schematype: "object",
+                subschema: {
+                    "name": "string",
+                    "positions": {
+                        schematype: "array",
+                        subschema: _schema_Vec2
+                    },
+                    "midpoint": _schema_Vec2,
+                    "dimension": _schema_MapType
+                }
+            })
+        ))(cacheOpts),
+    };
+}
+
+/** @typedef {(
+ *      "string"
+ *      | "number"
+ *      | "boolean"
+ *      | "object"
+ *      | "function"
+ *      | "undefined"
+ *      | {
+ *          schematype: "object",
+ *          subschema: { [requiredKey: string | number]: ExpectedSchemaType }
+ *          subschemaKeyPatterns?: { keyMatcher: ((key: string | number) => boolean), valueSchema: ExpectedSchemaType }[]
+ *      }
+ *      | {
+ *          schematype: "union",
+ *          anyof: ExpectedSchemaType[]
+ *      }
+ *      | {
+ *          schematype: "array",
+ *          subschema: ExpectedSchemaType
+ *      }
+ *      | {
+ *          schematype: "literal",
+ *          value: string | number | boolean
+ *      }
+ *      | "any"
+ *      | null
+ * )} ExpectedSchemaType */
+
+/**
+ * @template {Record<string | number, unknown>} T
+ * @param {string} pathToTSDataFile 
+ * @param {string} variableNameInFile 
+ * @param {ExpectedSchemaType} expectedSchema 
+ * @param {import("./processing_utils.js").LooseStringifyTransformingFunctionsType<unknown>} [jsonStringifyTransformerFns=_jsonStringifyTransformerFns] 
+ * @returns {((cacheOpts: CacheOpts) => {
+ *     fnWriteTSDataBackToFile: (mergedTSData: { [tsDataKey: string]: T }) => void;
+ *     existingTSDataByTsDataKey: { [tsDataKey: string]: T };
+ * })}
+ */
+function makeTSDataFileParserFn(pathToTSDataFile, variableNameInFile, expectedSchema, jsonStringifyTransformerFns = _jsonStringifyTransformerFns) {
+    return (/** @type {CacheOpts} */ cacheOpts) => {
+        
+        cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+        // let fileTextPrefix, fileTextPostfix;
+
+        // if(!existsSync(path_to_ts_data_file)) {
+        //     fileTextPrefix = "import { Teleporter } from \"../types\";\n\nexport const nullifier_doors: { [key: string]: Teleporter } = ";
+        // }
+        // else {
+        //     //
+        // }
+
+        const fileText = readFileSync(pathToTSDataFile, { encoding: "utf-8" });
+
+        // const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*const\s+nullifier_doors.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
+
+        const pattern = new RegExp(
+            `^(.*const\\s+${variableNameInFile}.*?=\\s*)({\\s*(?:"?[a-zA-Z0-9_]+"?\\s*:\\s*(?:.*)\\s*,?\\s*)*})(;?.*)$`,
+            "s"
+        );
+
+        const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = pattern.exec(fileText);
+
+        const parsedObj = looseJsonParseWithEval(dataObjInJsCode);
+
+        // const _objMatchesExpectedSchema = (
+        //     typeof parsedObj === "object"
+        //     && Object.keys(parsedObj).every(k => (
+        //         typeof parsedObj[k] === "object"
+        //         && setContains(new Set(Object.keys(parsedObj[k])), ["description", "position"])
+        //     ))
+        // );
+
+        // if(!_objMatchesExpectedSchema) {
+        //     console.log("dataObjAsInitText = ", dataObjInJsCode);
+        //     console.log("_obj = ", parsedObj);
+        //     for(const k of Object.keys(parsedObj)) {
+        //         if(!(
+        //             typeof parsedObj[k] === "object"
+        //             && setContains(new Set(Object.keys(parsedObj[k])), ["description", "position"])
+        //         )) {
+        //             console.log(k)
+        //         }
+        //     }
+        //     throw new Error("unexpected loose json parse result, did not match expected schema");
+        // }
+        
+        let _entireObjMatchesExpectedSchema = true;
+        
+        /** @type {{
+         *      obj: any,
+         *      schema: ExpectedSchemaType,
+         *      unionTrackingObj?: { uncheckedOptionsCt: 0 },
+         * }[]} */
+        let _objQueueStack = [
+            { obj: parsedObj, schema: expectedSchema }
+        ];
+        
+        while (_entireObjMatchesExpectedSchema && _objQueueStack.length > 0) {
+            let thisObjPassed = true;
+            const popped = /** @type {_objQueueStack[number]} */(_objQueueStack.pop());
+            const { obj, schema } = popped;
+            // check obj against schema
+            if(schema === "any") {
+                // the schema does not specify a required value type for this key; the obj passes
+            }
+            else if(typeof schema === "string") {
+                if(typeof obj !== schema) {
+                    thisObjPassed = false;
+                }
+            }
+            else if(schema === null) {
+                if(obj !== null) {
+                    thisObjPassed = false;
+                }
+            }
+            else if(typeof schema === "object") {
+                if(schema.schematype === "literal") {
+                    if(obj !== schema.value) {
+                        thisObjPassed = false;
+                    }
+                }
+                else if(schema.schematype === "object") {
+                    if(typeof obj !== "object") {
+                        thisObjPassed = false;
+                    }
+                    else {
+                        const objKeysToCheck = new Set(Object.keys(obj));
+
+                        // check all required key-value pairs of obj
+                        for(const schemaReqKey of Object.keys(schema.subschema)) {
+                            if(!Object.hasOwn(obj, schemaReqKey)) {
+                                thisObjPassed = false;
+                                break;
+                            }
+                            const schemaValType = schema.subschema[schemaReqKey];
+                            const objVal = obj[schemaReqKey];
+                            objKeysToCheck.delete(schemaReqKey);
+    
+                            // recursion: queue up the objVal as another object to check the schema of.
+                            _objQueueStack.push({ obj: objVal, schema: schemaValType });
+                        }
+
+                        if(schema.subschemaKeyPatterns) {
+                            // check all other key-value pairs of obj in case they match a patterned key schema
+                            for(const remainingKeyOfObj of objKeysToCheck) {
+                                for(const { keyMatcher, valueSchema } of schema.subschemaKeyPatterns) {
+                                    if(!keyMatcher(remainingKeyOfObj)) {
+                                        // this objKey does not match this pattern; keep checking other patterns.
+                                        continue;
+                                    }
+                                    const objVal = obj[remainingKeyOfObj];
+                                    // recursion: queue up the objVal as another object to check the schema of.
+                                    _objQueueStack.push({ obj: objVal, schema: valueSchema });
+                                }
+                            }
+                        }
+
+                        // the obj itself (but not necessarily its children) passes this schema check
+                    }
+                }
+                else if(schema.schematype === "array") {
+                    if(!Array.isArray(obj)) {
+                        thisObjPassed = false;
+                        break;
+                    }
+                    else {
+                        // check all children of array obj
+                        for(const child of obj) {
+                            // recursion: queue up the child as another object to check the schema of.
+                            _objQueueStack.push({ obj: child, schema: schema.subschema });
+                        }
+
+                        // the obj itself (but not necessarily its children) passes this schema check
+                    }
+                }
+                else if(schema.schematype === "union") {
+                    if(schema.anyof.length <= 0) {
+                        console.warn("specified schema union did not have any sub-schemas specified inside schema.anyof. Treating like `never` and failing the schema check.");
+                        thisObjPassed = false;
+                    }
+                    else {
+                        const sharedCtTrackingObject = { uncheckedOptionsCt: schema.anyof.length }
+                        for(const schemaOption of schema.anyof) {
+                            // recursion: queue up the object with each possible option to check
+                            _objQueueStack.push({ obj: obj, schema: schemaOption, unionTrackingObj: sharedCtTrackingObject });
+                        }
+
+                        // for now the obj is passing the schema check
+                    }
+                }
+                else {
+                    console.error("schema: ", schema);
+                    throw new Error(`Unexpected specified complex schema; schema: ${schema}`);
+                }
+            }
+            else {
+                console.error("schema: ", schema);
+                throw new Error(`Unexpected specified schema: ${schema}`);
+            }
+
+            if(!thisObjPassed) {
+                // This schema check didn't pass. Consider whether this means the whole check has failed.
+
+                if(typeof popped.unionTrackingObj === "object") {
+                    // it was part of a union
+                    // decrease the amount left to check in that union (this is a shared object amongst all the union members)
+                    popped.unionTrackingObj.uncheckedOptionsCt -= 1
+                    if(popped.unionTrackingObj.uncheckedOptionsCt <= 0) {
+                        // if we have checked them all, and all failed, then the whole union failed.
+                        _entireObjMatchesExpectedSchema = false;
+                    }
+                    // else continue; just because one part of the union failed does not mean the whole union failed.
+                }
+                else {
+                    _entireObjMatchesExpectedSchema = false;
+                }
+            }
+        }
+
+        if(!_entireObjMatchesExpectedSchema) {
+            console.error("dataObjInJsCode: ", dataObjInJsCode);
+            console.error("parsedObj: ", parsedObj);
+            throw new Error("unexpected loose json parse result, did not match expected schema");
+        }
+
+        const fnWriteTSDataBackToFile = (/** @type {{ [tsDataKey: string]: T }} */ mergedTSData) => {
+            const dataObjAsJsCode = looseJsonStringify(
+                filterDataObjBeforeExport(pathToTSDataFile, mergedTSData),
+                "    ",
+                jsonStringifyTransformerFns
+            );
+            
+            const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
+
+            writeFileSync(pathToTSDataFile, newFileText);
+        };
+
+        return {
+            fnWriteTSDataBackToFile,
+            /** @type {{ [tsDataKey: string]: T }} */
+            existingTSDataByTsDataKey: parsedObj
+        }
+        
+    };
+}
+
+class schemautils {
+    /**
+     * @param {NonNullable<Extract<ExpectedSchemaType, {schematype: "object"}>["subschemaKeyPatterns"]>[number]["valueSchema"]} valueSchema
+     * @returns {ExpectedSchemaType} 
+     */
+    static objectAnyKey(valueSchema) {
+        return {
+            schematype: "object",
+            subschema: { },
+            subschemaKeyPatterns: [
+                {
+                    keyMatcher: () => true,
+                    valueSchema: valueSchema
+                }
+            ]
+        };
+    }
+
+    /**
+     * @param {Extract<ExpectedSchemaType, {schematype: "array"}>["subschema"]} subschema
+     * @returns {ExpectedSchemaType} 
+     */
+    static array(subschema) {
+        return {
+            schematype: "array",
+            subschema: subschema
+        };
+    }
+
+    /**
+     * @param {(
+     *      Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"][number]
+     *      | Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"]
+     * )} possibility 
+     * @param {...(
+     *      Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"][number]
+     *      | Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"]
+     * )} others 
+     * @returns {ExpectedSchemaType} 
+     */
+    static union(possibility, ...others) {
+        /** @type {Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"]} */
+        let anyof = [];
+        if(Array.isArray(possibility))
+            anyof.push(...possibility);
+        else
+            anyof.push(possibility);
+        for(const possibility of others) {
+            if(Array.isArray(possibility))
+                anyof.push(...possibility);
+            else
+                anyof.push(possibility);
+        }
+        return {
+            schematype: "union",
+            anyof: anyof
+        };
+    }
+}
 
 /** @typedef {import("../../../src/types.js").ProjectorPuzzle} ExistingProjectorPuzzleDataType */
 
@@ -2896,7 +4066,7 @@ function readExistingProjectorPuzzlesTSData(/** @type {CacheOpts} */ cacheOpts) 
     }
 }
 
-/** @typedef {{ internalId?: string, name: string, description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingMapNodeDataType */
+/** @typedef {{ internalId?: string, name: string, description: string, pos: { x: number, y: number }, dimension: MapType, [other]?: any }} ExistingMapNodeDataType */
 
 function readExistingMapNodesTSData(/** @type {CacheOpts} */ cacheOpts) {
     
@@ -3155,7 +4325,7 @@ function readExistingStabilizingGatesTSData(/** @type {CacheOpts} */ cacheOpts) 
     }
 }
 
-/** @typedef {{ internalId: string, type: "door" | "receptacle", doorId?: string, receptacleIds?: string[], name: string, plort: string, image: string, description: string, unlocks: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingPuzzleDoorDataType */
+/** @typedef {{ internalId: string, type: "door" | "receptacle", doorId?: string, receptacleIds?: string[], name: string, plort: string, image: string, description: string, unlocks: string, pos: { x: number, y: number }, dimension: MapType, [other]?: any }} ExistingPuzzleDoorDataType */
 
 function readExistingPuzzleDoorTSData(/** @type {CacheOpts} */ cacheOpts) {
     
@@ -3249,7 +4419,7 @@ function readExistingPuzzleDoorTSData(/** @type {CacheOpts} */ cacheOpts) {
     }
 }
 
-/** @typedef {{ internalId?: string, internalName?: string, name: string, food: string, image: string, drops: string[], unlocks: string[], description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingGordoDataType */
+/** @typedef {{ internalId?: string, internalName?: string, name: string, food: string, image: string, drops: string[], unlocks: string[], description: string, pos: { x: number, y: number }, dimension: MapType, [other]?: any }} ExistingGordoDataType */
 
 function readExistingGordoTSData(/** @type {CacheOpts} */ cacheOpts) {
     
@@ -3312,7 +4482,7 @@ function readExistingGordoTSData(/** @type {CacheOpts} */ cacheOpts) {
     }
 }
 
-/** @typedef {{ internalId?: string, internalName?: string, description: string, pos: { x: number, y: number }, dimension: typeof MapType[keyof MapType], [other]?: any }} ExistingDroneDataType */
+/** @typedef {{ internalId?: string, internalName?: string, description: string, pos: { x: number, y: number }, dimension: MapType, [other]?: any }} ExistingDroneDataType */
 
 function readExistingResearchDroneTSData(/** @type {CacheOpts} */ cacheOpts) {
     
@@ -4271,6 +5441,10 @@ function manufactureProjectorPuzzleIdFromAssets(/** @type {AssetJSONType} */ ass
     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
     return `${beamPointType}Point_x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}_h${Math.floor(ingamePos.y)}`;
 }
+function manufactureTeleporterPadIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {{ x: number, y: number, z: number }} */ ingamePos) {
+    // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
+    return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
+}
 
 function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
     cacheOpts = { ...defaultCacheSettings, ...cacheOpts };
@@ -4331,7 +5505,49 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 // exportPuzzleDoorsFromAssetsMapping();
 // exportStabilizingGatesFromAssetsMapping();
 // exportNullifierDoorsFromAssetsMapping();
-exportGigiHologramsFromAssetsMapping();
+// exportGigiHologramsFromAssetsMapping();
 // console.log(l10nTranslationsFor("CommStation", null));
 // exportMapNodesFromAssetsMapping();
-exportProjectorPuzzlesFromAssetsMapping();
+// exportProjectorPuzzlesFromAssetsMapping();
+// exportTeleportersFromAssetsMapping();
+// console.log(globSync(GLOBS_TO_ANCIENT_TELEPORTER_ASSETS));
+// console.log(globSync(GLOBS_TO_ANCIENT_TELEPORTER_ASSETS).length);
+exportTeleportersFromAssetsMapping(await getOrExtractScenesAssetsMapping(defaultCacheSettings), { useCache: false });
+
+// console.log(globSync(GLOBS_TO_INTERESTING_SCENES));
+// console.log(globSync(GLOBS_TO_INTERESTING_SCENES).length);
+// for(const asset of Object.values(await getOrExtractScenesAssetsMapping(defaultCacheSettings))) {
+//     if(!asset.fileKey.toLowerCase().includes("gorge")) {
+//         continue;
+//     }
+//     // if(asset.typeName !== "GameObject") {
+//     //     continue;
+//     // }
+//     if(typeof asset.props["m_Name"] === "undefined") {
+//         continue;
+//     }
+//     if(!/(portal|teleport)/i.test(asset.props["m_Name"])) {
+//         continue;
+//     }
+//     console.log(`${asset.typeName} - ..../${basename(asset.fileKey)}&${asset.fileId} - ${asset.props["m_Name"]}`);
+// }
+// let assetsMapping = await getOrExtractScenesAssetsMapping(defaultCacheSettings);
+// const teleporterAssets = Object.values(assetsMapping).filter(asset => asset.props["m_Name"] === "objLabyrinthPortal_staticDown" && asset.fileKey.toLowerCase().includes("gorge"));
+// console.log(teleporterAssets.length);
+// const strmult = (str, i) => i <= 0 ? "" : Array.from({length:i}).map(_ => str).join("");
+// function printObj(/** @type {AssetJSONType} */ asset, indentNum=0, indentPart='- ') {
+//     let indent = strmult(indentPart, indentNum);
+//     console.log(`${indent}&${asset.fileId} - ${asset.typeName} - ${asset.props["m_Name"]}`);
+//     indent = strmult(indentPart, indentNum+1);
+//     for(const compObj of iterGameObjectComponentObjs(assetsMapping, asset, true)) {
+//         // if(compObj.typeName === "Transform") continue;
+//         console.log(`${indent}&${compObj.fileId} - ${compObj.typeName} - ${typeof compObj.props["m_Name"] === "undefined" ? "." : compObj.props["m_Name"]}`);
+//     }
+//     for(const childGameObj of iterChildGameObjects_DFS(assetsMapping, asset, { includeTransforms: false, recurse: false, includeThisGameObj: false })) {
+//         printObj(childGameObj, indentNum+1, indentPart);
+//     }
+// }
+// for(const asset of teleporterAssets) {
+//     console.log(`${basename(asset.fileKey)}&${asset.fileId}`);
+//     printObj(asset,0,'- ');
+// }

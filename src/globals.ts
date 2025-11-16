@@ -24,6 +24,7 @@ export const shadow_door_ls_key = "found_shadow_doors";
 export const nullifier_door_ls_key = "found_nullifier_doors";
 export const gigi_hologram_ls_key = "found_gigi_holograms";
 export const projector_puzzle_ls_key = "found_projector_puzzles";
+export const teleport_pad_ls_key = "found_teleport_pads";
 
 export const discord_link = "https://discord.gg/eUdjSwNUcq";
 export const github_link = "https://github.com/BrookJeynes/slime-rancher-2-interactive-map";
