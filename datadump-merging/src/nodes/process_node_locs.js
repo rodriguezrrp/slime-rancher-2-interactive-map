@@ -1131,7 +1131,7 @@ async function exportPuzzleDoorsFromAssetsMapping(/** @type {AssetsMappingType |
             // console.log("debug: fileKey: ", assetJSON.fileKey);
             // make a best guess based on what scene file the asset was in.
             console.log(assetJSON.fileKey);
-            areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+            areaNameForKey = /((?:environment|zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
                 ?? "undeterminedarea";
             // areaNameForKey = "undeterminedarea";
         }
@@ -1156,7 +1156,7 @@ async function exportPuzzleDoorsFromAssetsMapping(/** @type {AssetsMappingType |
             }
         }
 
-        const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+        const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^((zone|coreScene)Lab|zoneRainbowCore)/i) ? MapType.labyrinth : MapType.overworld);
 
         // const dietGroups = dietGroupsAssetsJSON.map(groupAssetJSON => {
         //     if(groupAssetJSON.props["m_Name"])
@@ -1337,7 +1337,7 @@ async function exportPuzzleDoorsFromAssetsMapping(/** @type {AssetsMappingType |
             description: existingData?.description ?? "Todo: insert a description for this puzzle " + type + " " + internalId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
             // dimension: existingData?.dimension ?? MapType.overworld,
-            unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
+            unlocks: existingData?.unlocks ?? "Todo: specify puzzle door unlocks",
             dimension: dimension,
             // drops: existingData?.drops ?? ["Todo: specify gordo drops"],
             // food: `x${targetCount} ${foodType}` + (!favoriteFoodStr ? "" : `; or x${Math.ceil(targetCount/favoriteFoodFactor)} ${favoriteFoodStr}`),
