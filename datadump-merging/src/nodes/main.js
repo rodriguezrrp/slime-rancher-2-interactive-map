@@ -1,5 +1,5 @@
 import minimist from "minimist";
-import { exportNodeCoordsFromScenesJSON } from "./process_node_locs.js";
+import { exportAllNodeCoordsFromScenesJSON } from "./process_node_locs.js";
 
 // eslint-disable-next-line no-undef
 const args = minimist(process.argv.slice(2));
@@ -14,4 +14,4 @@ const cacheOpts = { };
 if(typeof useCache !== "undefined") cacheOpts.useCache = useCache;
 if(typeof exportToCache !== "undefined") cacheOpts.exportToCache = exportToCache;
 
-exportNodeCoordsFromScenesJSON(undefined, cacheOpts);
+exportAllNodeCoordsFromScenesJSON(undefined, cacheOpts);

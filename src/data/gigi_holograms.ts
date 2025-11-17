@@ -1,6 +1,16 @@
 import { GigiHologram } from "../types";
 
 export const gigi_holograms: { [key: string]: GigiHologram } = {
+    "gigihologram_x82_y2225": {
+        name: "Gigi Hologram",
+        position: { x: 81.34874224195573, y: 2225.019169196163 },
+        description: "Todo: insert a description for this Gigi hologram x82_y2225"
+    },
+    "gigihologram_x134_y2247": {
+        name: "Gigi Hologram",
+        position: { x: 133.2072698442903, y: 2247.5591600811076 },
+        description: "Todo: insert a description for this Gigi hologram x134_y2247"
+    },
     "gigihologram_x500_y1104": {
         name: "Gigi Hologram",
         position: { x: 499.6687333425035, y: 1104.6690703130685 },

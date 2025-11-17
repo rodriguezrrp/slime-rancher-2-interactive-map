@@ -73,7 +73,7 @@ type OmitByValue<T, V> = {
 export interface TeleportLine {
     name: string;
     positions: Vec2[];
-    midpoint: Vec2;
+    midpoint?: Vec2;
     dimension: keyof OmitByValue<typeof mapCRSsettings, { CRS: null }>;
 }
 

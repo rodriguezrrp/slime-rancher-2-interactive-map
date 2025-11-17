@@ -11,8 +11,8 @@ import { mapCRSsettings } from "../data/map_crs_settings";
 export function TeleportLineIcon({ teleport_line, dimension }: { teleport_line: TeleportLine, dimension: MapType }) {
     const path_options: L.PathOptions = {
         color: "white",
-        weight: 4,
-        dashArray: "1, 8",
+        weight: 3.5,
+        dashArray: "1, 7",
         dashOffset: "0",
     };
 
@@ -20,15 +20,16 @@ export function TeleportLineIcon({ teleport_line, dimension }: { teleport_line: 
     const position_2 = teleport_line.positions[1];
     const line = helpers.lineString([
         [position_1.x, position_1.y],
-        [teleport_line.midpoint.x, teleport_line.midpoint.y],
-        [position_2.x, position_2.y]
+        ...(teleport_line.midpoint ? [ [teleport_line.midpoint.x, teleport_line.midpoint.y] ] : []),
+        [position_2.x, position_2.y],
+        ...teleport_line.positions.slice(2).map(pos => [pos.x, pos.y])
     ]);
 
     return (
         <Polyline
             key={teleport_line.name}
             pathOptions={path_options}
-            positions={bezierSpline(line, { resolution: 4_000 /* default 10_000 */ }).geometry.coordinates.map(pos => {
+            positions={bezierSpline(line, { resolution: 10_000 /* default 10_000 */ }).geometry.coordinates.map(pos => {
                 return {
                     lat: pos[0],
                     lng: pos[1]

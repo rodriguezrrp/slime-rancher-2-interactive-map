@@ -14,8 +14,8 @@ const keyCannotIncludeAsSubstring = [
     "stabilizinggate1617779913",  // seems to be unused / unobtainable / out of bounds?
     "stabilizinggate0344923807",  // seems to be unused / unobtainable / out of bounds?
 
-    "gigihologram_x82_y2225",  // seems to be unused / unobtainable / out of bounds?
-    "gigihologram_x134_y2247",  // seems to be unused / unobtainable / out of bounds?
+    // "gigihologram_x82_y2225",  // seems to be unused / unobtainable / out of bounds?
+    // "gigihologram_x134_y2247",  // seems to be unused / unobtainable / out of bounds?
 
     "startPoint_x739_y155",  // Projector puzzle start point -- seems to be unused / unobtainable / out of bounds?
     "endPoint_x740_y183",  // Projector puzzle end point -- seems to be unused / unobtainable / out of bounds?

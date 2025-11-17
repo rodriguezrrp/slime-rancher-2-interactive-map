@@ -1,6 +1,38 @@
 import { ProjectorPuzzle } from "../types";
 
 export const projector_puzzles: { [key: string]: ProjectorPuzzle } = {
+    "projectorpuzzle_dreamland_entrance_geyser_puzzle": {
+        name: "Dreamland Entrance Geyser Puzzle",
+        unlocks: [ "Activates a geyser leading to a shelf of land, with a tower leading into Dreamland gated by another puzzle" ],
+        startPoint: {
+            id: "startPoint_x1014_y1216_h91",
+            nameSuffix: "Beam Emitter",
+            position: { x: 1013.2099612826157, y: 1216.3356565050149 },
+            description: "Todo: insert a description for this projector puzzle beam point startPoint_x1014_y1216_h91"
+        },
+        endPoint: {
+            id: "endPoint_x989_y1235_h91",
+            nameSuffix: "Beam Receiver",
+            position: { x: 988.8817988410756, y: 1235.816036505565 },
+            description: "Todo: insert a description for this projector puzzle beam point endPoint_x989_y1235_h91"
+        }
+    },
+    "projectorpuzzle_dreamland_entrance_wall_tower_puzzle": {
+        name: "Dreamland Entrance Wall Tower Puzzle",
+        unlocks: [ "Opens a gated tower leading into Dreamland" ],
+        startPoint: {
+            id: "startPoint_x947_y1249_h140",
+            nameSuffix: "Beam Emitter",
+            position: { x: 946.271796600556, y: 1249.0540479306032 },
+            description: "Todo: insert a description for this projector puzzle beam point startPoint_x947_y1249_h140"
+        },
+        endPoint: {
+            id: "endPoint_x925_y1282_h128",
+            nameSuffix: "Beam Receiver",
+            position: { x: 924.0195602757699, y: 1282.6663889141842 },
+            description: "Todo: insert a description for this projector puzzle beam point endPoint_x925_y1282_h128"
+        }
+    },
     "projectorpuzzle_dreamland_pergola_room": {
         name: "Dreamland Pipes Room Puzzle",
         unlocks: [ "Todo: specify the unlocks of this radiant projector puzzle" ],
@@ -15,6 +47,38 @@ export const projector_puzzles: { [key: string]: ProjectorPuzzle } = {
             nameSuffix: "Beam Receiver",
             position: { x: 734.9483646106697, y: 1098.7410795380267 },
             description: "Todo: insert a description for this projector puzzle beam point endPoint_x735_y1098_h134"
+        }
+    },
+    "projectorpuzzle_dreamland_wall_door_1": {
+        name: "Dreamland Wall Door Puzzle 1",
+        unlocks: [ "Todo: specify the unlocks of this radiant projector puzzle" ],
+        startPoint: {
+            id: "startPoint_x842_y1078_h135",
+            nameSuffix: "Beam Emitter",
+            position: { x: 841.2371508009585, y: 1078.2993269381361 },
+            description: "Todo: insert a description for this projector puzzle beam point startPoint_x842_y1078_h135"
+        },
+        endPoint: {
+            id: "endPoint_x853_y1044_h135",
+            nameSuffix: "Beam Receiver",
+            position: { x: 852.6138974338784, y: 1044.4321621287654 },
+            description: "Todo: insert a description for this projector puzzle beam point endPoint_x853_y1044_h135"
+        }
+    },
+    "projectorpuzzle_dreamland_wall_door_2": {
+        name: "Dreamland Wall Door Puzzle 2",
+        unlocks: [ "Todo: specify the unlocks of this radiant projector puzzle" ],
+        startPoint: {
+            id: "startPoint_x896_y1065_h135",
+            nameSuffix: "Beam Emitter",
+            position: { x: 895.2679845806733, y: 1065.6008329573892 },
+            description: "Todo: insert a description for this projector puzzle beam point startPoint_x896_y1065_h135"
+        },
+        endPoint: {
+            id: "endPoint_x884_y1071_h135",
+            nameSuffix: "Beam Receiver",
+            position: { x: 883.0939105373736, y: 1071.9821815437208 },
+            description: "Todo: insert a description for this projector puzzle beam point endPoint_x884_y1071_h135"
         }
     },
     "projectorpuzzle_dreamland_windmill_hill": {
@@ -95,70 +159,6 @@ export const projector_puzzles: { [key: string]: ProjectorPuzzle } = {
             nameSuffix: "Beam Receiver",
             position: { x: 884.9595010530793, y: 1596.6408727061983 },
             description: "Todo: insert a description for this projector puzzle beam point endPoint_x885_y1596_h37"
-        }
-    },
-    "projectorpuzzle_dreamland_wall_door_1": {
-        name: "Dreamland Wall Door Puzzle 1",
-        unlocks: [ "Todo: specify the unlocks of this radiant projector puzzle" ],
-        startPoint: {
-            id: "startPoint_x842_y1078_h135",
-            nameSuffix: "Beam Emitter",
-            position: { x: 841.2371508009585, y: 1078.2993269381361 },
-            description: "Todo: insert a description for this projector puzzle beam point startPoint_x842_y1078_h135"
-        },
-        endPoint: {
-            id: "endPoint_x853_y1044_h135",
-            nameSuffix: "Beam Receiver",
-            position: { x: 852.6138974338784, y: 1044.4321621287654 },
-            description: "Todo: insert a description for this projector puzzle beam point endPoint_x853_y1044_h135"
-        }
-    },
-    "projectorpuzzle_dreamland_wall_door_2": {
-        name: "Dreamland Wall Door Puzzle 2",
-        unlocks: [ "Todo: specify the unlocks of this radiant projector puzzle" ],
-        startPoint: {
-            id: "startPoint_x896_y1065_h135",
-            nameSuffix: "Beam Emitter",
-            position: { x: 895.2679845806733, y: 1065.6008329573892 },
-            description: "Todo: insert a description for this projector puzzle beam point startPoint_x896_y1065_h135"
-        },
-        endPoint: {
-            id: "endPoint_x884_y1071_h135",
-            nameSuffix: "Beam Receiver",
-            position: { x: 883.0939105373736, y: 1071.9821815437208 },
-            description: "Todo: insert a description for this projector puzzle beam point endPoint_x884_y1071_h135"
-        }
-    },
-    "projectorpuzzle_dreamland_entrance_wall_tower_puzzle": {
-        name: "Dreamland Entrance Wall Tower Puzzle",
-        unlocks: [ "Opens a gated tower leading into Dreamland" ],
-        startPoint: {
-            id: "startPoint_x947_y1249_h140",
-            nameSuffix: "Beam Emitter",
-            position: { x: 946.271796600556, y: 1249.0540479306032 },
-            description: "Todo: insert a description for this projector puzzle beam point startPoint_x947_y1249_h140"
-        },
-        endPoint: {
-            id: "endPoint_x925_y1282_h128",
-            nameSuffix: "Beam Receiver",
-            position: { x: 924.0195602757699, y: 1282.6663889141842 },
-            description: "Todo: insert a description for this projector puzzle beam point endPoint_x925_y1282_h128"
-        }
-    },
-    "projectorpuzzle_dreamland_entrance_geyser_puzzle": {
-        name: "Dreamland Entrance Geyser Puzzle",
-        unlocks: [ "Activates a geyser leading to a shelf of land, with a tower leading into Dreamland gated by another puzzle" ],
-        startPoint: {
-            id: "startPoint_x1014_y1216_h91",
-            nameSuffix: "Beam Emitter",
-            position: { x: 1013.2099612826157, y: 1216.3356565050149 },
-            description: "Todo: insert a description for this projector puzzle beam point startPoint_x1014_y1216_h91"
-        },
-        endPoint: {
-            id: "endPoint_x989_y1235_h91",
-            nameSuffix: "Beam Receiver",
-            position: { x: 988.8817988410756, y: 1235.816036505565 },
-            description: "Todo: insert a description for this projector puzzle beam point endPoint_x989_y1235_h91"
         }
     }
 };
