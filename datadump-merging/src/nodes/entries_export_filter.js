@@ -1,4 +1,4 @@
-
+import { MapType, transformIngameToMapPositions } from "./processing_utils.js";
 
 // For extracted items that are unused / unobtainable / out of bounds,
 // I suspect they came from extra scene files (for testing?) that are
@@ -27,16 +27,79 @@ const keyDisallowedSubstringRegex = new RegExp(`(${keyCannotIncludeAsSubstring.j
 /**
  * In the case that some specific entries get extracted that should not be exported, catch them (or modify them) with this function.
  * @template {Record<string, any>} T
+ * @param {string} targetFileName 
+ * @param {string} key 
+ * @param {T} obj 
  * @returns {boolean | T}
 */
-export function entryExportFilter(/** @type {string} */ targetFileName, /** @type {string} */ key, /** @type {T} */ obj) {
+export function entryExportFilter(targetFileName, key, obj) {
 
     // if(keyCannotIncludeAsSubstring.some(substr => key.includes(substr))) {
     if(keyDisallowedSubstringRegex.test(key)) {
         return false;
     }
 
+    // get all keys of Vec2s or arrays of Vec2s
+    const posKeys = Object.keys(obj).filter(k => (
+        (typeof obj[k] === "object" && typeof obj[k].x === "number" && typeof obj[k].y === "number" && typeof obj[k].z === "undefined")
+        ? k
+        : (obj[k] && Array.isArray(obj[k])
+            && Object.values(obj[k]).every(v => (typeof v.x === "number" && typeof v.y === "number" && typeof v.z === "undefined")))
+        ? k
+        : null
+    ));
+
+    let isExclusivelyLabyrinthData = /(shadow|gigi|nullifier|stabiliz|projector)/i.test(targetFileName);
+
+    // shift position(s) if applicable
+    if(posKeys !== null && (obj.dimension === MapType.labyrinth || isExclusivelyLabyrinthData)) {
+        // console.log(targetFileName, key);
+        // console.log(obj);
+        obj = { ...obj };
+        const alterPos = (oldPos) => {
+            const newPos = shiftMapPosIfInsideRealCoreArea(oldPos);
+            if(newPos && (newPos !== oldPos || newPos.x !== oldPos.x || newPos.y !== oldPos.y)) {
+                return newPos;
+            }
+            else return oldPos;
+        }
+        for(const posKey of posKeys) {
+            if(Array.isArray(obj[posKey])) {
+                obj[posKey] = obj[posKey].map(alterPos);
+            }
+            else {
+                obj[posKey] = alterPos(obj[posKey]);
+            }
+        }
+        // console.log(obj);
+        // throw new Error();
+
+        // because teleport lines, update midpoint in case positions changed
+        if(/(teleport(er)?_?line)/i.test(targetFileName) && obj.midpoint) {
+            const [ pos1, pos2 ] = obj.positions;
+            obj.midpoint = { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 };
+        }
+
+        return obj;
+    }
+
     // export the entry as-is
     return true;
 
+}
+
+const _realUnstableCoreMeshPosition = transformIngameToMapPositions({ x: 2245.869162606233, y: 97.43239, z: -121.29875198047512 });
+const _approxMapCoreCenterPosition = { x: 256, y: 1456 };
+
+function shiftMapPosIfInsideRealCoreArea(/** @type {import("./process_node_locs").Vec2} */ originalMapPos) {
+    if(originalMapPos.x < 229 && originalMapPos.y > 2100) {
+        // inside roughly-defined region of the northeast corner of labyrinth map;
+        // Offset appropriately, based on the apparent center of the core versus the real center,
+        // to look like it's in the core of the ingame map
+        return {
+            x: originalMapPos.x + (_approxMapCoreCenterPosition.x - _realUnstableCoreMeshPosition.x),
+            y: originalMapPos.y + (_approxMapCoreCenterPosition.y - _realUnstableCoreMeshPosition.y)
+        };
+    }
+    return originalMapPos;
 }

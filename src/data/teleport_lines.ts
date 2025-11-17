@@ -43,21 +43,19 @@ export const teleport_lines: { [key: string]: TeleportLine } = {
         dimension: MapType.labyrinth,
         positions: [
             { x: 407.0752270849671, y: 1465.0055712162446 },
-            { x: 159.2783520317082, y: 2247.370189230983 }
+            { x: 293.9796000512331, y: 1457.50102662475 }
         ],
-        midpoint: { x: 283.17678955833765, y: 1856.1878802236138 }
+        midpoint: { x: 350.5274135681001, y: 1461.2532989204974 }
     },
     "line_LabyrinthHub_LabyrinthWeather": {
         name: "Todo: insert a name for this teleporter line line_LabyrinthHub_LabyrinthWeather",
         dimension: MapType.labyrinth,
         positions: [
             { x: 383.2116448162886, y: 917.3351884933705 },
-            // { x: -11, y: 1547 },
-            // { x: 58, y: 1310 },
             { x: 46, y: 1311 },
             { x: 153, y: 1727 },
             { x: 769.2033059782564, y: 1874.6343695132564 }
-        ],
+        ]
     },
     "line_StrandNavigation_Conservatory_Digsite": {
         name: "Todo: insert a name for this teleporter line line_StrandNavigation_Conservatory_Digsite",

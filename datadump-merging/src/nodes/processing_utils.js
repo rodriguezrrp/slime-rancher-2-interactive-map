@@ -133,9 +133,9 @@ export function followMonoBehaviourGameObjectTransformChain(
     /** @type {AssetJSONType} */ assetJSON,
     transformTypeName = "Transform"
 ) {
-    
-    const gameObj = assetsMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];
-    if(!gameObj || gameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, podGameObj = ${JSON.stringify(gameObj)}`);
+
+    const gameObj = assetJSON.typeName === "GameObject" ? assetJSON : assetsMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];
+    if(!gameObj || gameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, gameObj = ${JSON.stringify(gameObj)}`);
 
     let curTransform = null;
 

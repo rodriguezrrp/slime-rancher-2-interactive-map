@@ -131,7 +131,7 @@ export const teleport_pads: { [key: string]: TeleportPad } = {
     "teleporter_LabyrinthHub_C_x160_y2247": {
         internalId: "x160_y2247",
         name: "LabyrinthHub_C Ancient Teleporter",
-        position: { x: 159.2783520317082, y: 2247.370189230983 },
+        position: { x: 293.9796000512331, y: 1457.50102662475 },
         description: "Todo: insert a description for this teleporter x160_y2247",
         dimension: MapType.labyrinth
     },

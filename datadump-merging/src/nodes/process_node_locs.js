@@ -3218,7 +3218,9 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
             name: existingData?.name ?? "Todo: insert a name for this teleporter line " + tsDataKey,
             dimension: existingData?.dimension ?? teleporterAsset1Info.dimension ?? teleporterAsset2Info.dimension ?? MapType.overworld,
             positions: existingData?.positions ?? [ pos1, pos2 ],
-            midpoint: existingData?.midpoint ?? { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 },
+            midpoint: (existingData?.positions && existingData.positions.length > 2)
+                ? undefined
+                : existingData?.midpoint ?? { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 },
         };
         // clear out all entries with undefined values
         Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
@@ -3693,7 +3695,7 @@ function readExistingTeleportersTSData(/** @type {CacheOpts} */ cacheOpts) {
                         schematype: "array",
                         subschema: _schema_Vec2
                     },
-                    "midpoint": _schema_Vec2,
+                    // "midpoint": _schema_Vec2,
                     "dimension": _schema_MapType
                 }
             })
@@ -3759,7 +3761,7 @@ function makeTSDataFileParserFn(pathToTSDataFile, variableNameInFile, expectedSc
         // const [ , fileTextPrefix, dataObjInJsCode, fileTextPostfix ] = /^(.*const\s+nullifier_doors.*?=\s*)({\s*(?:"?[a-zA-Z0-9_]+"?\s*:\s*(?:.*)\s*,?\s*)*})(;?.*)$/s.exec(fileText);
 
         const pattern = new RegExp(
-            `^(.*const\\s+${variableNameInFile}.*?=\\s*)({\\s*(?:"?[a-zA-Z0-9_]+"?\\s*:\\s*(?:.*)\\s*,?\\s*)*})(;?.*)$`,
+            `^(.*const\\s+${variableNameInFile}.*?=\\s*)({\\s*(?:"?[a-zA-Z0-9_\\-]+"?\\s*:\\s*(?:.*)\\s*,?\\s*)*})(;?.*)$`,
             "s"
         );
 
@@ -5512,7 +5514,7 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 // exportTeleportersFromAssetsMapping();
 // console.log(globSync(GLOBS_TO_ANCIENT_TELEPORTER_ASSETS));
 // console.log(globSync(GLOBS_TO_ANCIENT_TELEPORTER_ASSETS).length);
-exportTeleportersFromAssetsMapping(await getOrExtractScenesAssetsMapping(defaultCacheSettings), { useCache: false });
+// exportTeleportersFromAssetsMapping(await getOrExtractScenesAssetsMapping(defaultCacheSettings), { useCache: false });
 
 // console.log(globSync(GLOBS_TO_INTERESTING_SCENES));
 // console.log(globSync(GLOBS_TO_INTERESTING_SCENES).length);
@@ -5551,3 +5553,8 @@ exportTeleportersFromAssetsMapping(await getOrExtractScenesAssetsMapping(default
 //     console.log(`${basename(asset.fileKey)}&${asset.fileId}`);
 //     printObj(asset,0,'- ');
 // }
+
+// const assetsMapping = await getOrExtractScenesAssetsMapping(defaultCacheSettings);
+// const core = Object.values(assetsMapping).find(asset => asset.props["m_Name"] === "objPrismaCoreMesh");
+// const { gameObj, position, transformChainChildToParent } = followMonoBehaviourGameObjectTransformChain(assetsMapping, core);
+// console.log(position);
