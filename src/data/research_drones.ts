@@ -650,7 +650,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我知道自己是新来的，所以并不想越界，但要是我重建这里，也许会有一些蜜蜂逗留，然后这个地方将成为生态系统的重要组成部分。希望你对此没意见。"
                 ]
             } ],
-        pos: { x: -234.66795000000002, y: -318.798089 },
+        pos: { x: -311, y: -307 },
         description: "On a rock next to a flower bed on the lower part of the ruins.",
         dimension: MapType.overworld
     },
@@ -1245,7 +1245,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "与此同时，我要看看这场“雪”是不是和我小时候看过的故事一样有趣……"
                 ]
             } ],
-        archive: [ "" ],
+        archive: [ ],
         pos: { x: -1402.3200689999999, y: -675.456054 },
         description: "Underground on a small ledge next to a large cave opening.",
         dimension: MapType.overworld
@@ -1291,7 +1291,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "这里的这些极光效果、幽灵树木和会在夜间显现的表面，与迷宫内部的现象十分相似。考虑到目前的破坏状况，这应该是不可能的。我开始怀疑，冰川周围的冰壳正在放大棱镜波，这就像创造了一个回音室，使得环境中的效果更为集中。"
                 ]
             } ],
-        archive: [ "" ],
+        archive: [ ],
         pos: { x: -1484.135, y: -822.54399 },
         description: "At the end of a side path near the edge of a cliff.",
         dimension: MapType.overworld
@@ -1346,7 +1346,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "我需要继续探索。"
                 ]
             } ],
-        archive: [ "" ],
+        archive: [ ],
         pos: { x: -1567.626953, y: -582.502012 },
         description: "Underground in a small alcove from the glowing flower cave.",
         dimension: MapType.overworld
@@ -1410,7 +1410,7 @@ export const research_drones: { [key: string]: ResearchDrone } = {
                     "一段时间之后，它变得更糟糕了。正午时分，阳光温暖着我的脸颊。然后，我意识到为什么这个地方之前不在这里了。"
                 ]
             } ],
-        archive: [ "" ],
+        archive: [ ],
         pos: { x: -1591.10231, y: -568.4776489999999 },
         description: "On top of a snow pile at the very edge of a ledge over the water.",
         dimension: MapType.overworld

@@ -87,6 +87,12 @@ export function entryExportFilter(targetFileName, key, obj) {
             obj.midpoint = { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 };
         }
 
+        if(obj.internalId === "ResearchDroneGorgeRuinedOverlook") {
+            // I cannot tell why this one extracts at a position to the south over the water...
+            // manually setting it.
+            obj.pos = { x: -311, y: -307 };
+        }
+
         return obj;
     }
 
