@@ -150,6 +150,30 @@ function MapUpdater({
     const map = useMap();
 
     useEffect(() => {
+        // https://github.com/Leaflet/Leaflet/issues/2553#issuecomment-762271734
+        const bounds = map.getBounds();
+        map.options.crs = crs;
+        // map.options.crs = crs ?? L.CRS.EPSG3857;
+        // Ensure zoom is not affected by differing CRS scales
+        const zoomSnap = map.options.zoomSnap;
+        map.options.zoomSnap = 0;
+        map.fitBounds(bounds);
+        map.options.zoomSnap = zoomSnap;
+    }, [crs, map]);
+
+    let tileLayer = useRef<L.TileLayer>();
+
+    useEffect(() => {
+        if(tileLayer.current)
+            map.removeLayer(tileLayer.current);
+
+        tileLayer.current = L.tileLayer(tileLayerOpts.url, tileLayerOpts);
+
+        if(tileLayer.current)
+            map.addLayer(tileLayer.current);
+    }, [tileLayerOpts, map]);
+
+    useEffect(() => {
         map.setView(center, 5);
     }, [center, map]);
 
@@ -160,28 +184,6 @@ function MapUpdater({
     useEffect(() => {
         map.setMaxZoom(maxZoom);
     }, [maxZoom, map]);
-
-    let tileLayer = useRef<L.TileLayer>();
-
-    useEffect(() => {
-        if(tileLayer.current)
-            map.removeLayer(tileLayer.current);
-
-        tileLayer.current = L.tileLayer(tileLayerOpts.url, tileLayerOpts);
-
-        map.addLayer(tileLayer.current!);
-    }, [tileLayerOpts, map]);
-
-    useEffect(() => {
-        // https://github.com/Leaflet/Leaflet/issues/2553#issuecomment-762271734
-        const bounds = map.getBounds();
-        map.options.crs = crs;
-        // Ensure zoom is not affected by differing CRS scales
-        const zoomSnap = map.options.zoomSnap;
-        map.options.zoomSnap = 0;
-        map.fitBounds(bounds);
-        map.options.zoomSnap = zoomSnap;
-    }, [crs, map]);
 
     return null;
 }

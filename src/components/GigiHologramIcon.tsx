@@ -4,7 +4,6 @@ import { icon_opacity, icon_template, research_drone_ls_key } from "../globals";
 import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
-import { MapType } from "../CurrentMapContext";
 import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiHologram } from "../types";
 import { gigiExpressionImageUrls, handleChecked } from "../util";
 import { gigi_holograms } from "../data/gigi_holograms";
@@ -73,14 +72,6 @@ export function GigiHologramIcon({
                         <span className="text-md font-bold">Description: </span>
                         <span>{gigi_hologram.description}</span>
                     </div>
-                    {/* <div>
-                        <span className="text-md font-bold">internalId: </span>
-                        <span>{research_drone.internalId}</span>
-                    </div>
-                    <div>
-                        <span className="text-md font-bold">keyName: </span>
-                        <span>{keyName}</span>
-                    </div> */}
 
                     <button
                         className="border w-[9rem] mt-2 p-1 self-end"
@@ -98,7 +89,6 @@ export function GigiHologramIcon({
 }
 
 type _EntryId = keyof NonNullable<GigiHologram["dialogue"]>["entries"];
-// type _Entry = NonNullable<GigiHologram["dialogue"]>["entries"][_EntryId];
 type _ConvoLogEntry = {
     text: string,
     entryId: _EntryId,
@@ -158,36 +148,6 @@ export function GigiConvo({
         }
     }, [convoLog]);
 
-    // if(!dialogueMap) {
-    //     <div>
-    //         <p>No dialogue for this Gigi Hologram.</p>
-    //         <p>(Todo make this no-dialogue message prettier)</p>
-    //         <button onClick={() => setShowConvo(false)}>Close</button>
-    //     </div>
-    // }
-
-    // const rewindConvoToPreviousOptionSelection = () => {
-    //     let log = [ ...convoLog ];
-    //     const optionEntryCt = log.reduce((acc, logEntry) => (acc + +(logEntry !== null && ("optionIds" in logEntry))), 0);
-    //     if(optionEntryCt === 0 || (optionEntryCt === 1 && typeof log[log.length - 1].nextOptionsIds !== "undefined"))
-    //         return;
-    //     do {
-    //         // remove latest convo entry (so that if it is an options entry, it gets rewinded past)
-    //         log.pop();
-    //         // and keep removing convo entries until we hit another options entry.
-    //     } while (typeof log[log.length - 1].nextOptionsIds === "undefined");
-    //     setConvoLog(log);
-    // }
-    
-    
-    
-    // const [showArchived, setShowArchived] = useState(false);
-
-    // const translatedPages = !showArchived ? gigi_hologram.log : gigi_hologram.archive;
-
-    // let accessingText = translatedPages[0]?.[curLanguage]?.[0];
-    // if(!accessingText)
-    //     accessingText = `Accessing GG${!showArchived ? "Log" : "Archive"}:`;
 
     let latestExpression: NonNullable<GigiDialogueToTextEntry["expression"]> = "happy1";
 
@@ -203,7 +163,6 @@ export function GigiConvo({
                         className="log-close"
                     />
                 </div>
-                {/* <div className="flex-grow flex-shrink"></div> */}
                 <div ref={convoLogRef} className="flex flex-col flex-grow gap-2 overflow-y-auto pt-2 *:ml-7">
                     { dialogueEntries && <div className="gigi-convo-top-spacer flex-grow overflow-x-hidden"></div> }
                     {
@@ -224,6 +183,7 @@ export function GigiConvo({
                                             const thisOptionEntry = (dialogueEntries[optionId] as GigiDialogueToTextEntry);
                                             const optionText = thisOptionEntry.text[curLanguage];
                                             return <GigiConvoOptionButton
+                                                key={`${optionId}`}
                                                 entryIndex={entryIndex}
                                                 optionIndex={optionIndex}
                                                 optionText={optionText}
@@ -264,14 +224,6 @@ export function GigiConvo({
                     }
                 </div>
             </div>
-            {/* <div className="flex justify-end">
-                <button
-                    className="text-base bg-white py-1 px-2 text-black"
-                    onClick={() => setShowArchived(!showArchived)}
-                >
-                    {!showArchived ? "Access Archive" : "Access Log"}
-                </button>
-            </div> */}
         </div>
     );
 }
@@ -304,7 +256,6 @@ function GigiConvoOptionButton<type_nextEntryAsConvoLogEntry extends (o: any) =>
     return <button
         ref={btnRef}
         className={`gigi-option-button ${convoEntry.optionSelectedIndex === optionIndex && "selected"}`}
-        // style={convoEntry.optionSelectedIndex === optionIndex ? { border: "2px solid red" } : { border: "2px solid grey" }}
         onClick={() => {
             if(typeof thisOptionEntry.nextTextById === "undefined")
                 return;
@@ -336,12 +287,6 @@ function GigiConvoTextNextButton<type_nextEntryAsConvoLogEntry extends (o: any) 
     useEffect(() => {
         if(btnRef.current) {
             btnRef.current.focus();
-            // const keylistener = () => ;
-            // return () => {
-            //     if(btnRef.current) {
-            //         btnRef.
-            //     }
-            // }
         }
     }, [btnRef.current]);
 
