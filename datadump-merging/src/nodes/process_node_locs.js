@@ -5533,22 +5533,24 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 //     }
 //     console.log(`${asset.typeName} - ..../${basename(asset.fileKey)}&${asset.fileId} - ${asset.props["m_Name"]}`);
 // }
+
+const strmult = (str, i) => i <= 0 ? "" : Array.from({length:i}).map(_ => str).join("");
+function printObj(/** @type {AssetJSONType} */ asset, indentNum=0, indentPart='- ') {
+    let indent = strmult(indentPart, indentNum);
+    console.log(`${indent}&${asset.fileId} - ${asset.typeName} - ${asset.props["m_Name"]}`);
+    indent = strmult(indentPart, indentNum+1);
+    for(const compObj of iterGameObjectComponentObjs(assetsMapping, asset, true)) {
+        // if(compObj.typeName === "Transform") continue;
+        console.log(`${indent}&${compObj.fileId} - ${compObj.typeName} - ${typeof compObj.props["m_Name"] === "undefined" ? "." : compObj.props["m_Name"]}`);
+    }
+    for(const childGameObj of iterChildGameObjects_DFS(assetsMapping, asset, { includeTransforms: false, recurse: false, includeThisGameObj: false })) {
+        printObj(childGameObj, indentNum+1, indentPart);
+    }
+}
+
 // let assetsMapping = await getOrExtractScenesAssetsMapping(defaultCacheSettings);
 // const teleporterAssets = Object.values(assetsMapping).filter(asset => asset.props["m_Name"] === "objLabyrinthPortal_staticDown" && asset.fileKey.toLowerCase().includes("gorge"));
 // console.log(teleporterAssets.length);
-// const strmult = (str, i) => i <= 0 ? "" : Array.from({length:i}).map(_ => str).join("");
-// function printObj(/** @type {AssetJSONType} */ asset, indentNum=0, indentPart='- ') {
-//     let indent = strmult(indentPart, indentNum);
-//     console.log(`${indent}&${asset.fileId} - ${asset.typeName} - ${asset.props["m_Name"]}`);
-//     indent = strmult(indentPart, indentNum+1);
-//     for(const compObj of iterGameObjectComponentObjs(assetsMapping, asset, true)) {
-//         // if(compObj.typeName === "Transform") continue;
-//         console.log(`${indent}&${compObj.fileId} - ${compObj.typeName} - ${typeof compObj.props["m_Name"] === "undefined" ? "." : compObj.props["m_Name"]}`);
-//     }
-//     for(const childGameObj of iterChildGameObjects_DFS(assetsMapping, asset, { includeTransforms: false, recurse: false, includeThisGameObj: false })) {
-//         printObj(childGameObj, indentNum+1, indentPart);
-//     }
-// }
 // for(const asset of teleporterAssets) {
 //     console.log(`${basename(asset.fileKey)}&${asset.fileId}`);
 //     printObj(asset,0,'- ');
@@ -5558,3 +5560,11 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 // const core = Object.values(assetsMapping).find(asset => asset.props["m_Name"] === "objPrismaCoreMesh");
 // const { gameObj, position, transformChainChildToParent } = followMonoBehaviourGameObjectTransformChain(assetsMapping, core);
 // console.log(position);
+
+// const assetsMapping = await getOrExtractScenesAssetsMapping(defaultCacheSettings);
+// const filteredAssets = Object.values(assetsMapping).filter(asset => asset.fileKey.includes("zoneRainbowCore") && asset.props["m_Name"] === "objLabyShadowPlortCollector");
+// for(const asset of filteredAssets) {
+//     const { gameObj, position, transformChainChildToParent } = followMonoBehaviourGameObjectTransformChain(assetsMapping, asset);
+//     console.log(position);
+//     console.log(printObj(asset,0,'- '));
+// }

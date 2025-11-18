@@ -179,6 +179,7 @@ export interface NullifierDoor {
 
 export interface ShadowDoor {
     internalId: string;
+    internalName?: string;
     position: Vec2;
     description: string;
     amount_required: number;
