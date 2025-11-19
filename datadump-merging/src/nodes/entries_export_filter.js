@@ -11,10 +11,16 @@ const keyCannotIncludeAsSubstring = [
     "gordo1649061164",  // Rad Gordo from coreSceneLabyrinth -- seems to be unused / unobtainable / out of bounds?
     "gordo0026007518",  // Tangle Gordo from coreSceneLabyrinth -- seems to be unused / unobtainable / out of bounds?
 
+    "pod0114507721",  // from environmentGorge -- "treasurePod Drones" -- seems to be missing / not a treasure pod? possibly related to quantum drones?
+    "pod1415751309",  // from coreSceneLabyrinth -- "treasurePod Rank1" -- far southeast over the ocean; unused / unobtainable / out of bounds?
+    "pod1789192471",  // from zoneBluffsWeather -- "treasurePod Drones" -- seems to be missing / not a treasure pod? possibly related to quantum drones?
+    "pod1976730192",  // from coreSceneLabyrinth -- "treasurePod Rank1 (1)" -- far southeast over the ocean; unused / unobtainable / out of bounds?
+
     "stabilizinggate0654469445",  // seems to be unused / unobtainable / out of bounds?
     "stabilizinggate1617779913",  // seems to be unused / unobtainable / out of bounds?
     "stabilizinggate0344923807",  // seems to be unused / unobtainable / out of bounds?
 
+    // Note: these gigi holograms actually are in the game; they were positioned in the core, which is technically to the far northeast
     // "gigihologram_x82_y2225",  // seems to be unused / unobtainable / out of bounds?
     // "gigihologram_x134_y2247",  // seems to be unused / unobtainable / out of bounds?
 

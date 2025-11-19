@@ -434,7 +434,7 @@ function App() {
                     <LayersControl.Overlay checked name="Locked Doors">
                         <LayerGroup>{LockedDoorIcons(current_map)}</LayerGroup>
                     </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="7-Zee Rewards">
+                    <LayersControl.Overlay checked name="7-Zee Reward Pods">
                         <LayerGroup>{TreasurePodIcons(current_map)}</LayerGroup>
                     </LayersControl.Overlay>
                     <LayersControl.Overlay checked name="Research Drones">

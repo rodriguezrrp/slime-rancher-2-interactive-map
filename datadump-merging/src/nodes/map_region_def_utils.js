@@ -5,12 +5,6 @@ import { MapType, transformIngameToMapPosition } from "./processing_utils.js";
 /** typedef {typeof (import("./processing_utils.js")._MapTypeType)[keyof (import("./processing_utils.js")._MapTypeType)]} MapType */
 /** @typedef {typeof MapType[keyof typeof MapType]} MapType */
 
-
-// some constants used for definitions below
-const _realUnstableCoreMeshPosition = transformIngameToMapPosition({ x: 2245.869162606233, y: 97.43239, z: -121.29875198047512 });
-const _approxMapCoreCenterPosition = { x: 256, y: 1456 };
-
-
 /** @typedef {{
  *      name: string,
  *      mapPosTransform?: (originalMapPos: Vec2) => Vec2,
@@ -34,6 +28,12 @@ const _approxMapCoreCenterPosition = { x: 256, y: 1456 };
  *      dimension: MapType,
  *  }
  * )} RegionDefinition */
+
+
+// some constants used for definitions below
+const _realUnstableCoreMeshPosition = transformIngameToMapPosition({ x: 2245.869162606233, y: 97.43239, z: -121.29875198047512 });
+const _approxMapCoreCenterPosition = { x: 256, y: 1456 };
+
 
 /** @type {RegionDefinition[]} */
 const regionDefinitions = [
@@ -124,7 +124,7 @@ const regionDefinitions = [
         type: "function",
         name: "mapRegionLabyrinthCore",
         dimension: MapType.labyrinth,
-        containsMapPos: originalMapPos => (originalMapPos.y < 229 && originalMapPos.x > 2100),
+        containsMapPos: originalMapPos => (originalMapPos.x < 229 && originalMapPos.y > 2100),
         mapPosTransform: originalMapPos => ({
             // map pos is inside roughly-defined region of the northeast corner of labyrinth map;
             // Offset appropriately, based on the apparent center of the core versus the real center,
@@ -178,6 +178,7 @@ export function getMapRegionsContaining(/** @type {Vec2} */ originalMapPos, /** 
         if(dimension && def.dimension !== dimension) return;
         if(def.type === "voronoi") {
             if(!voronoiInclusionCache[def.voronoiGroupId]) {
+                // get which region of the voronoi this map pos is contained within
                 const voronoiRegion = _voronoiRegionFns[def.voronoiGroupId](originalMapPos);
                 voronoiInclusionCache[def.voronoiGroupId] = voronoiRegion;
                 results.push(voronoiRegion);
@@ -189,9 +190,6 @@ export function getMapRegionsContaining(/** @type {Vec2} */ originalMapPos, /** 
             }
         }
     });
-
-    console.debug(`results.length = ${results.length}`);
-    console.debug(results);
 
     let prevLength = -1;
     // keep filtering the results array for required regions until its contents stop changing

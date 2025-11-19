@@ -484,13 +484,11 @@ export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { b
             }
             processedCt++;
             progressCallback?.(processedCt / files.length);
-        // }
         }));
         console.log(`Read ${Object.keys(obj).length} entries from ${files.length} split JSON files.`);
         return obj;
     }
     else {
-        //
         const fileStream = createReadStream(filePath, { encoding: "utf-8" });
 
         let pipeline = fileStream.pipe(parser());
@@ -503,6 +501,7 @@ export async function readMassiveHeckinBigObjectFromJSON(filePath, /** @type { b
         for await (const { key, value } of pipeline) {
             obj[key] = value;
         }
+        console.log(`Read ${Object.keys(obj).length} entries from large JSON file.`);
         return obj;
     }
 }

@@ -24,15 +24,42 @@ import { _schema_MapType, _schema_Vec2, matchAgainstSchema, schemautils } from "
 /** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
 /** @typedef {{ useCache?: boolean, exportToCache?: "sync" | "async" | boolean }} CacheOpts */
 
+/** @typedef {("assetsmapping" | "pods" | "researchdrones" | "shadowplortdepos" | "gigiholograms" | "nullifierdoors" | "stabilizinggates" | "projectorpuzzles" | "gordos" | "puzzledoors" | "mapnodes" | "teleporters")} ExtractionTypesType */
+/** @type {ExtractionTypesType[]} */
+export const ExtractionTypes = [
+    "assetsmapping",
+    "pods",
+    "researchdrones",
+    "shadowplortdepos",
+    "gigiholograms",
+    "nullifierdoors",
+    "stabilizinggates",
+    "projectorpuzzles",
+    "gordos",
+    "puzzledoors",
+    "mapnodes",
+    "teleporters"
+];
+
 
 export async function exportAllNodeCoordsFromScenesJSON(
     /** @type {undefined | AssetsMappingType} */
     assetsMapping,
     /** @type {undefined | CacheOpts} */
-    cacheOpts
+    cacheOpts,
+    /** @type {undefined | null | ExtractionTypesType[]} */
+    only
 ) {
     
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+    
+    const onlySet = Array.isArray(only) && only.length > 0 ? new Set(only.map(s => s.toLowerCase())) : null;
+
+    if(onlySet?.size === 1 && onlySet.has("assetsmapping")) {
+        // only get (and presumably cache) assets mapping.
+        await getOrExtractScenesAssetsMapping(cacheOpts);
+        return;
+    }
     
     //
     //////////////////////
@@ -42,12 +69,14 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Treasure Pods
 
-    await exportPodsFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("pods"))
+        await exportPodsFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Research Drones
     
-    await exportResearchDronesFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("researchdrones"))
+        await exportResearchDronesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Plots
@@ -63,27 +92,32 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Shadow Plort Depos
     
-    await exportShadowPlortDeposFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("shadowplortdepos"))
+        await exportShadowPlortDeposFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Gigi Holograms
     
-    await exportGigiHologramsFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("gigiholograms"))
+        await exportGigiHologramsFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Nullifier Doors
     
-    await exportNullifierDoorsFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("nullifierdoors"))
+        await exportNullifierDoorsFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Stabilizing Gates
     
-    await exportStabilizingGatesFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("stabilizinggates"))
+        await exportStabilizingGatesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Radiant Projector Puzzles
     
-    await exportProjectorPuzzlesFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("projectorpuzzles"))
+        await exportProjectorPuzzlesFromAssetsMapping(assetsMapping, cacheOpts);
 
     //
     //////////////////////
@@ -93,22 +127,26 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Gordo Locations
 
-    await exportGordosFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("gordos"))
+        await exportGordosFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Locked Doors, Plort Receptacle Statues
     
-    await exportPuzzleDoorsFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("puzzledoors"))
+        await exportPuzzleDoorsFromAssetsMapping(assetsMapping, cacheOpts);
 
     //===============
     // Map Nodes
     
-    await exportMapNodesFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("mapnodes"))
+        await exportMapNodesFromAssetsMapping(assetsMapping, cacheOpts);
     
     //===============
     // Teleport Pads, Teleport Lines
     
-    await exportTeleportersFromAssetsMapping(assetsMapping, cacheOpts);
+    if(onlySet === null || onlySet.has("teleporters"))
+        await exportTeleportersFromAssetsMapping(assetsMapping, cacheOpts);
 
 }
 
@@ -866,7 +904,7 @@ async function exportGordosFromAssetsMapping(/** @type {AssetsMappingType | unde
         if(!oldGordoId) {
             console.log("debug: fileKey: ", assetJSON.fileKey);
             // make a best guess based on what scene file the asset was in.
-            areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)[1].toLowerCase().replace("_","")
+            areaNameForKey = /((?:environment|zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)[1].toLowerCase().replace("_","")
                 ?? "undeterminedarea";
         }
         const tsDataKey = oldGordoId ?? (`${slimetype}gordo_${areaNameForKey}_${internalGordoId}`);
@@ -890,7 +928,7 @@ async function exportGordosFromAssetsMapping(/** @type {AssetsMappingType | unde
             }
         }
 
-        const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+        const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^((zone|coreScene)Lab|zoneRainbowCore)/i) ? MapType.labyrinth : MapType.overworld);
 
         const slimetypeUppercasedFirst = slimetype.charAt(0).toUpperCase() + slimetype.slice(1);
 
@@ -1874,224 +1912,6 @@ async function exportNullifierDoorsFromAssetsMapping(/** @type {AssetsMappingTyp
     fnWriteNullifierDoorsBackToFile(mergedDoorTSData);
 }
 
-// async function exportGigiHologramsFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
-
-//     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
-
-//     /** @type {{ fileId: string, assetJSON: AssetJSONType, droneGameObj: AssetJSONType, referenceAssetJSON: AssetJSONType, archiveAssetJSON?: AssetJSONType, position: { x: number, y: number, z: number } }[]} */
-//     let ingameDronePositions;
-    
-//     if(cacheOpts.useCache && existsSync("./data_cache/gigiHologramAssetsAndPositions.json")) {
-//     // if(false) {  // for debugging
-        
-//         console.log("Reading cached Gigi hologram coordinates...");
-
-//         ingameDronePositions = JSON.parse(readFileSync("./data_cache/gigiHologramAssetsAndPositions.json"));
-
-//         console.log(`Read (${ingameDronePositions.length}) Gigi hologram coordinates from cache file.`);
-
-//     } else {
-
-//         assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
-
-//         console.log("Extracting Gigi hologram coordinates from assets JSON...");
-
-//         const droneEntryMonoBehavioursEntries = Object.entries(assetsMapping)
-//             .filter(([, assetJSON]) => {
-            
-//                 const droneEntry = assetJSON.props["_researchDroneEntry"];
-            
-//                 if(!droneEntry) return false;
-
-//                 if(assetJSON.typeName !== "MonoBehaviour") {
-//                     console.log(assetJSON);
-//                     throw new Error("found asset with a _researchDroneEntry, but it was not a MonoBehaviour?");
-//                 }
-
-//                 return true;
-
-//             });
-
-//         console.log(`Retrieved ${droneEntryMonoBehavioursEntries.length} Gigi hologram entry MonoBehaviour entries.`);
-
-//         /** @type {{ [fileGUID: string]: AssetJSONType }} */
-//         const mapDroneEntryGUIDtoAssetJSONs = { };
-
-//         const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
-    
-//         const droneEntryAssetFilePaths = globSync(GLOBS_TO_INDIVIDUAL_DRONE_ASSETS);
-
-//         await Promise.all(droneEntryAssetFilePaths.map(
-//             async (assetpath) => {
-//                 // const filenameNoExt = basename(assetpath).split(".")[0];
-
-//                 const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
-//                 const guid = metaFileGuidRegex.exec(metadata)[1];
-                
-//                 /** @type {AssetsMappingType} */
-//                 const droneEntryAssetsMapping = { }
-//                 parseUnityFileYamlIntoAssetsMapping(assetpath, droneEntryAssetsMapping, undefined, (/** @type {string} */ fileData) => {
-//                     // Because yaml library tries to parse the key id as number and loses precision. Surround it in quotes.
-//                     return fileData.replaceAll(/(m_TableEntryReference:\s+m_KeyId:\s+)(\d+)(\s)/g, "$1\"$2\"$3");
-//                 });
-//                 if(Object.keys(droneEntryAssetsMapping).length !== 1) {
-//                     throw new Error("Expected only one asset to be in the drone asset file");
-//                 }
-//                 const droneEntryAssetJSON = Object.values(droneEntryAssetsMapping)[0];
-
-//                 mapDroneEntryGUIDtoAssetJSONs[guid] = droneEntryAssetJSON;
-//             }
-//         ));
-//         // throw new Error("temp");
-
-//         // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
-//         ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
-            
-//             const referenceAssetJSON = mapDroneEntryGUIDtoAssetJSONs[assetJSON.props["_researchDroneEntry"]["guid"]];
-
-//             console.log(`[Research Drone ${referenceAssetJSON.props["referenceId"]}]: Extracting drone log and archive (if archive exists)`);
-
-//             const _archiveGUID = referenceAssetJSON.props["archivedEntry"]?.["guid"];
-//             const archiveAssetJSON = _archiveGUID && mapDroneEntryGUIDtoAssetJSONs[_archiveGUID];
-//             if(_archiveGUID && !archiveAssetJSON) {
-//                 throw new Error(`There was an archiveEntry GUID of ${JSON.stringify(_archiveGUID)}, but no asset matching that GUID was found?`);
-//             }
-
-//             console.log(`[Research Drone ${referenceAssetJSON.props["referenceId"]}]: Determining position of drone`);
-
-//             const { gameObj: droneGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
-
-//             // for(const child of transformChainChildToParent) {
-//             //     console.log(child.typeName);
-//             //     console.log(child.fileKey);
-//             //     console.log(child.fileId);
-//             //     console.log(child.props["m_LocalPosition"]);
-//             //     console.log(child.props["m_LocalRotation"]);
-//             //     console.log(child.props["m_LocalScale"]);
-//             // }
-
-//             console.log(`[Research Drone ${referenceAssetJSON.props["referenceId"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
-
-//             return { fileId, assetJSON, droneGameObj, referenceAssetJSON, archiveAssetJSON, pos };
-
-//         }));
-
-//         console.log(`Determined ${ingameDronePositions.length} research drone assets and their positions.`);
-        
-//         // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
-//         // for(const d of ingameDronePositions) {
-//         //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
-//         //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
-//         //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
-//         //         return { ...c, gameObject: gameObj };
-//         //     });
-//         // }
-
-//         if(cacheOpts.exportToCache) {
-//             const _export = () => {
-//                 writeFileSync("./data_cache/droneAssetsAndPositions.json", JSON.stringify(ingameDronePositions));
-//                 console.log("Exported research drone assets and their positions to cache.");
-//             };
-//             if(cacheOpts.exportToCache === "sync") {
-//                 console.log("Exporting research drone assets and their positions to cache...")
-//                 _export();
-//             }
-//             else (async () => { _export(); })();
-//         }
-
-//     }
-
-
-//     console.log("Parsing existing research drone data in the map data files...")
-
-//     const { fnWriteDronesBackToFile, existingDroneTSDataByDroneKey } = readExistingResearchDroneTSData(cacheOpts);
-
-//     console.log(`Parsed ${Object.keys(existingDroneTSDataByDroneKey).length} existing research drone data entries.`);
-
-//     /** @type {{ [tsDataDroneKey: string]: ExistingDroneDataType }} */
-//     const mergedDroneTSData = { ...existingDroneTSDataByDroneKey };
-
-//     console.log("Merging existing and extracted research drone data");
-    
-//     // merge existing and extracted shadow depo data
-    
-//     for(const { assetJSON, droneGameObj: droneGameObjJSON, referenceAssetJSON, archiveAssetJSON, pos } of ingameDronePositions) {
-//         /** @type {string} */
-//         // const internalDroneId = assetJSON.props["_id"];
-//         const internalDroneId = referenceAssetJSON.props["referenceId"];
-
-//         // /** @type {string} */
-//         // const internalName = droneGameObjJSON.props["m_Name"];
-
-//         const oldDroneId = droneIdInternalToOld(internalDroneId);
-
-//         let areaNameForKey;
-//         // TODO determine area name?
-//         if(!oldDroneId) {
-//             // areaNameForKey = groupOfDroneId(internalDroneId, cacheOpts)?.toLowerCase().replace(" ","")
-//             //     ?? "undeterminedarea";
-//             areaNameForKey = "undeterminedarea";
-//         }
-//         const tsDataKey = oldDroneId ?? (`research_${areaNameForKey}_${internalDroneId}`);
-
-//         // console.log(internalPodId, internalName, oldPodId, tsDataKey);
-
-//         /** @type {undefined | existingDroneTSDataByDroneKey[keyof existingDroneTSDataByDroneKey]} */
-//         const existingData = (
-//             existingDroneTSDataByDroneKey[oldDroneId]
-//             || existingDroneTSDataByDroneKey[internalDroneId]
-//             || existingDroneTSDataByDroneKey[tsDataKey]
-//             || Object.values(existingDroneTSDataByDroneKey).find(data => data.internalId === internalDroneId)
-//         );
-
-//         // remove existingData object from the merged data mapping;
-//         // we will be overwriting it later with the "standardized" tsDataKey
-//         for(const [k, v] of Object.entries(mergedDroneTSData)) {
-//             if(v === existingData) {
-//                 delete mergedDroneTSData[k];
-//                 break;
-//             }
-//         }
-
-//         const _translationsOfPage = page => {
-//             if(page["m_LocalVariables"] && page["m_LocalVariables"].length > 0)
-//                 throw new Error(`Was not ready to handle page's m_LocalVariables ${JSON.stringify(page["m_LocalVariables"])}`);
-//             return dronePageTranslationsFor(page["m_TableEntryReference"]["m_KeyId"], cacheOpts);
-//         };
-
-//         const log = referenceAssetJSON.props["pages"].map(_translationsOfPage);
-//         const archive = archiveAssetJSON?.props["pages"].map(_translationsOfPage);
-
-//         const _mergedDataObj = {
-//             internalId: internalDroneId,
-//             // name: existingData?.name ?? ["TODO retrieve name from translation table"],
-//             name: existingData?.name ?? "Research Drone",
-//             log: log ?? existingData?.log ?? [{"en":["Todo: insert the correct log for this research drone"]}],
-//             archive: archive ?? existingData?.archive ?? [],
-//             description: existingData?.description ?? "Todo: insert a description for this research drone " + internalDroneId,
-//             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
-//             // pos: { x: -pos.z, y: pos.x },
-//             pos: transformIngameToMapPositions(pos),
-//             // dimension: existingData?.dimension ?? "MapType.overworld",
-//             dimension: existingData?.dimension ?? MapType.overworld,
-//             _otherLines: existingData?._otherLines,
-//         };
-//         // clear out all entries with undefined values
-//         Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
-//         // save merged data back
-//         mergedDroneTSData[tsDataKey] = _mergedDataObj;
-
-//         if(existingData)
-//             console.log(`Merged extracted research drone ${internalDroneId} data with existing ${tsDataKey} data`);
-//         else
-//             console.log(`Inserted extracted research drone ${internalDroneId} data to ${tsDataKey} data`)
-//     }
-
-//     console.log("Writing research drone data back to map data file");
-
-//     fnWriteDronesBackToFile(mergedDroneTSData);
-// }
-
 async function exportGigiHologramsFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
 
     cacheOpts = {...defaultCacheSettings, ...cacheOpts};
@@ -2533,7 +2353,7 @@ async function exportMapNodesFromAssetsMapping(/** @type {AssetsMappingType | un
             // console.log("debug: fileKey: ", assetJSON.fileKey);
             // make a best guess based on what scene file the asset was in.
             console.log(assetJSON.fileKey);
-            areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+            areaNameForKey = /((?:environment|zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
                 ?? "undeterminedarea";
             // areaNameForKey = "undeterminedarea";
         }
@@ -2556,7 +2376,7 @@ async function exportMapNodesFromAssetsMapping(/** @type {AssetsMappingType | un
             }
         }
 
-        const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+        const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^((zone|coreScene)Lab|zoneRainbowCore)/i) ? MapType.labyrinth : MapType.overworld);
 
         /** @type {ExistingMapNodeDataType} */
         const _mergedDataObj = { ...existingData,
@@ -3854,9 +3674,9 @@ async function exportPlotPlannersFromAssetsMapping(/** @type {AssetsMappingType 
         const { pos } = info;
         const posOnMap = transformIngameToMapPosition(pos);
         const regions = getMapRegionsContaining(posOnMap, MapType.overworld);
-        console.log();
+        // console.log();
         const regionKey = regions[0].name.toLowerCase().replace("mapvoronoiexpansion", "");
-        console.log(pos, posOnMap, regionKey, regions);
+        // console.log(pos, posOnMap, regionKey, regions);
         plotPlannerInfoByRegion[regionKey] ??= [];
         plotPlannerInfoByRegion[regionKey].push(info);
     }
@@ -5587,19 +5407,19 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 //     console.log(`${asset.typeName} - ..../${basename(asset.fileKey)}&${asset.fileId} - ${asset.props["m_Name"]}`);
 // }
 
-const strmult = (str, i) => i <= 0 ? "" : Array.from({length:i}).map(_ => str).join("");
-function printObj(/** @type {AssetJSONType} */ asset, indentNum=0, indentPart='- ') {
-    let indent = strmult(indentPart, indentNum);
-    console.log(`${indent}&${asset.fileId} - ${asset.typeName} - ${asset.props["m_Name"]}`);
-    indent = strmult(indentPart, indentNum+1);
-    for(const compObj of iterGameObjectComponentObjs(assetsMapping, asset, true)) {
-        // if(compObj.typeName === "Transform") continue;
-        console.log(`${indent}&${compObj.fileId} - ${compObj.typeName} - ${typeof compObj.props["m_Name"] === "undefined" ? "." : compObj.props["m_Name"]}`);
-    }
-    for(const childGameObj of iterChildGameObjects_DFS(assetsMapping, asset, { includeTransforms: false, recurse: false, includeThisGameObj: false })) {
-        printObj(childGameObj, indentNum+1, indentPart);
-    }
-}
+// const strmult = (str, i) => i <= 0 ? "" : Array.from({length:i}).map(_ => str).join("");
+// function printObj(/** @type {AssetJSONType} */ asset, indentNum=0, indentPart='- ') {
+//     let indent = strmult(indentPart, indentNum);
+//     console.log(`${indent}&${asset.fileId} - ${asset.typeName} - ${asset.props["m_Name"]}`);
+//     indent = strmult(indentPart, indentNum+1);
+//     for(const compObj of iterGameObjectComponentObjs(assetsMapping, asset, true)) {
+//         // if(compObj.typeName === "Transform") continue;
+//         console.log(`${indent}&${compObj.fileId} - ${compObj.typeName} - ${typeof compObj.props["m_Name"] === "undefined" ? "." : compObj.props["m_Name"]}`);
+//     }
+//     for(const childGameObj of iterChildGameObjects_DFS(assetsMapping, asset, { includeTransforms: false, recurse: false, includeThisGameObj: false })) {
+//         printObj(childGameObj, indentNum+1, indentPart);
+//     }
+// }
 
 // let assetsMapping = await getOrExtractScenesAssetsMapping(defaultCacheSettings);
 // const teleporterAssets = Object.values(assetsMapping).filter(asset => asset.props["m_Name"] === "objLabyrinthPortal_staticDown" && asset.fileKey.toLowerCase().includes("gorge"));
