@@ -171,7 +171,7 @@ const _jsonStringifyTransformerFns = {
         if(depth === 0) return sortStringsWithNumbers;
         if(depth === 1 || (depth === 2 && (key === "startPoint" || key === "endPoint"))) {
             // preferred sort order of the keys of each data object
-            const _lookup = Object.fromEntries(["internalId", "id", "name", "nameSuffix", "log", "archive", "food", "pos", "position", "image", "drops", "unlocks", "description", "dimension", "startPoint", "endPoint"].map((v, i) => [v, i]));
+            const _lookup = Object.fromEntries(["internalId", "internalName", "id", "name", "nameSuffix", "log", "archive", "food", "pos", "position", "image", "drops", "contents", "unlocks", "description", "dimension", "startPoint", "endPoint"].map((v, i) => [v, i]));
             const _default = Object.keys(_lookup).length;
             return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
         }
@@ -236,7 +236,17 @@ async function exportPodsFromAssetsMapping(/** @type {AssetsMappingType | undefi
 
     console.log(`Retrieved ${podIdMonoBehavioursEntries.length} Treasure Pod id MonoBehaviour entries.`);
 
-    const ingamePodPositions = await Promise.all(podIdMonoBehavioursEntries.map(mapFnDeterminePodPosition(assetsMapping)));
+    const ingamePodPositions = await Promise.all(podIdMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+        console.log(`[Treasure Pod ${assetJSON.props["_id"]}]: Determining position of pod`);
+
+        const { gameObj: podGameObj, transformChainChildToParent, position } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+        console.log(`[Treasure Pod ${assetJSON.props["_id"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(position)}`);
+
+        return {fileId, assetJSON, podGameObj, position};
+
+    }));
 
     console.log("Determined treasure pod positions.");
     // console.log('podPositions:', podPositions);
@@ -256,7 +266,7 @@ async function exportPodsFromAssetsMapping(/** @type {AssetsMappingType | undefi
 
     console.log("Parsing existing treasure pod data in the map data files...")
 
-    const { fnWritePodsBackToFile, existingPodTSDataByPodKey } = readExistingTreasurePodTSData(cacheOpts);
+    const { fnWriteTSDataBackToFile: fnWritePodsBackToFile, existingTSDataByTsDataKey: existingPodTSDataByPodKey } = readExistingTreasurePodTSData(cacheOpts);
 
     console.log(`Parsed ${Object.keys(existingPodTSDataByPodKey).length} existing treasure pod data entries.`);
 
@@ -304,8 +314,10 @@ async function exportPodsFromAssetsMapping(/** @type {AssetsMappingType | undefi
             // pos: /*existingData?.pos ??*/ { x: -position.z, y: position.x },
             pos: transformIngameToMapPosition(position),
             dimension: existingData?.dimension ?? "MapType.overworld",
-            _otherLines: existingData?._otherLines,
         };
+        if(existingData?._otherLines) {
+            mergedPodTSData[tsDataKey]._otherLines = existingData?._otherLines;
+        }
 
         if(existingData)
             console.log(`Merged extracted treasure pod ${internalPodId} data with existing ${tsDataKey} data`);
@@ -3825,7 +3837,7 @@ function readExistingTeleportersTSData(/** @type {CacheOpts} */ cacheOpts) {
 }
 
 /**
- * @template {Record<string | number, unknown>} T
+ * @template {Record<any, any>} T
  * @param {string} pathToTSDataFile 
  * @param {string} variableNameInFile 
  * @param {ExpectedSchemaType} expectedSchema 
@@ -4616,277 +4628,22 @@ function readExistingShadowPlortDepoTSData(/** @type {CacheOpts} */ cacheOpts) {
     }
 }
 
-function readExistingTreasurePodTSData(/** @type {CacheOpts} */ cacheOpts) {
-    
-    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+/** @typedef {import("../../../src/types.js").TreasurePod} ExistingTreasurePodDataType */
 
-    /** @type {{ [tsDataPodKey: string]: { contents: string[], internalId: string | undefined, internalName: string | undefined, description: string, pos: { x: number, y: number }, dimension: MapType, _otherLines: string[] } }} */
-    const existingPodTSDataByPodKey = { };
-
-    const groupCommentLineRegex = /^ *\/\/ *(the conservatory|rainbow fields|ember valley|starlight strand|powderfall bluffs) *$/i;
-    const endFileDataLineRegex = /^};? *$/;
-
-    const dataStartLineRegex = /^ *([a-zA-Z0-9_]+|".+") *: *{ *$/;
-    const dataParamLineRegex = /^ *([a-zA-Z_][a-zA-Z_0-9]*) *: *(?:(\[ *(?:"(?:[^\\"]|\\.)*",? *)+\])|("(?:[^\\"]|\\.)*")|({ *(?:(?:x|y) *: *(?:[\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*)),? *)+})|([\-+]?(?:\.?[0-9]+|[0-9]+\.[0-9]*))|(undefined)|(MapType.[a-zA-Z_][a-zA-Z_0-9]*)),? *$/;
-    const dataEndLineRegex = /^ +},? *$/;
-
-    const linesForReconstruction = [];
-
-    const fileLines = readFileSync(PATH_TO_TREASURE_PODS_DATA_FILE, { encoding: "utf-8" }).split(/[\r\n]+/);
-
-    // console.log(fileLines);
-
-    let curGroup = null;
-
-    let dataObj, dataObjPodKey;
-
-    for(const line of fileLines) {
-        
-        let dataStartExecRes = dataStartLineRegex.exec(line);
-
-        if(groupCommentLineRegex.test(line)) {
-            curGroup = line;
-            // denote for reconstruction that a new group has started
-            linesForReconstruction.push(line);  // push the comment that started the group
+/** @type {ReturnType<typeof makeTSDataFileParserFn<ExistingTreasurePodDataType>>} */
+const readExistingTreasurePodTSData = makeTSDataFileParserFn(
+    PATH_TO_TREASURE_PODS_DATA_FILE,
+    "treasure_pods",
+    schemautils.objectAnyKey({
+        schematype: "object",
+        subschema: {
+            "internalId": "string",
+            "contents": schemautils.array("string"),
+            "description": "string",
+            "pos": _schema_Vec2,
+            "dimension": _schema_MapType
         }
-        else if(dataStartExecRes) {
-            let dataObjKeyWithAreaName = /^"?treasure_+([a-z](?:[a-z_]*[a-z])?)_+[a-z0-9]+"?$/i
-                .exec(dataStartExecRes[1]);
-            if(dataObjKeyWithAreaName) {
-                // denote for reconstruction that this data object just encountered is part of a specific group
-                curGroup = dataObjKeyWithAreaName[1];
-            } else {
-                throw Error(`Was not in a denoted area group for reconstruction, but encountered a data object whose key did not specify its area. Throwing error to prevent unexpected data loss. Line with the unexpected start of data object: ${JSON.stringify(line)}`);
-            }
-        }
-        else if(endFileDataLineRegex.test(line)) {
-            // reached end of important data in file
-            curGroup = null;
-            // line will be pushed in the next if(!inGroup) statement.
-        }
-
-        if(!curGroup) {
-            // push all lines that aren't in a denoted group
-            linesForReconstruction.push(line);
-        }
-        else {
-            // don't push lines inside a denoted group; these lines will be regenerated upon reconstruction
-            // instead, parse them
-            let dataParamExecRes = dataParamLineRegex.exec(line);
-
-            if(dataStartExecRes) {
-                let key = dataStartExecRes[1];
-                dataObjPodKey = JSON.parse(key);
-                dataObj = { };
-            }
-            else if(dataEndLineRegex.test(line)) {
-                existingPodTSDataByPodKey[dataObjPodKey] = dataObj;
-            }
-            else if(dataParamExecRes) {
-                const [ , key, list, str, xyobj, num, undef, mapTypeEnumVal ] = dataParamExecRes;
-                if(key === "description" || key === "internalName" || key === "internalId") {
-                    dataObj[key] = JSON.parse(str);
-                }
-                else if(key === "contents") {
-                    dataObj[key] = JSON.parse(list);
-                }
-                else if(key === "pos") {
-                    dataObj[key] = JSON.parse(xyobj.replace("x", "\"x\"").replace("y", "\"y\""));
-                }
-                else if(key === "dimension") {
-                    dataObj[key] = mapTypeEnumVal;
-                }
-                else {
-                    // console.warn(`WARNING: DISCARDING parameter line ${JSON.stringify(line)}; unexpected data key (${JSON.stringify(key)}) and/or value.`);
-                    dataObj._otherLines ||= [];
-                    dataObj._otherLines.push(line);
-                }
-            }
-        }
-
-    }
-    
-    // console.log(linesForReconstruction);
-
-    const fnWritePodsBackToFile = (/** @type {{ [tsDataPodKey: string]: { internalName: string, internalId: string, contents: string[], description: string, pos: { x: number, y: number }, dimension: MapType, _otherLines?: string[] } }} */ mergedPodTSData) => {
-        const reconstructedLines = [];
-
-        // console.log(mergedPodTSData);
-
-        // shallow copy for mutation purposes
-        mergedPodTSData = { ...mergedPodTSData };
-
-        const _processPodDataObj = (
-            /** @type {string} */ tsDataPodKey,
-            /** @type {mergedPodTSData[keyof mergedPodTSData]} */ tsPodData
-        ) => {
-            // remove entry from pod data to insert now that it's processed
-            delete mergedPodTSData[tsDataPodKey];
-
-            // console.log("processing pod data");
-            // console.log(tsDataPodKey);
-            // console.log(tsPodData);
-            const { internalId, internalName, contents, description, pos, dimension, _otherLines } = tsPodData;
-            reconstructedLines.push(
-                `    "${tsDataPodKey}": {`
-            + `\n        internalId: ${JSON.stringify(internalId)},`
-            + `\n        internalName: ${JSON.stringify(internalName)},`
-            + `\n        contents: [${contents.map(JSON.stringify).join(", ")}],`
-            + `\n        description: ${JSON.stringify(description)},`
-            + `\n        pos: { x: ${pos.x.toFixed(4)/*.replace(/0+$/,"")*/}, y: ${pos.y.toFixed(4)/*.replace(/0+$/,"")*/} },`
-            + `\n        dimension: ${dimension},`
-            + (typeof _otherLines === "undefined"
-                ? ""
-                : _otherLines.map(l => "\n        " + l.trimStart()).join(""))
-            + "\n    },"
-            );
-        }
-        
-        let reconstructionIndex = 0;
-
-        while(reconstructionIndex < linesForReconstruction.length) {
-            const line = linesForReconstruction[reconstructionIndex];
-            if(endFileDataLineRegex.test(line))
-                // we will resume inserting the remaining lines after processing any remaining data objects
-                break;
-            reconstructionIndex++;
-            // console.log(line);
-
-            const commentGroupLbl = groupCommentLineRegex.exec(line)?.[1];
-            
-            if(!commentGroupLbl) {
-                reconstructedLines.push(line);
-            }
-            else {
-                // landed in a denoted group. fill in data
-                reconstructedLines.push(line);  // push the comment that started the group
-
-                const podDataInGroup = Object.entries(mergedPodTSData)
-                    .filter(([, podData]) => {
-                        // do a bit of processing to loosen comparison
-                        const internalGroup = podGroupOfPodId(podData.internalId, cacheOpts)?.toLowerCase().replaceAll(/(^the | the | )/, "")
-                        const commentedGroup = commentGroupLbl.toLowerCase().replaceAll(/(^the | the | )/, "");
-                        return (
-                            internalGroup === commentedGroup
-                            || (internalGroup === "conservatory" && commentedGroup === "conservatory")
-                            || (internalGroup === "rainbowfields" && commentedGroup === "rainbowfields")
-                            || (internalGroup === "luminousstrand" && commentedGroup === "starlightstrand")
-                            || (internalGroup === "rumblinggorge" && commentedGroup === "embervalley")
-                            || (internalGroup === "powderfallbluffs" && commentedGroup === "powderfallbluffs")
-                        );
-                    })
-                    // .sort((a, b) => a[0].localeCompare(b[0], { numeric: true }));
-                    .sort((a, b) => sortStringsWithNumbers(a[0], b[0]));
-
-                console.log(podDataInGroup);
-
-                for (const entry of podDataInGroup) {
-                    const [ tsDataPodKey, tsPodData ] = entry;
-                    _processPodDataObj(tsDataPodKey, tsPodData);
-                }
-
-                reconstructedLines.push("");  // push an empty line for spacing
-            }
-        }
-
-        // process any remaining (unprocessed) pod data objects
-        // for (const tsDataPodKey of Object.keys(mergedPodTSData).sort((a, b) => a.localeCompare(b, { numeric: true }))) {
-        for (const tsDataPodKey of Object.keys(mergedPodTSData).sort(sortStringsWithNumbers)) {
-            const tsPodData = mergedPodTSData[tsDataPodKey];
-            _processPodDataObj(tsDataPodKey, tsPodData);
-        }
-
-        // finish any remaining lines in the file
-        while(reconstructionIndex < linesForReconstruction.length) {
-            const line = linesForReconstruction[reconstructionIndex];
-            reconstructionIndex++;
-            reconstructedLines.push(line);
-        }
-
-        writeFileSync(PATH_TO_TREASURE_PODS_DATA_FILE, reconstructedLines.join("\n"));
-    }
-
-    return {
-        fnWritePodsBackToFile,
-        existingPodTSDataByPodKey
-    }
-}
-
-// TODO refactor - inline mapFnDeterminePodPosition?
-// outer function with (assetsMapping) param is just for providing assetsMapping to the returned async function,
-// leaving the returned async function still structured to be passable to .map().
-const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMapping) => (
-
-    async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
-
-        console.log(`[Treasure Pod ${assetJSON.props["_id"]}]: Determining position of pod`);
-        
-        /*
-        const podGameObj = assetsMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];
-        if(!podGameObj || podGameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, podGameObj = ${JSON.stringify(podGameObj)}`);
-
-        let curTransform = null;
-
-        for(const componentRef of podGameObj.props["m_Component"]) {
-            
-            const componentObj = assetsMapping[podGameObj.fileKey + "&" + componentRef["component"]["fileID"]];
-            if(!componentObj) throw new Error(`componentRef = ${JSON.stringify(componentRef)}, podGameObj = ${JSON.stringify(podGameObj)}`);
-
-            if(componentObj.typeName === "Transform") {
-                curTransform = componentObj;
-                break;
-            }
-
-        }
-        
-        let transformChainChildToParent = [];
-        
-        while(curTransform) {
-            
-            if(!curTransform || curTransform.typeName !== "Transform") throw new Error(`curTransform = ${JSON.stringify(curTransform)}`);
-            
-            transformChainChildToParent.push(curTransform);
-
-            const fatherTransformFileId = curTransform.props["m_Father"]["fileID"];
-            
-            if(fatherTransformFileId.toString() !== "0") {
-                curTransform = assetsMapping[curTransform.fileKey + "&" + fatherTransformFileId];
-            }
-            else {
-                curTransform = null;
-            }
-
-        }
-
-        const position = {x: 0, y: 0, z: 0};
-
-        for (let i = transformChainChildToParent.length - 1; i >= 0; i--) {
-
-            const transformObj = transformChainChildToParent[i];
-            
-            // example properties of interest:
-            //   m_LocalRotation: {x: -0.032494184, y: -0.3587241, z: 0.047845565, w: 0.9316501}
-            //   m_LocalPosition: {x: 25.309, y: 23.31, z: 0.379}
-            //   m_LocalScale: {x: 0.667, y: 0.667, z: 0.667}
-
-            const p = transformObj.props["m_LocalPosition"];
-
-            if(!p) throw new Error(`transform.props = ${JSON.stringify(transformObj.props)}`);
-
-            position.x += p.x;
-            position.y += p.y;
-            position.z += p.z;
-
-        }
-        */
-
-        const { gameObj: podGameObj, transformChainChildToParent, position } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
-
-        console.log(`[Treasure Pod ${assetJSON.props["_id"]}]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(position)}`);
-
-        return {fileId, assetJSON, podGameObj, position};
-
-    }
+    })
 );
 
 
