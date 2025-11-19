@@ -70,7 +70,7 @@ export const map_nodes: { [key: string]: MapNode } = {
         name: "Todo: give this Map Node a name",
         pos: { x: 968.9766990621447, y: 2019.5693339100158 },
         description: "Todo: insert a description for this map node x969_y2019",
-        dimension: MapType.overworld
+        dimension: MapType.labyrinth
     },
     "powderfallbluffs_1": {
         internalId: "idk_todo",
