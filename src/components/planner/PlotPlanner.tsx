@@ -133,7 +133,7 @@ export function PlotPlanner({
             <Marker
                 position={vecToLatLng(positions.position)}
                 icon={invisible_icon.icon}
-                opacity={0.8}
+                opacity={0}
                 zIndexOffset={10}
             >
                 <Popup>

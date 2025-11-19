@@ -52,7 +52,8 @@ export async function exportAllNodeCoordsFromScenesJSON(
     //===============
     // Plots
 
-    //...
+    // Never mind, plots on the map don't seem to line up with actual plot locations.
+    // Manually insert this data.
     
     //
     //////////////////////
@@ -5622,4 +5623,4 @@ function printObj(/** @type {AssetJSONType} */ asset, indentNum=0, indentPart='-
 // }
 
 // exportPlotPlannersFromAssetsMapping(await getOrExtractScenesAssetsMapping(defaultCacheSettings), { useCache: false });
-exportPlotPlannersFromAssetsMapping();
+// exportPlotPlannersFromAssetsMapping();
