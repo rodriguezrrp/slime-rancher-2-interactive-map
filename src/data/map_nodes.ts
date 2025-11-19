@@ -60,16 +60,16 @@ export const map_nodes: { [key: string]: MapNode } = {
     },
     "mapnode_zonelabyrinthterrariumjungleglacier_x772_y2170": {
         internalId: "idk_todo",
-        name: "Todo: give this Map Node a name",
+        name: "Terrarium East Node",
         pos: { x: 771.882142256032, y: 2170.9392104896056 },
-        description: "Todo: insert a description for this map node x772_y2170",
+        description: "Located up on a rock ledge which recesses into the northern wall.",
         dimension: MapType.labyrinth
     },
     "mapnode_zonerainbowcore_x969_y2019": {
         internalId: "idk_todo",
-        name: "Todo: give this Map Node a name",
+        name: "Terrarium South Node",
         pos: { x: 968.9766990621447, y: 2019.5693339100158 },
-        description: "Todo: insert a description for this map node x969_y2019",
+        description: "On a high cliff in the wild area, near the tops of some palm trees.",
         dimension: MapType.labyrinth
     },
     "powderfallbluffs_1": {
