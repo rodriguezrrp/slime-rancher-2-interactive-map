@@ -85,6 +85,7 @@ export const PATH_TO_GIGI_HOLOGRAMS_DATA_FILE = "../src/data/gigi_holograms.ts";
 export const PATH_TO_MAP_NODES_DATA_FILE = "../src/data/map_nodes.ts";
 export const PATH_TO_TELEPORT_PADS_DATA_FILE = "../src/data/teleport_pads.ts";
 export const PATH_TO_TELEPORT_LINES_DATA_FILE = "../src/data/teleport_lines.ts";
+export const PATH_TO_PLOT_POSITIONS_DATA_FILE = "../src/data/plot_planner_positions.ts";
 
 export const PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER = "../public/map_overworld";
 export const PATH_TO_LABYRINTH_TILEMAP_FOLDER = "../public/map_labyrinth";

@@ -1,4 +1,5 @@
-import { MapType, transformIngameToMapPositions } from "./processing_utils.js";
+import { applyHighestPriorityRegionPosShift } from "./map_region_def_utils.js";
+import { MapType } from "./processing_utils.js";
 
 // For extracted items that are unused / unobtainable / out of bounds,
 // I suspect they came from extra scene files (for testing?) that are
@@ -63,7 +64,7 @@ export function entryExportFilter(targetFileName, key, obj) {
         let posAltered = false;
         const alterPos = (oldPos) => {
             // const newPos = shiftMapPosIfInsideRealCoreArea(oldPos);
-            const newPos = applyAnyRegionPosShift(oldPos, dimension);
+            const newPos = applyHighestPriorityRegionPosShift(oldPos, dimension);
             if(newPos && (newPos !== oldPos || newPos.x !== oldPos.x || newPos.y !== oldPos.y)) {
                 posAltered = true;
                 return newPos;
@@ -99,140 +100,4 @@ export function entryExportFilter(targetFileName, key, obj) {
     // export the entry as-is
     return true;
 
-}
-
-/** @typedef {import("./process_node_locs.js").Vec2} Vec2 */
-/** @typedef {import("./process_node_locs.js").MapType} MapType */
-/** @typedef {(
- *  {
- *      type: "function",
- *      name?: string,
- *      containsMapPos: (originalMapPos: Vec2) => boolean,
- *      mapPosTransform: (originalMapPos: Vec2) => Vec2,
- *      priority?: number,
- *  }
- *  | {
- *      type: "voronoi",
- *      voronoiGroupId: string,
- *      regions: {
- *          name?: string,
- *          centerpoint: Vec2,
- *          mapPosTransform: (originalMapPos: Vec2) => Vec2,
- *          priority?: number,
- *      }[]
- *  }
- * ) & (
- *  {
- *      dimension: MapType,
- *  }
- * )} RegionDefinition */
-
-/** @type {RegionDefinition[]} */
-const regionDefinitions = [
-    {
-        type: "bounded",
-        name: "mapRegionLabyrinthCore",
-        dimension: MapType.labyrinth,
-        containsMapPos: originalMapPos => (originalMapPos.x < 229 && originalMapPos.y > 2100),
-        // inside roughly-defined region of the northeast corner of labyrinth map;
-        // Offset appropriately, based on the apparent center of the core versus the real center,
-        // to look like it's in the core of the ingame map
-        mapPosTransform: originalMapPos => ({
-            x: originalMapPos.x + (_approxMapCoreCenterPosition.x - _realUnstableCoreMeshPosition.x),
-            y: originalMapPos.y + (_approxMapCoreCenterPosition.y - _realUnstableCoreMeshPosition.y)
-        })
-    }
-];
-
-/** @typedef {Extract<RegionDefinition, { type: "voronoi" }>["regions"][number]} _VoronoiRegionDef */
-
-const _voronoiRegionFns = Object.fromEntries(regionDefinitions.map(def => {
-    if(def.type !== "voronoi") return null;
-    /** @type {[string, (originalMapPos: Vec2) => _VoronoiRegionDef]} */
-    const result = [def.voronoiGroupId, (originalMapPos) => {
-        // note: if on edge or point (equidistant from two or more regions),
-        //   region tiebreaking decision is not well-defined
-        const withSqDists = def.regions.map(voronoiRegionDef => {
-            const { x: rcx, y: rcy } = voronoiRegionDef.centerpoint;
-            return {
-                baseRegionDef: def,
-                voronoiRegionDef: voronoiRegionDef,
-                sqDist: Math.pow(originalMapPos.x - rcx, 2) + Math.pow(originalMapPos.y - rcy, 2)
-            };
-        }).sort((a, b) => a.sqDist - b.sqDist);
-        const chosen = withSqDists[0];
-        // return { baseRegionDef: chosen.baseRegionDef, voronoiRegionDef: chosen.voronoiRegionDef };
-        return chosen.voronoiRegionDef;
-    }];
-    return result;
-}).filter(e => e !== null));
-
-// const _voronoiCache = Object.fromEntries(
-//     Object.entries(
-//         regionDefinitions.reduce((accum, def) => {
-//             if(def.type !== "voronoi") return;
-//             accum[def.voronoiGroupId] ??= [];
-//             accum[def.voronoiGroupId].push(def);
-//         }, { })
-//     )
-//     .map((/** @type {[string, RegionDefinition[]]} */ [voronoiGroupId, voronoiGroup]) => {
-//         /** @type {(pos: Vec2) => RegionDefinition} */
-//         const insideRegion = (pos) => {
-//             // note: if on edge or point (equidistant from two or more regions),
-//             //   region decision is arbitrary
-//             const withSqDists = voronoiGroup.map(region => {
-//                 const { x: rcx, y: rcy } = region.centerpoint;
-//                 return { region, sqDist: Math.pow(pos.x - rcx, 2) + Math.pow(pos.y - rcy, 2) };
-//             }).sort((a, b) => a.sqDist - b.sqDist);
-//             return withSqDists[0].region;
-//         };
-//         return [voronoiGroupId, { group: voronoiGroup, insideRegion: insideRegion }];
-//     })
-// );
-
-const _realUnstableCoreMeshPosition = transformIngameToMapPositions({ x: 2245.869162606233, y: 97.43239, z: -121.29875198047512 });
-const _approxMapCoreCenterPosition = { x: 256, y: 1456 };
-
-// function shiftMapPosIfInsideRealCoreArea(/** @type {Vec2} */ originalMapPos) {
-//     if(originalMapPos.x < 229 && originalMapPos.y > 2100) {
-//         // inside roughly-defined region of the northeast corner of labyrinth map;
-//         // Offset appropriately, based on the apparent center of the core versus the real center,
-//         // to look like it's in the core of the ingame map
-//         return {
-//             x: originalMapPos.x + (_approxMapCoreCenterPosition.x - _realUnstableCoreMeshPosition.x),
-//             y: originalMapPos.y + (_approxMapCoreCenterPosition.y - _realUnstableCoreMeshPosition.y)
-//         };
-//     }
-//     return originalMapPos;
-// }
-
-export function applyAnyRegionPosShift(/** @type {Vec2} */ originalMapPos, /** @type {MapType | undefined} */ dimension = undefined) {
-    let region = getMapRegionInside(originalMapPos, dimension);
-    if(region) {
-        return region.mapPosTransform(originalMapPos);
-    }
-    return originalMapPos;
-}
-
-export function getMapRegionInside(/** @type {Vec2} */ originalMapPos, /** @type {MapType | undefined} */ dimension = undefined) {
-    /** @type {(_VoronoiRegionDef | Exclude<RegionDefinition, { type: "voronoi" }>)[]} */
-    const results = [];
-    const voronoiInclusionCache = { };
-    regionDefinitions.forEach(def => {
-        if(dimension && def.dimension !== dimension) return;
-        if(def.type === "voronoi") {
-            if(!voronoiInclusionCache[def.voronoiGroupId]) {
-                const voronoiRegion = _voronoiRegionFns[def.voronoiGroupId](originalMapPos);
-                voronoiInclusionCache[def.voronoiGroupId] = voronoiRegion;
-                results.push(voronoiRegion);
-            }
-        }
-        else {
-            if(def.containsMapPos(originalMapPos)) {
-                results.push(def);
-            }
-        }
-    });
-    // return the one with highest priority number
-    return results.sort((a, b) => (a.priority || 0) - (b.priority || 0)).pop();
 }

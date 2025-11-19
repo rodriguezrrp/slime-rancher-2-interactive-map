@@ -13,16 +13,12 @@ const tileSize: number = 256;
 // Rainbow Island settings
 const RIunitsPerPixel: number = 128;
 const RImapWidthPx: number = 25600;
-// // const mapWidthPx: number = 11468;
-// // const mapHeightPx: number = 25600;
 
 // // Labyrinth settings
 const LABunitsPerPixel: number = 64;
 const LABmapWidthPx: number = 16003;
 
 function makeSimpleCRS(unitsPerPixel: number, mapWidthPx: number, gameMapWidthUnits: number) {
-
-    // TODO Also find a way to swap out CRS dynamically? Or the L.Transformation? Do I need to move the L.Transformation 'logic' into a separate conditional function based on current_map?
 
     // Ex. with RI: largest zoom has a units-per-pixel = 128.
     // Then with RI, account for how map png size is 25600x25600 pixels but in-game map size is 6400x6400 units.
@@ -50,16 +46,6 @@ function makeSimpleCRS(unitsPerPixel: number, mapWidthPx: number, gameMapWidthUn
     };
 }
 
-// export const {
-//     scaleFactor: CRSscaleFactorRainbowIsland,
-//     centerOffset: CRScenterOffsetRainbowIsland,
-//     ScaledSimpleCRS: ScaledSimpleCRSRainbowIsland
-// } = makeSimpleCRS(RIunitsPerPixel, RImapWidthPx, gameMapWidthUnits);
-// export const {
-//     scaleFactor: CRSscaleFactorLabyrinth,
-//     centerOffset: CRScenterOffsetLabyrinth,
-//     ScaledSimpleCRS: ScaledSimpleCRSLabyrinth
-// } = makeSimpleCRS(LABunitsPerPixel, LABmapWidthPx, gameMapWidthUnits);
 export const mapCRSsettings: Record<MapType, { CRS: null } | ReturnType<typeof makeSimpleCRS>> = {
     [MapType.overworld]: makeSimpleCRS(RIunitsPerPixel, RImapWidthPx, gameMapWidthUnits),
     [MapType.labyrinth]: makeSimpleCRS(LABunitsPerPixel, LABmapWidthPx, gameMapWidthUnits),

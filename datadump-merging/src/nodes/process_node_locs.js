@@ -1,14 +1,16 @@
 
-import { GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE, L10N_TABLES_GLOBS, PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, PATH_TO_MAP_NODES_DATA_FILE, PATH_TO_PROJECTOR_PUZZLES_DATA_FILE, PATH_TO_TELEPORT_PADS_DATA_FILE, PATH_TO_TELEPORT_LINES_DATA_FILE, GLOBS_TO_ANCIENT_TELEPORTER_ASSETS, GLOB_TO_TELEPORT_NETWORK_DEFINITION, GLOBS_TO_SCENE_GROUP_ASSETS } from "../../asset_paths.js";
+import { GLOBS_TO_INDIVIDUAL_DRONE_ASSETS, GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, PATH_TO_TREASURE_PODS_DATA_FILE, PATH_TO_SHADOW_DEPOS_DATA_FILE, PATH_TO_RESEARCH_DRONES_DATA_FILE, PATH_TO_GORDOS_DATA_FILE, GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES, PATH_TO_PUZZLE_DOORS_DATA_FILE, PATH_TO_STABILIZING_GATES_DATA_FILE, PATH_TO_NULLIFIER_DOORS_DATA_FILE, L10N_TABLES_GLOBS, PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, PATH_TO_MAP_NODES_DATA_FILE, PATH_TO_PROJECTOR_PUZZLES_DATA_FILE, PATH_TO_TELEPORT_PADS_DATA_FILE, PATH_TO_TELEPORT_LINES_DATA_FILE, GLOBS_TO_ANCIENT_TELEPORTER_ASSETS, GLOB_TO_TELEPORT_NETWORK_DEFINITION, GLOBS_TO_SCENE_GROUP_ASSETS, PATH_TO_PLOT_POSITIONS_DATA_FILE } from "../../asset_paths.js";
 
 import { Glob, globSync } from "glob";
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { basename } from "node:path";
-import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPositions, extractL10nTablesToCache, MapType, iterChildGameObjects_DFS, iterGameObjectComponentObjs, fromGlobsMapAssetGUIDsToAssetJSONs } from "./processing_utils.js";
+import { defaultCacheSettings, dumpMassiveHeckinBigObjectToJSON, readMassiveHeckinBigObjectFromJSON, sortStringsWithNumbers, parseUnityFileYamlIntoAssetsMapping, followMonoBehaviourGameObjectTransformChain, setContains, arraysEqual, looseJsonParseWithEval, looseJsonStringify, joinedStringWithOxfordComma, capitalizeFirst, transformIngameToMapPosition, extractL10nTablesToCache, MapType, iterChildGameObjects_DFS, iterGameObjectComponentObjs, fromGlobsMapAssetGUIDsToAssetJSONs } from "./processing_utils.js";
 import { readFile } from "node:fs/promises";
 import { entryExportFilter } from "./entries_export_filter.js";
 import { gigi_manually_noted_conversations } from "../../gigi_manually_noted_conversations.js";
+import { getMapRegionsContaining } from "./map_region_def_utils.js";
+import { _schema_MapType, _schema_Vec2, matchAgainstSchema, schemautils } from "./schema_utils.js";
 // import { transpile } from "typescript";
 // const gigi_manually_noted_conversations = eval(transpile(readFileSync("../../gigi_manually_noted_conversations.ts")));
 
@@ -108,6 +110,41 @@ export async function exportAllNodeCoordsFromScenesJSON(
     await exportTeleportersFromAssetsMapping(assetsMapping, cacheOpts);
 
 }
+
+/** @type {import("./processing_utils.js").LooseStringifyTransformingFunctionsType<unknown>} */
+const _jsonStringifyTransformerFns = {
+    transformer: (obj, key, keys) => {
+        if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
+        if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
+        if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
+    },
+    shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
+    shouldInlineObj: (key, depth, keysChain, obj) => {
+        // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
+        // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
+        // return null;
+        return (
+            (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
+            || (Array.isArray(obj) && obj.length <= 1) || (key === "drops" && Array.isArray(obj) && obj.length <= 3)
+        ) ? true : null;
+    },
+    shouldSortKeys: (key, depth, keysChain, obj) => {
+        if(depth === 0) return sortStringsWithNumbers;
+        if(depth === 1 || (depth === 2 && (key === "startPoint" || key === "endPoint"))) {
+            // preferred sort order of the keys of each data object
+            const _lookup = Object.fromEntries(["internalId", "id", "name", "nameSuffix", "log", "archive", "food", "pos", "position", "image", "drops", "unlocks", "description", "dimension", "startPoint", "endPoint"].map((v, i) => [v, i]));
+            const _default = Object.keys(_lookup).length;
+            return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
+        }
+        if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
+            // put "en" lang as first item, order all other lang keys lexographically
+            return (a, b) => {
+                a = a.toLowerCase(); b = b.toLowerCase();
+                return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
+            };
+        }
+    }
+};
 
 /** @type {AssetsMappingType} */
 let _assetsMapping = null;
@@ -226,7 +263,7 @@ async function exportPodsFromAssetsMapping(/** @type {AssetsMappingType | undefi
             description: existingData?.description ?? "Todo: insert a description for this pod",
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // pos: /*existingData?.pos ??*/ { x: -position.z, y: position.x },
-            pos: transformIngameToMapPositions(position),
+            pos: transformIngameToMapPosition(position),
             dimension: existingData?.dimension ?? "MapType.overworld",
             _otherLines: existingData?._otherLines,
         };
@@ -419,7 +456,7 @@ async function exportShadowPlortDeposFromAssetsMapping(/** @type {AssetsMappingT
             description: existingData?.description ?? "Todo: insert a description for this shadow door " + internalDepoId,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // position: { x: -position.z, y: position.x },
-            position: transformIngameToMapPositions(position),
+            position: transformIngameToMapPosition(position),
             // position: { x: position.x, y: position.z },
             // position: { x: -position.x, y: -position.z },
             _otherLines: existingData?._otherLines,
@@ -577,7 +614,7 @@ async function exportResearchDronesFromAssetsMapping(/** @type {AssetsMappingTyp
 
     console.log("Merging existing and extracted research drone data");
     
-    // merge existing and extracted shadow depo data
+    // merge existing and extracted research drone data
     
     for(const { assetJSON, droneGameObj: droneGameObjJSON, referenceAssetJSON, archiveAssetJSON, pos } of ingameDronePositions) {
         /** @type {string} */
@@ -635,7 +672,7 @@ async function exportResearchDronesFromAssetsMapping(/** @type {AssetsMappingTyp
             description: existingData?.description ?? "Todo: insert a description for this research drone " + internalDroneId,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // pos: { x: -pos.z, y: pos.x },
-            pos: transformIngameToMapPositions(pos),
+            pos: transformIngameToMapPosition(pos),
             // dimension: existingData?.dimension ?? "MapType.overworld",
             dimension: existingData?.dimension ?? MapType.overworld,
             _otherLines: existingData?._otherLines,
@@ -806,7 +843,7 @@ async function exportGordosFromAssetsMapping(/** @type {AssetsMappingType | unde
 
     console.log("Merging existing and extracted gordo data");
     
-    // merge existing and extracted shadow depo data
+    // merge existing and extracted gordo data
     
     for(const { assetJSON, gordoGameObj: gordoGameObjJSON, referenceAssetJSON, slimeDefinitionAssetJSON, dietGroupsAssetsJSON, favoriteFoodsAssetJSON, targetCount, pos } of ingameGordoPositions) {
         /** @type {string} */
@@ -904,7 +941,7 @@ async function exportGordosFromAssetsMapping(/** @type {AssetsMappingType | unde
             description: existingData?.description ?? "Todo: insert a description for this gordo " + internalGordoId,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // pos: { x: -pos.z, y: pos.x },
-            pos: transformIngameToMapPositions(pos),
+            pos: transformIngameToMapPosition(pos),
             // dimension: existingData?.dimension ?? "MapType.overworld",
             // dimension: existingData?.dimension ?? MapType.overworld,
             dimension: dimension,
@@ -1111,7 +1148,7 @@ async function exportPuzzleDoorsFromAssetsMapping(/** @type {AssetsMappingType |
 
     console.log("Merging existing and extracted puzzle door data");
     
-    // merge existing and extracted shadow depo data
+    // merge existing and extracted puzzle door data
     
     for(const { fileId, assetJSON, puzzleGameObj: puzzleGameObjJSON, pos, type } of ingamePuzzleDoorPositions) {
         /** @type {string} */
@@ -1329,7 +1366,7 @@ async function exportPuzzleDoorsFromAssetsMapping(/** @type {AssetsMappingType |
             plort: plortText,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // pos: { x: -pos.z, y: pos.x },
-            pos: transformIngameToMapPositions(pos),
+            pos: transformIngameToMapPosition(pos),
             image: image,
             type: type,
             doorId: type === "door" ? undefined : puzdoorJSON?.props["_id"],
@@ -1512,7 +1549,7 @@ async function exportStabilizingGatesFromAssetsMapping(/** @type {AssetsMappingT
 
     console.log("Merging existing and extracted stabilizing gate data");
     
-    // merge existing and extracted shadow depo data
+    // merge existing and extracted stabilizing gate data
     
     for(const { fileId, assetJSON, gateGameObj: gateGameObjJSON, pos } of ingameGatePositions) {
         /** @type {string} */
@@ -1567,7 +1604,7 @@ async function exportStabilizingGatesFromAssetsMapping(/** @type {AssetsMappingT
             // name: name,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // position: { x: -pos.z, y: pos.x },
-            position: transformIngameToMapPositions(pos),
+            position: transformIngameToMapPosition(pos),
             // image: image,
             description: existingData?.description ?? "Todo: insert a description for this stabilizing gate " + internalId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
@@ -1758,7 +1795,7 @@ async function exportNullifierDoorsFromAssetsMapping(/** @type {AssetsMappingTyp
 
     console.log("Merging existing and extracted nullifier door data");
     
-    // merge existing and extracted shadow depo data
+    // merge existing and extracted nullifier door data
     
     for(const { fileId, assetJSON, doorGameObj: doorGameObjJSON, pos } of ingameNullifierDoorPositions) {
         /** @type {string} */
@@ -1813,7 +1850,7 @@ async function exportNullifierDoorsFromAssetsMapping(/** @type {AssetsMappingTyp
             // name: name,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // position: { x: -pos.z, y: pos.x },
-            position: transformIngameToMapPositions(pos),
+            position: transformIngameToMapPosition(pos),
             // image: image,
             description: existingData?.description ?? "Todo: insert a description for this nullifier door " + manufacturedId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
@@ -2225,7 +2262,7 @@ async function exportGigiHologramsFromAssetsMapping(/** @type {AssetsMappingType
 
     console.log("Merging existing and extracted Gigi hologram data");
     
-    // merge existing and extracted shadow depo data
+    // merge existing and extracted gigi hologram data
     
     for(const { fileId, assetJSON, gigiGameObj: gigiGameObjJSON, pos } of ingameGigiHologramPositions) {
         /** @type {string} */
@@ -2283,7 +2320,7 @@ async function exportGigiHologramsFromAssetsMapping(/** @type {AssetsMappingType
             // name: name,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // position: { x: -pos.z, y: pos.x },
-            position: transformIngameToMapPositions(pos),
+            position: transformIngameToMapPosition(pos),
             // image: image,
             description: existingData?.description ?? "Todo: insert a description for this Gigi hologram " + manufacturedId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
@@ -2528,7 +2565,7 @@ async function exportMapNodesFromAssetsMapping(/** @type {AssetsMappingType | un
             // name: name,
             // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
             // position: { x: -pos.z, y: pos.x },
-            pos: transformIngameToMapPositions(pos),
+            pos: transformIngameToMapPosition(pos),
             // image: image,
             description: existingData?.description ?? "Todo: insert a description for this map node " + manufacturedId,
             // dimension: existingData?.dimension ?? "MapType.overworld",
@@ -2760,7 +2797,7 @@ async function exportProjectorPuzzlesFromAssetsMapping(/** @type {AssetsMappingT
         return undefined;
     }
     
-    // merge existing and extracted shadow depo data
+    // merge existing and extracted projector puzzle data
     
     for(const assetInfoAndPosition of ingameProjectorPuzzlePositions) {
         const { fileId, assetJSON, puzzleGameObj: puzzleGameObjJSON, pos, beamPointType } = assetInfoAndPosition;
@@ -2821,7 +2858,7 @@ async function exportProjectorPuzzlesFromAssetsMapping(/** @type {AssetsMappingT
         const _mergedBeamPointDataObj = { ...found?.entry,
             id: manufacturedBeamPointId,
             nameSuffix: found?.entry.nameSuffix ?? `Beam ${beamPointType === "start" ? "Emitter" : "Receiver"}`,
-            position: transformIngameToMapPositions(pos),
+            position: transformIngameToMapPosition(pos),
             description: found?.entry.description ?? "Todo: insert a description for this projector puzzle beam point " + manufacturedBeamPointId,
         };
         // clear out all entries with undefined values
@@ -3210,8 +3247,8 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
 
         // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
 
-        const pos1 = transformIngameToMapPositions(teleporterAsset1Info.pos);
-        const pos2 = transformIngameToMapPositions(teleporterAsset2Info.pos);
+        const pos1 = transformIngameToMapPosition(teleporterAsset1Info.pos);
+        const pos2 = transformIngameToMapPosition(teleporterAsset2Info.pos);
 
         /** @type {ExistingTeleportLineDataType} */
         const _mergedDataObj = { ...existingData,
@@ -3290,7 +3327,7 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
         const _mergedDataObj = { ...existingData,
             internalId: manufacturedId,
             name: existingData?.name ?? ((teleporterShortName + " ") + "Ancient Teleporter"),
-            position: transformIngameToMapPositions(teleporterAssetJSONInfo.pos),
+            position: transformIngameToMapPosition(teleporterAssetJSONInfo.pos),
             description: existingData?.description ?? "Todo: insert a description for this teleporter " + manufacturedId,
             dimension: dimension,
         };
@@ -3654,20 +3691,283 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
 //     fnWriteNullifierDoorsBackToFile(mergedDoorTSData);
 // }
 
+async function exportPlotPlannersFromAssetsMapping(/** @type {AssetsMappingType | undefined} */ assetsMapping, /** @type {CacheOpts} */ cacheOpts) {
+
+    cacheOpts = {...defaultCacheSettings, ...cacheOpts};
+
+    /** @type {{ fileId: string, assetJSON: AssetJSONType, plotGameObj: AssetJSONType, pos: { x: number, y: number, z: number } }[]} */
+    let ingamePlotPlannerPositions;
+    
+    if(cacheOpts.useCache && existsSync("./data_cache/plotPlannerAssetsAndPositions.json")) {
+    // if(false) {  // for debugging
+        
+        console.log("Reading cached plot planner coordinates...");
+
+        ingamePlotPlannerPositions = JSON.parse(readFileSync("./data_cache/plotPlannerAssetsAndPositions.json"));
+
+        console.log(`Read (${ingamePlotPlannerPositions.length}) plot planner coordinates from cache file.`);
+
+    } else {
+
+        assetsMapping ??= await getOrExtractScenesAssetsMapping(cacheOpts);
+
+        console.log("Extracting plot planner coordinates from assets JSON...");
+
+        const plotMonoBehavioursEntries = Object.entries(assetsMapping)
+            .filter(([, assetJSON]) => {
+            
+                const prop_landPlot = assetJSON.props["landPlot"];
+
+                if(!prop_landPlot) {
+                    return false;
+                }
+
+                if(assetJSON.typeName !== "MonoBehaviour") {
+                    console.log(assetJSON);
+                    throw new Error("found asset with a \"landPlot\" prop, but it was not a MonoBehaviour?");
+                }
+
+                return true;
+
+            });
+        console.log(`Retrieved ${plotMonoBehavioursEntries.length} plot planner MonoBehaviour entries.`);
+
+        // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+        // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+        // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+    
+        // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+        // await Promise.all(identsAndDefsFilePaths.map(
+        //     async (assetpath) => {
+        //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+        //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+        //         const guid = metaFileGuidRegex.exec(metadata)[1];
+                
+        //         /** @type {AssetsMappingType} */
+        //         const identOrDefAssetsMapping = { }
+        //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+        //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+        //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+        //         }
+        //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+        //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+        //     }
+        // ));
+        // throw new Error("temp");
+
+        // ingameDronePositions = await Promise.all(droneEntryMonoBehavioursEntries.map(mapFnDetermineResearchDronePosition(assetsMapping)));
+        ingamePlotPlannerPositions = await Promise.all(plotMonoBehavioursEntries.map(async (/** @type {[ fileId: string, assetJSON: AssetJSONType ]} */ [fileId, assetJSON]) => {
+
+            console.log(`[Plot Planner (assetJSON fileKeyFileId: ${assetJSON.fileKey + '&' + assetJSON.fileId})]: Determining position of plot planner`);
+
+            const { gameObj: plotGameObj, transformChainChildToParent, position: pos } = followMonoBehaviourGameObjectTransformChain(assetsMapping, assetJSON);
+
+            // for(const child of transformChainChildToParent) {
+            //     console.log(child.typeName);
+            //     console.log(child.fileKey);
+            //     console.log(child.fileId);
+            //     console.log(child.props["m_LocalPosition"]);
+            //     console.log(child.props["m_LocalRotation"]);
+            //     console.log(child.props["m_LocalScale"]);
+            // }
+
+            console.log(`[Plot Planner (assetJSON fileKeyFileId: ${assetJSON.fileKey + '&' + assetJSON.fileId})]: Through a chain of ${transformChainChildToParent.length} transform(s), found position to be ${JSON.stringify(pos)}`);
+
+            return { fileId, assetJSON, plotGameObj, pos };
+
+        }));
+
+        console.log(`Determined ${ingamePlotPlannerPositions.length} plot planner assets and their positions.`);
+        
+        // // for debugging, cache the whole transform chain as well (and each transform's gameObject for good measure)
+        // for(const d of ingameDronePositions) {
+        //     const {podGameObj:depoGameObj,position,transformChainChildToParent} = followMonoBehaviourGameObjectTransformChain(assetsMapping, d.assetJSON);
+        //     d.transformChainChildToParent = transformChainChildToParent.map(c => {
+        //         const gameObj = assetsMapping[c.fileKey + "&" + c.props["m_GameObject"]["fileID"]];
+        //         return { ...c, gameObject: gameObj };
+        //     });
+        // }
+
+        if(cacheOpts.exportToCache) {
+            const _export = () => {
+                writeFileSync("./data_cache/plotPlannerAssetsAndPositions.json", JSON.stringify(ingamePlotPlannerPositions));
+                console.log("Exported plot planner assets and their positions to cache.");
+            };
+            if(cacheOpts.exportToCache === "sync") {
+                console.log("Exporting plot planner assets and their positions to cache...")
+                _export();
+            }
+            else (async () => { _export(); })();
+        }
+
+    }
+
+    
+    // /** @type {{ [fileGUID: string]: AssetJSONType }} */
+    // const mapIdentAndDefGUIDtoAssetJSONs = { };
+
+    // const metaFileGuidRegex = /^guid: *([0-9a-f]{32})$/im;
+
+    // const identsAndDefsFilePaths = globSync(GLOBS_TO_IDENTIFIABLETYPE_AND_DEFINITION_FILES);
+
+    // await Promise.all(identsAndDefsFilePaths.map(
+    //     async (assetpath) => {
+    //         // const filenameNoExt = basename(assetpath).split(".")[0];
+
+    //         const metadata = await readFile(assetpath + ".meta", { encoding: "utf-8" });
+    //         const guid = metaFileGuidRegex.exec(metadata)[1];
+            
+    //         /** @type {AssetsMappingType} */
+    //         const identOrDefAssetsMapping = { }
+    //         parseUnityFileYamlIntoAssetsMapping(assetpath, identOrDefAssetsMapping);
+    //         if(Object.keys(identOrDefAssetsMapping).length !== 1) {
+    //             throw new Error("Expected only one asset to be in the identifiable type asset or definition asset file");
+    //         }
+    //         const identOrDefAssetJSON = Object.values(identOrDefAssetsMapping)[0];
+
+    //         mapIdentAndDefGUIDtoAssetJSONs[guid] = identOrDefAssetJSON;
+    //     }
+    // ));
+
+
+    console.log("Parsing existing plot planner data in the map data files...")
+
+    const { fnWriteTSDataBackToFile: fnWritePlotPlannersBackToFile, existingTSDataByTsDataKey: existingPlotPlannerTSDataByRegion } = readExistingPlotPlannersTSData(cacheOpts);
+
+    console.log(`Parsed ${Object.keys(existingPlotPlannerTSDataByRegion).reduce((accumCt, regionKey) => accumCt + Object.keys(existingPlotPlannerTSDataByRegion[regionKey]).length, 0)} existing plot planner data entries.`);
+
+    const mergedPlotTSData = { ...existingPlotPlannerTSDataByRegion };
+
+    console.log("Merging existing and extracted plot planner data");
+    
+    // merge existing and extracted plot planner data
+
+    /** @type {{ [regionKey: string]: Array<typeof ingamePlotPlannerPositions[number]> }} */
+    const plotPlannerInfoByRegion = { }
+
+    for(const info of ingamePlotPlannerPositions) {
+        const { pos } = info;
+        const posOnMap = transformIngameToMapPosition(pos);
+        const regions = getMapRegionsContaining(posOnMap, MapType.overworld);
+        console.log();
+        const regionKey = regions[0].name.toLowerCase().replace("mapvoronoiexpansion", "");
+        console.log(pos, posOnMap, regionKey, regions);
+        plotPlannerInfoByRegion[regionKey] ??= [];
+        plotPlannerInfoByRegion[regionKey].push(info);
+    }
+    for(const regionKey of Object.keys(plotPlannerInfoByRegion)) {
+        // /** @type {string} */
+        // const manufacturedId = manufacturePlotPlannerIdFromAssets(assetJSON, plotGameObjJSON, pos);
+
+        // let areaNameForKey;
+        // // TODO determine area name?
+        // // if(!oldId) {
+        // //     // console.log("debug: fileKey: ", assetJSON.fileKey);
+        // //     // make a best guess based on what scene file the asset was in.
+        // //     console.log(assetJSON.fileKey);
+        // //     areaNameForKey = /((?:zone|coreScene)[a-z0-9_]+).unity/i.exec(assetJSON.fileKey)?.[1]?.toLowerCase()?.replace("_","")
+        // //         ?? "undeterminedarea";
+        // //     // areaNameForKey = "undeterminedarea";
+        // // }
+        // const tsDataKey = oldId ?? (`nullifierdoor_${manufacturedId}`);
+
+        // console.log(internalPodId, internalName, oldPodId, tsDataKey);
+
+        // /** @type {undefined | existingPlotPlannerTSDataByRegion[keyof existingPlotPlannerTSDataByRegion]} */
+        // const existingData = (
+        //     existingPlotPlannerTSDataByRegion[oldId]
+        //     || existingPlotPlannerTSDataByRegion[manufacturedId]
+        //     || existingPlotPlannerTSDataByRegion[tsDataKey]
+        //     || Object.values(existingPlotPlannerTSDataByRegion).find(data => data.internalId === manufacturedId)
+        // );
+
+        // // remove existingData object from the merged data mapping;
+        // // we will be overwriting it later with the "standardized" tsDataKey
+        // for(const [k, v] of Object.entries(mergedPlotTSData)) {
+        //     if(v === existingData) {
+        //         delete mergedPlotTSData[k];
+        //         break;
+        //     }
+        // }
+
+        // // const dimension = existingData?.dimension ?? (areaNameForKey?.match(/^(zone|coreScene)Lab/i) ? MapType.labyrinth : MapType.overworld);
+
+        // /** @type {ExistingPlotPlannerDataType} */
+        // const _mergedDataObj = { ...existingData,
+        //     // internalId: internalId,
+        //     // name: existingData?.name ?? ["TODO retrieve name from translation table"],
+        //     // name: (existingData && !/([a-z]+) gordo/i.test(existingData.name)) ? existingData.name : `${slimetypeUppercasedFirst} Gordo`,
+        //     // name: name,
+        //     // In-game coordinate system is at 90 degrees to our map; swap x and y axes.
+        //     // position: { x: -pos.z, y: pos.x },
+        //     position: transformIngameToMapPosition(pos),
+        //     // image: image,
+        //     description: existingData?.description ?? "Todo: insert a description for this plot planner " + manufacturedId,
+        //     // dimension: existingData?.dimension ?? "MapType.overworld",
+        //     // dimension: existingData?.dimension ?? MapType.labyrinth,
+        //     // unlocks: existingData?.unlocks ?? ["Todo: specify puzzle door unlocks"],
+        // };
+        // // clear out all entries with undefined values
+        // Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
+        // // save merged data back
+        // mergedPlotTSData[tsDataKey] = _mergedDataObj;
+
+        const priorPlotsCt = existingPlotPlannerTSDataByRegion[regionKey] ? Object.keys(existingPlotPlannerTSDataByRegion[regionKey]).length : null;
+
+        /** @type {typeof existingPlotPlannerTSDataByRegion[string]} */
+        const newData = { };
+
+        let plotCtInd = 0;
+        for(const { assetJSON, plotGameObj, fileId, pos } of plotPlannerInfoByRegion[regionKey]) {
+            newData[plotCtInd] = {
+                position: transformIngameToMapPosition(pos)
+            };
+            plotCtInd++;
+        }
+
+        mergedPlotTSData[regionKey] = newData;
+
+        if(priorPlotsCt !== null)
+            console.log(`Replaced existing ${regionKey} plot planner data (${priorPlotsCt} plots) with extracted ${regionKey} data (${plotCtInd} plots)`);
+        else
+            console.log(`Inserted extracted ${regionKey} plot planner data (${plotCtInd} plots)`);
+    }
+
+    console.log("Writing plot planner data back to map data file");
+
+    fnWritePlotPlannersBackToFile(mergedPlotTSData);
+}
+
+/** @typedef {(import("../../../src/types.ts").PlannerPosition)} ExistingPlotPlannerDataType */
+
+/** @type {ReturnType<typeof makeTSDataFileParserFn<{ [key: string | number]: ExistingPlotPlannerDataType }>>} */
+const readExistingPlotPlannersTSData = makeTSDataFileParserFn(
+    PATH_TO_PLOT_POSITIONS_DATA_FILE,
+    "planner_positions",
+    schemautils.objectAnyKey(
+        schemautils.objectAnyKey({
+            schematype: "object",
+            subschema: {
+                "position": _schema_Vec2
+            }
+        })
+    ),
+    { ..._jsonStringifyTransformerFns,
+        shouldQuoteKey: (key, depth, keys, obj) => {
+            if(depth === 0) {
+                return null;
+            }
+            return _jsonStringifyTransformerFns.shouldQuoteKey(key, depth, keys, obj);
+        },
+    }
+);
 
 /** @typedef {{ internalId: string, name: string, description: string, position: Vec2, dimension: MapType, [other]?: any }} ExistingTeleportPadDataType */
 /** @typedef {{ name: string, positions: Vec2[], midpoint: Vec2, dimension: MapType, [other]?: any }} ExistingTeleportLineDataType */
-
-/** @type {ExpectedSchemaType} */
-const _schema_Vec2 = {
-    schematype: "object",
-    subschema: { "x": "number", "y": "number" }
-};
-/** @type {ExpectedSchemaType} */
-const _schema_MapType = {
-    schematype: "union",
-    anyof: Object.values(MapType).map(v => ({ schematype: "literal", value: v }))
-};
 
 function readExistingTeleportersTSData(/** @type {CacheOpts} */ cacheOpts) {
     return {
@@ -3702,34 +4002,6 @@ function readExistingTeleportersTSData(/** @type {CacheOpts} */ cacheOpts) {
         ))(cacheOpts),
     };
 }
-
-/** @typedef {(
- *      "string"
- *      | "number"
- *      | "boolean"
- *      | "object"
- *      | "function"
- *      | "undefined"
- *      | {
- *          schematype: "object",
- *          subschema: { [requiredKey: string | number]: ExpectedSchemaType }
- *          subschemaKeyPatterns?: { keyMatcher: ((key: string | number) => boolean), valueSchema: ExpectedSchemaType }[]
- *      }
- *      | {
- *          schematype: "union",
- *          anyof: ExpectedSchemaType[]
- *      }
- *      | {
- *          schematype: "array",
- *          subschema: ExpectedSchemaType
- *      }
- *      | {
- *          schematype: "literal",
- *          value: string | number | boolean
- *      }
- *      | "any"
- *      | null
- * )} ExpectedSchemaType */
 
 /**
  * @template {Record<string | number, unknown>} T
@@ -3791,138 +4063,7 @@ function makeTSDataFileParserFn(pathToTSDataFile, variableNameInFile, expectedSc
         //     throw new Error("unexpected loose json parse result, did not match expected schema");
         // }
         
-        let _entireObjMatchesExpectedSchema = true;
-        
-        /** @type {{
-         *      obj: any,
-         *      schema: ExpectedSchemaType,
-         *      unionTrackingObj?: { uncheckedOptionsCt: 0 },
-         * }[]} */
-        let _objQueueStack = [
-            { obj: parsedObj, schema: expectedSchema }
-        ];
-        
-        while (_entireObjMatchesExpectedSchema && _objQueueStack.length > 0) {
-            let thisObjPassed = true;
-            const popped = /** @type {_objQueueStack[number]} */(_objQueueStack.pop());
-            const { obj, schema } = popped;
-            // check obj against schema
-            if(schema === "any") {
-                // the schema does not specify a required value type for this key; the obj passes
-            }
-            else if(typeof schema === "string") {
-                if(typeof obj !== schema) {
-                    thisObjPassed = false;
-                }
-            }
-            else if(schema === null) {
-                if(obj !== null) {
-                    thisObjPassed = false;
-                }
-            }
-            else if(typeof schema === "object") {
-                if(schema.schematype === "literal") {
-                    if(obj !== schema.value) {
-                        thisObjPassed = false;
-                    }
-                }
-                else if(schema.schematype === "object") {
-                    if(typeof obj !== "object") {
-                        thisObjPassed = false;
-                    }
-                    else {
-                        const objKeysToCheck = new Set(Object.keys(obj));
-
-                        // check all required key-value pairs of obj
-                        for(const schemaReqKey of Object.keys(schema.subschema)) {
-                            if(!Object.hasOwn(obj, schemaReqKey)) {
-                                thisObjPassed = false;
-                                break;
-                            }
-                            const schemaValType = schema.subschema[schemaReqKey];
-                            const objVal = obj[schemaReqKey];
-                            objKeysToCheck.delete(schemaReqKey);
-    
-                            // recursion: queue up the objVal as another object to check the schema of.
-                            _objQueueStack.push({ obj: objVal, schema: schemaValType });
-                        }
-
-                        if(schema.subschemaKeyPatterns) {
-                            // check all other key-value pairs of obj in case they match a patterned key schema
-                            for(const remainingKeyOfObj of objKeysToCheck) {
-                                for(const { keyMatcher, valueSchema } of schema.subschemaKeyPatterns) {
-                                    if(!keyMatcher(remainingKeyOfObj)) {
-                                        // this objKey does not match this pattern; keep checking other patterns.
-                                        continue;
-                                    }
-                                    const objVal = obj[remainingKeyOfObj];
-                                    // recursion: queue up the objVal as another object to check the schema of.
-                                    _objQueueStack.push({ obj: objVal, schema: valueSchema });
-                                }
-                            }
-                        }
-
-                        // the obj itself (but not necessarily its children) passes this schema check
-                    }
-                }
-                else if(schema.schematype === "array") {
-                    if(!Array.isArray(obj)) {
-                        thisObjPassed = false;
-                        break;
-                    }
-                    else {
-                        // check all children of array obj
-                        for(const child of obj) {
-                            // recursion: queue up the child as another object to check the schema of.
-                            _objQueueStack.push({ obj: child, schema: schema.subschema });
-                        }
-
-                        // the obj itself (but not necessarily its children) passes this schema check
-                    }
-                }
-                else if(schema.schematype === "union") {
-                    if(schema.anyof.length <= 0) {
-                        console.warn("specified schema union did not have any sub-schemas specified inside schema.anyof. Treating like `never` and failing the schema check.");
-                        thisObjPassed = false;
-                    }
-                    else {
-                        const sharedCtTrackingObject = { uncheckedOptionsCt: schema.anyof.length }
-                        for(const schemaOption of schema.anyof) {
-                            // recursion: queue up the object with each possible option to check
-                            _objQueueStack.push({ obj: obj, schema: schemaOption, unionTrackingObj: sharedCtTrackingObject });
-                        }
-
-                        // for now the obj is passing the schema check
-                    }
-                }
-                else {
-                    console.error("schema: ", schema);
-                    throw new Error(`Unexpected specified complex schema; schema: ${schema}`);
-                }
-            }
-            else {
-                console.error("schema: ", schema);
-                throw new Error(`Unexpected specified schema: ${schema}`);
-            }
-
-            if(!thisObjPassed) {
-                // This schema check didn't pass. Consider whether this means the whole check has failed.
-
-                if(typeof popped.unionTrackingObj === "object") {
-                    // it was part of a union
-                    // decrease the amount left to check in that union (this is a shared object amongst all the union members)
-                    popped.unionTrackingObj.uncheckedOptionsCt -= 1
-                    if(popped.unionTrackingObj.uncheckedOptionsCt <= 0) {
-                        // if we have checked them all, and all failed, then the whole union failed.
-                        _entireObjMatchesExpectedSchema = false;
-                    }
-                    // else continue; just because one part of the union failed does not mean the whole union failed.
-                }
-                else {
-                    _entireObjMatchesExpectedSchema = false;
-                }
-            }
-        }
+        let _entireObjMatchesExpectedSchema = matchAgainstSchema(parsedObj, expectedSchema);
 
         if(!_entireObjMatchesExpectedSchema) {
             console.error("dataObjInJsCode: ", dataObjInJsCode);
@@ -3951,65 +4092,6 @@ function makeTSDataFileParserFn(pathToTSDataFile, variableNameInFile, expectedSc
     };
 }
 
-class schemautils {
-    /**
-     * @param {NonNullable<Extract<ExpectedSchemaType, {schematype: "object"}>["subschemaKeyPatterns"]>[number]["valueSchema"]} valueSchema
-     * @returns {ExpectedSchemaType} 
-     */
-    static objectAnyKey(valueSchema) {
-        return {
-            schematype: "object",
-            subschema: { },
-            subschemaKeyPatterns: [
-                {
-                    keyMatcher: () => true,
-                    valueSchema: valueSchema
-                }
-            ]
-        };
-    }
-
-    /**
-     * @param {Extract<ExpectedSchemaType, {schematype: "array"}>["subschema"]} subschema
-     * @returns {ExpectedSchemaType} 
-     */
-    static array(subschema) {
-        return {
-            schematype: "array",
-            subschema: subschema
-        };
-    }
-
-    /**
-     * @param {(
-     *      Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"][number]
-     *      | Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"]
-     * )} possibility 
-     * @param {...(
-     *      Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"][number]
-     *      | Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"]
-     * )} others 
-     * @returns {ExpectedSchemaType} 
-     */
-    static union(possibility, ...others) {
-        /** @type {Extract<ExpectedSchemaType, {schematype: "union"}>["anyof"]} */
-        let anyof = [];
-        if(Array.isArray(possibility))
-            anyof.push(...possibility);
-        else
-            anyof.push(possibility);
-        for(const possibility of others) {
-            if(Array.isArray(possibility))
-                anyof.push(...possibility);
-            else
-                anyof.push(possibility);
-        }
-        return {
-            schematype: "union",
-            anyof: anyof
-        };
-    }
-}
 
 /** @typedef {import("../../../src/types.js").ProjectorPuzzle} ExistingProjectorPuzzleDataType */
 
@@ -4986,40 +5068,6 @@ const mapFnDeterminePodPosition = (/** @type {AssetsMappingType} */ assetsMappin
     }
 );
 
-const _jsonStringifyTransformerFns = {
-    transformer: (obj, key, keys) => {
-        if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
-        if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
-        if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
-    },
-    shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
-    shouldInlineObj: (key, depth, keysChain, obj) => {
-        // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
-        // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
-        // return null;
-        return (
-            (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
-            || (Array.isArray(obj) && obj.length <= 1) || (key === "drops" && Array.isArray(obj) && obj.length <= 3)
-        ) ? true : null;
-    },
-    shouldSortKeys: (key, depth, keysChain, obj) => {
-        if(depth === 0) return sortStringsWithNumbers;
-        if(depth === 1 || (depth === 2 && (key === "startPoint" || key === "endPoint"))) {
-            // preferred sort order of the keys of each data object
-            const _lookup = Object.fromEntries(["internalId", "id", "name", "nameSuffix", "log", "archive", "food", "pos", "position", "image", "drops", "unlocks", "description", "dimension", "startPoint", "endPoint"].map((v, i) => [v, i]));
-            const _default = Object.keys(_lookup).length;
-            return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
-        }
-        if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
-            // put "en" lang as first item, order all other lang keys lexographically
-            return (a, b) => {
-                a = a.toLowerCase(); b = b.toLowerCase();
-                return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
-            };
-        }
-    }
-};
-
 
 /** old (ours) to internal @type {{ [oldId: string]: string }} */
 let _mapNodeIdMap = null;
@@ -5447,6 +5495,10 @@ function manufactureTeleporterPadIdFromAssets(/** @type {AssetJSONType} */ asset
     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
 }
+// function manufacturePlotPlannerIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ gameObjJSON, /** @type {{ x: number, y: number, z: number }} */ ingamePos) {
+//     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
+//     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
+// }
 
 function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
     cacheOpts = { ...defaultCacheSettings, ...cacheOpts };
@@ -5568,3 +5620,6 @@ function printObj(/** @type {AssetJSONType} */ asset, indentNum=0, indentPart='-
 //     console.log(position);
 //     console.log(printObj(asset,0,'- '));
 // }
+
+// exportPlotPlannersFromAssetsMapping(await getOrExtractScenesAssetsMapping(defaultCacheSettings), { useCache: false });
+exportPlotPlannersFromAssetsMapping();
