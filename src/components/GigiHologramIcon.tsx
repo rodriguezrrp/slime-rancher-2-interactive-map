@@ -5,7 +5,7 @@ import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiHologram } from "../types";
-import { gigiExpressionImageUrls, handleChecked } from "../util";
+import { compressedWebpIconUrl, gigiExpressionImageUrls, handleChecked } from "../util";
 import { gigi_holograms } from "../data/gigi_holograms";
 
 // TODO: move this to a configuration or settings area?
@@ -48,7 +48,7 @@ export function GigiHologramIcon({
 
     const icon = L.icon({
         ...icon_template,
-        iconUrl: "/icons/iconRancherGigi.png",
+        iconUrl: compressedWebpIconUrl("/icons/iconRancherGigi.png"),
         className: `${checked && icon_opacity}`
     });
 

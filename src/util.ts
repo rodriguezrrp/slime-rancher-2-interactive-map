@@ -1,6 +1,14 @@
 import { GigiDialogueToTextEntry, LocalStoragePlotPlan, LocalStorageSitePlan, Vec2 } from "./types";
 import L from "leaflet";
 
+export function compressedWebpIconUrl(iconUrl: string) {
+    const size = 96;
+    const iconUrlMatch = /^(\/?public)\/(.*)\.(png)$/gi.exec(iconUrl);
+    if(iconUrlMatch === null) return iconUrl;
+    const [, rootPath, pathAndFileNameBeforeExt, ext] = iconUrlMatch;
+    return `${rootPath}/compressed/${pathAndFileNameBeforeExt}_${size}.webp`;
+}
+
 export function handleChecked(
     local_storage_key: string,
     key: string,
