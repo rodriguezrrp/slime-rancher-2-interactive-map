@@ -247,7 +247,6 @@ function GigiConvoOptionButton<type_nextEntryAsConvoLogEntry extends (o: any) =>
     const isFirst = optionIndex === 0;
 
     useEffect(() => {
-        console.log(btnRef.current, selected, someOptionIsSelected, isFirst);
         if(btnRef.current && (selected || (!someOptionIsSelected && isFirst))) {
             btnRef.current.focus();
         }

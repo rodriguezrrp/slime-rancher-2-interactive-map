@@ -172,10 +172,14 @@ import happy1 from "/gigi/happy1.png";
 import thinking1 from "/gigi/thinking1.png";
 import pointing1 from "/gigi/pointing1.png";
 import surprised1 from "/gigi/surprised1.png";
+import cheery1 from "/gigi/cheery1.png";
+import sad1 from "/gigi/sad1.png";
 
 export const gigiExpressionImageUrls: { [expression in NonNullable<GigiDialogueToTextEntry["expression"]>]: string } = {
     happy1: happy1,
     surprised1: surprised1,
     thinking1: thinking1,
     pointing1: pointing1,
+    cheery1: cheery1,
+    sad1: sad1,
 }

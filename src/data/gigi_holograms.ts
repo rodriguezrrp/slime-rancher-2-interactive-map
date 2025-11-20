@@ -59,7 +59,291 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
     "gigihologram_x1123_y1382": {
         name: "Gigi Hologram",
         position: { x: 1122.8996178077473, y: 1382.3315655961483 },
-        description: "Todo: insert a description for this Gigi hologram x1123_y1382"
+        description: "Todo: insert a description for this Gigi hologram x1123_y1382",
+        dialogue: {
+            firstVisitStartEntryId: "434160849277054976",
+            entries: {
+                "434160849277054976": {
+                    internalTranslationId: "434160849277054976",
+                    text: {
+                        en: "Have you watched the sunset inside the Labyrinth? The darkness of night creeps in and yet- it's all an illusion. Or at least, it has to be...",
+                        zh: "你看过迷宫里的日落吗？夜晚的黑暗悄然降临，然而……这一切都是幻觉。或者至少，它必须是……",
+                        ja: "ラビリンスの中の夕陽はもう見た？\n夜のとばりが落ちて暗くなる様子はとってもリアルだけど、あれもすべて幻想なの。おそらくね…",
+                        ko: "미로 안에서 석양을 본 적이 있나요? 밤의 어둠이 천천히 들어오지만, 모든 건 환상이에요. 아니, 그래야만 해요...",
+                        pt: "Você já viu o pôr do sol dentro do Labirinto? A escuridão da noite invade e, ainda assim, é tudo uma ilusão. Ou, pelo menos, tem que ser...",
+                        es: "¿Has visto la puesta del sol dentro del Laberinto? La noche oscura se cuela y, sin embargo, no es más que una ilusión. O, al menos, tiene que serlo…",
+                        fr: "Tu as vu le coucher de soleil à l'intérieur du Dédale ? On voit les ténèbres monter, et pourtant ce n'est qu'une illusion. En tout cas, je ne vois pas d'autres explications...",
+                        ru: "Ты наблюдала закат внутри лабиринта? С заходом солнца подкрадывается ночная тьма — но это лишь иллюзия. Я почти уверена в этом...",
+                        de: "Hast du schon den Sonnenuntergang im Labyrinth gesehen? Die dunkle Nacht fließt herein und trotzdem ist alles nur eine Illusion. Oder zumindest muss es so sein …"
+                    },
+                    expression: "happy1",
+                    nextOptionsById: [
+                        "434160851747500032",
+                        "434160852200484864",
+                        "434160852657664000"
+                    ]
+                },
+                "434160851747500032": {
+                    internalTranslationId: "434160851747500032",
+                    text: {
+                        en: "Speaking of darkness, what's with those shadowy slimes I've seen?",
+                        zh: "说到黑暗，我看到的那些暗影史莱姆是怎么回事？",
+                        ja: "暗くなると言えば、黒いスライムを見かけたんだけど…？",
+                        ko: "어둠 말이 나와서 그런데, 내가 본 그림자 슬라임은 대체 뭔가요?",
+                        pt: "Falando de escuridão, o que são aquelas slimes obscuras que eu tenho visto?",
+                        es: "Hablando de oscuridad, ¿qué hay de esos slimes sombríos que he visto?",
+                        fr: "En parlant de ténèbres, c'est quoi les slimes sombres que j'ai vus ?",
+                        ru: "Кстати о тьме. Что там с этими темненькими слаймами, которых я видела?",
+                        de: "Apropos Dunkelheit, was sind dieses schattenartigen Slimes, die ich gesehen hab?"
+                    },
+                    nextTextById: "434160853140008960"
+                },
+                "434160853140008960": {
+                    internalTranslationId: "434160853140008960",
+                    text: {
+                        en: "Shadow slimes are a strange variant of slimes that seem to be the opposing polarity of the Prismacore made manifest.",
+                        zh: "暗影史莱姆是一种奇怪的史莱姆变体，似乎是棱镜核心显现出来的相反极性。",
+                        ja: "それは「シャドウスライム」といって、少し変わったスライムの一種で、プリズマコアとは正反対の存在として生まれたみたい。",
+                        ko: "그림자 슬라임은 이상한 변종 슬라임으로 프리즈마 코어의 상반되는 극점이 현실에 구현된 모습 같아요.",
+                        pt: "Os Slimes Sombrosos são uma estranha variante de slimes que parecem ser a polaridade oposta do Núcleo Prismático manifestada.",
+                        es: "Los slimes sombra son una extraña variedad de slimes que parecen ser la manifestación de la polaridad opuesta a la del Nucleoprisma.",
+                        fr: "Les slimes d'ombre sont une étrange variante de slimes qui semblent incarner la polarité inverse du Prismacœur.",
+                        ru: "Сумрачные слаймы — необычная разновидность слаймов, которые, похоже, являются физическим проявлением противоположной призма-ядру полярности.",
+                        de: "Schatten-Slimes sind eine merkwürdige Slime-Variation. Sie scheinen die manifestierte, entgegengesetzte Polarität des Prismakerns zu sein."
+                    },
+                    expression: "surprised1",
+                    nextTextById: "434160853597188096"
+                },
+                "434160853597188096": {
+                    internalTranslationId: "434160853597188096",
+                    text: {
+                        en: "I still don't know if they were specifically created by someone to be this kind of opposing force, or if they evolved to be that way. You know, how nature always seems to find a way?",
+                        zh: "我仍然不知道是不是谁专门创造出来了这种相反的力量，或者说它们是不是自主进化成这个样子的。你知道的，大自然似乎总是能找到一些平衡的办法。",
+                        ja: "プリズマコアに対抗する力として誰かに作られた存在なのか、それとも自然に発生した種なのか、詳しいことはまだ分かっていないの。\nほら、大自然っていろいろな工夫でいっぱいじゃない？だから、そんな可能性もあるんだろうなって。。",
+                        ko: "이렇게 반대하는 힘이 되도록 누군가가 특별히 만든 건지, 아니면 이런 식으로 진화한 건지는 아직 모르겠어요. 그게, 자연은 언제나 답을 찾는다는 말도 있잖아요.",
+                        pt: "Ainda não sei se eles foram criados especificamente por alguém para ser esse tipo de força opositora ou se evoluíram para ser assim. Sabe aquilo de a natureza sempre encontrar uma maneira?",
+                        es: "Aún no sé si alguien los creó específicamente como una fuerza contrapuesta o si evolucionaron hasta llegar a serlo. Ya sabes, la naturaleza siempre parece abrirse camino.",
+                        fr: "Je ne sais toujours pas si quelqu'un les a créés pour faire office de force opposée, ou s'ils sont le fruit d'une évolution. Les voies de la nature sont impénétrables, comme on dit.",
+                        ru: "До сих пор не знаю, это их специально кто-то создал как противовес или они сами так эволюционировали. Говорят же, что матушка-природа очень мудра.",
+                        de: "Ich weiß immer noch nicht, ob jemand sie absichtlich als eine Art Gegenkraft erschaffen hat oder ob sie sich einfach so entwickelt haben. Die Natur findet einen Weg, nicht wahr?"
+                    },
+                    nextTextById: "434160854066950144"
+                },
+                "434160854066950144": {
+                    internalTranslationId: "434160854066950144",
+                    text: {
+                        en: "Either way, shadow plorts seem to provide a kind of dampening effect to prisma disruptions. It's a longshot but maybe they can somehow be used to negate the effects of the Prismacore.",
+                        zh: "不管怎样，暗影结晶似乎提供了一种抑制棱镜干扰的效果。虽然希望渺茫，但也许我们可以用它来抵消棱镜核心的影响。",
+                        ja: "いずれにせよ、どうやらシャドウプリットにはプリズマバーストの力を弱める効果があるみたい。確かなことではないんだけど、どうにかしてプリズマコアの効果を無効化させるのに利用する方法だってあるかもしれない。",
+                        ko: "어느 쪽이든 간에, 그림자 플로트는 프리즈마 왜곡을 어느 정도 약화시키는 효과를 제공하는 것 같아요. 성공 가능성은 낮지만 어쩌면 프리즈마 코어의 영향을 막는 데 쓸 수 있을지도 몰라요.",
+                        pt: "De qualquer forma, os plorts sombrosos parecem fornecer um tipo de efeito para abafar as Anomalias Prismáticas. É uma hipótese remota, mas talvez elas possam ser usadas de alguma forma para negar os efeitos do Núcleo Prismático.",
+                        es: "Como sea, los plorts sombra parecen tener un efecto amortiguador en las alteraciones prismáticas. Es poco probable, pero quizás sirvan para contrarrestar los efectos del Nucleoprisma.",
+                        fr: "Toujours est-il que les plortes d'ombre ont l'air de posséder un effet atténuateur face aux perturbations prismatiques. On peut peut-être s'en servir pour neutraliser les effets du Prismacœur, qui sait ?",
+                        ru: "Как бы то ни было, сумрачные плорты оказывают сдерживающий эффект на призматические разрывы. Пока это кажется маловероятным, но в теории с их помощью можно нивелировать действие призма-ядра.",
+                        de: "Auf jeden Fall scheinen Schatten-Plorts einen dämpfenden Effekt auf Prismastörungen zu haben. Es ist nur eine vage Hoffnung, aber vielleicht kann man mit ihnen die Effekte des Prismakerns negieren."
+                    },
+                    nextOptionsById: [
+                        "434160854532517888",
+                        "434160852657664000"
+                    ]
+                },
+                "434160854532517888": {
+                    internalTranslationId: "434160854532517888",
+                    text: {
+                        en: "Got any Shadow Slime tips?",
+                        zh: "有什么暗影史莱姆的小知识吗？",
+                        ja: "シャドウスライムについて、何かヒントは？",
+                        ko: "그림자 슬라임에 대한 팁은 없나요?",
+                        pt: "Tem alguma dica sobre Slimes Sombrosos?",
+                        es: "¿Tienes algún consejo sobre los slimes sombra?",
+                        fr: "Tu as des conseils concernant les slimes d'ombre ?",
+                        ru: "Будут советы по сумрачным слаймам?",
+                        de: "Irgendwelche Tipps zu Schatten-Slimes?"
+                    },
+                    expression: "pointing1",
+                    nextTextById: "434160855006474240"
+                },
+                "434160855006474240": {
+                    internalTranslationId: "434160855006474240",
+                    text: {
+                        en: "They're slippery little fellows, aren't they? Shadow slimes will quickly flee from you or prisma disruptions. So your best bet is to search areas that were not recently under the effects of a prisma disruption.",
+                        zh: "他们是狡猾的小家伙，不是吗？暗影史莱姆会迅速逃离你或者棱镜干扰。所以最好的办法就是搜索那些最近没有受到棱镜干扰影响的区域。",
+                        ja: "シャドウスライムったら、本当にすばしっこいんだから。\nプリズマバーストが起きたり、人が近づいたりするとすぐに逃げちゃうから、プリズマバーストが起きていない場所を探すのがベストだよ。",
+                        ko: "꽤나 잡기 어려운 녀석들이죠, 안 그래요? 그림자 슬라임은 당신이나 프리즈마 왜곡이 나타나면 빠르게 도망갈 거예요. 그러니 최근에 프리즈마 왜곡의 효과를 받지 않은 지역을 찾아 보는 게 최선의 방법이죠.",
+                        pt: "Eles são chatinhos, não são? Os slimes sombrosos fogem de você ou de anomalias prismáticas. Portanto, o melhor a fazer é procurar áreas que não tenham sofrido recentemente os efeitos de uma anomalia.",
+                        es: "Son unos pequeñitos muy escurridizos, ¿no? Los slimes sombra huirán de ti y de las alteraciones prismáticas al instante, por lo que es mejor buscarlos en lugares en los que no haya habido una recientemente.",
+                        fr: "Ce sont de vraies anguilles, hein ? Les slimes d'ombre se carapatent dès qu'ils te voient ou en cas de perturbations prismatiques. Tu as donc intérêt à en chercher dans les endroits qui n'ont pas subi de perturbations récemment.",
+                        ru: "Скользкие ребята, правда? Сумрачные слаймы сразу дают деру, завидев тебя или призматический разрыв. Поэтому лучше всего искать их там, где в последнее время не было разрывов.",
+                        de: "Schlüpfrige kleine Kerlchen, was? Schatten-Slimes fliehen sofort vor dir oder Prismastörungen. Du solltest also an Orten suchen, die nicht gerade erst eine Prismastörung erlebt haben."
+                    },
+                    expression: "happy1",
+                    nextTextById: "434160855480430592"
+                },
+                "434160855480430592": {
+                    internalTranslationId: "434160855480430592",
+                    text: {
+                        en: "Once you do see a group of them you need to sneak up on them and then try to knock out as many plorts as possible before they all flee. So be sure to bring some extra junk in your vacpack just for that.",
+                        zh: "一旦你看到它们成群结队了，就要偷偷接近它们，然后在它们全都逃跑之前，尝试击打获得尽可能多的结晶。所以一定要在你的真空枪里多带些垃圾。",
+                        ja: "シャドウスライムの群れを見つけたらそっと近づいて、逃げられちゃう前にできるだけたくさんプリットをあげてみて。だから必ず、要らないエサ用のプリットをバキュームタンクに用意しておいてね。",
+                        ko: "일단 슬라임 무리를 발견하면 몰래 다가가서 모두 도망치기 전에 최대한 많은 플로트를 잡아야 해요. 그러니 거기에 쓸 여분의 잡동사니를 진공팩에 챙겨 오세요.",
+                        pt: "Quando vir um grupo deles, você precisará se aproximar sorrateiramente e tentar acertar o maior número possível de plorts antes que todos fujam. Portanto, não se esqueça de levar um pouco mais de lixo no seu vacpack.",
+                        es: "Cuando veas un grupo de estos slimes, acércate sigilosamente a ellos e intenta noquear la mayor cantidad posible de plorts antes de que huyan. Así que asegúrate de llevar algunos trastos de más en tu vacpack para eso.",
+                        fr: "Quand tu repères un groupe, approche-toi discrètement et essaie d'assommer un maximum de plortes avant qu'ils s'enfuient. Je te conseille de prévoir quelques déchets en plus dans ton aspipack pour ça.",
+                        ru: "Если увидишь их, попробуй подкрасться к ним незаметно и выбить как можно больше плортов до того, как они убегут. Так что не забудь прихватить мусор в своем вакпаке на такой случай.",
+                        de: "Sobald du eine Gruppe gefunden hast, musst du dich anschleichen und versuchen, so viele Plorts wie möglich zu ergattern, bevor sie fliehen. Bring also auf jeden Fall nen Haufen Zeugs im Vac-Pack mit."
+                    },
+                    expression: "thinking1",
+                    nextTextById: "434160855937609728"
+                },
+                "434160855937609728": {
+                    internalTranslationId: "434160855937609728",
+                    text: {
+                        en: "Just don't go chasing one off a ledge or something. I'm definitely not speaking from experience there... oof.",
+                        zh: "只是别追着追着就从悬崖或者什么地方跳下去。我绝对不是以个人经验告诉你的……哎哟。",
+                        ja: "間違っても、シャドウスライムをガケに追い詰めたりなんてしなちゃダメだよ。\n…って、私の失敗談じゃないからね！",
+                        ko: "다만 쫓다가 낭떠러지에서 떨어지지만 마세요. 절대 경험으로 말하는 건 아니고요... 어우.",
+                        pt: "Só não vai sair correndo atrás de um e acabar caindo em algum lugar. Não que isso já tenha acontecido comigo... hehe.",
+                        es: "Solo no los persigas por una cornisa o algo por el estilo. Definitivamente, no lo digo por experiencia… puff.",
+                        fr: "Par contre, évite de tomber d'un rebord en les pourchassant. Non, ce n'est pas du vécu... pas du tout.",
+                        ru: "Только не пытайся согнать одного из них с уступа. Разумеется, я говорю это не из собственного опыта... уф.",
+                        de: "Aber pass auf, dass du ihnen nicht über eine Klippe hinterherjagst. Ich spreche hier definitiv nicht aus Erfahrung … puh."
+                    },
+                    nextOptionsById: [
+                        "434160851747500032",
+                        "434160852200484864",
+                        "434160852657664000"
+                    ]
+                },
+                "434160852200484864": {
+                    internalTranslationId: "434160852200484864",
+                    text: {
+                        en: "Why did you trust me with all of this, Gigi?",
+                        zh: "你为什么要相信我，琪琪？",
+                        ja: "なぜジジは私のことを信用してくれるの？",
+                        ko: "날 믿고 일을 맡긴 이유가 무언가요, 지지?",
+                        pt: "Por que você confiou em mim com tudo isso, Gigi?",
+                        es: "¿Por qué me has confiado todo esto, Gigi?",
+                        fr: "Pourquoi tu me fais confiance, Gigi ?",
+                        ru: "Почему ты доверила мне все это, Джиджи?",
+                        de: "Warum vertraust du mir das alles an, Gigi?"
+                    },
+                    nextTextById: "434160856415760384"
+                },
+                "434160856415760384": {
+                    internalTranslationId: "434160856415760384",
+                    text: {
+                        en: "I'm no hero, Beatrix. So I knew that I needed a real hero to stop what is happening here.",
+                        zh: "我不是英雄，碧翠丝。所以我知道我需要一个真正的英雄来阻止这里发生的一切。",
+                        ja: "私はこの島を救えるわけじゃない。だから、ここで起きている異常現象を止めるには、本物のヒーローが必要なの。",
+                        ko: "전 영웅이 못 돼요, 베아트릭스. 그래서 여기 일어나는 일을 막기 위해서는 진짜 영웅이 필요하다는 걸 알았죠.",
+                        pt: "Eu não sou uma heroína, Beatrix. Eu sabia que precisaria de uma heroína de verdade para impedir o que estava acontecendo aqui.",
+                        es: "No soy una heroína, Beatrix, así que sabía que necesitaba una de verdad para detener lo que está ocurriendo aquí.",
+                        fr: "Je n'ai pas la trempe d'une héroïne, Beatrix. C'est pour ça que j'ai besoin de toi.",
+                        ru: "Послушай, Беатрикс, герой из меня никакой. Чтобы остановить то, что здесь происходит, мне нужен настоящий герой.",
+                        de: "Ich bin keine Heldin, Beatrix. Also wusste ich, dass ich eine echte Heldin brauche, um das hier aufzuhalten."
+                    },
+                    expression: "sad1",
+                    nextTextById: "434160856881328128"
+                },
+                "434160856881328128": {
+                    internalTranslationId: "434160856881328128",
+                    text: {
+                        en: "And a hero... well, a hero you can trust. I mean if you can't then who else is there? So I tried to picture the perfect person for this job and it was you.",
+                        zh: "一个英雄……一个你可以信任的英雄。我的意思是，如果你不能，那还有谁能胜任？所以我脑海中试图勾勒出的这项任务的完美人选，那就是你。",
+                        ja: "しかも、ただのヒーローじゃなくて…本当に信頼できるヒーローがね。ベアトリクスがこの島を救えないんだとしたら、ほかに誰ができるの？あなたはまさに、私が思い描いていた理想のヒーローなんだから。",
+                        ko: "그리고 영웅이란... 음, 믿을 수 있어야 해요. 그게 안 된다면 다른 누가 가능하겠어요? 그래서 이번 일에 완벽한 사람을 떠올려 봤는데, 바로 당신이었어요.",
+                        pt: "E... uma heroína é alguém em quem você pode confiar. Se não for você, quem pode ser? Então tentei imaginar a pessoa perfeita para esse trabalho e era você.",
+                        es: "Y esta heroína debería ser alguien confiable. Digo, si tú no puedes, ¿quién más lo hará? Así que pensé en la persona perfecta para este trabajo, y esa persona eres tú.",
+                        fr: "Et s'il y a bien quelqu'un à qui on peut faire confiance, c'est une héroïne. Du coup, j'ai essayé de visualiser la personne idéale pour m'aider, et c'était toi.",
+                        ru: "Герой... которому я могу доверять. И если не ты, то кто? Я пыталась представить идеального кандидата на эту роль, и ты полностью подходишь.",
+                        de: "Und zwar eine Heldin, der ich vertrauen kann. Denn wer wäre sonst dafür geeignet? Also hab ich versucht, mir die perfekte Person für diesen Job vorzustellen. Und das warst du."
+                    },
+                    expression: "happy1",
+                    nextTextById: "434160857334312960"
+                },
+                "434160857334312960": {
+                    internalTranslationId: "434160857334312960",
+                    text: {
+                        en: "I've had my trust broken before. That's what caused everything to go wrong. I trusted the wrong people. But this is my chance to make it right.",
+                        zh: "我以前也被人背叛过，这就是导致一切出错的原因。曾经有人枉费了我的信任，但这是可以让我弥补错误的机会。",
+                        ja: "まえに、別の人にお願いをしたことがあったの。でも、信頼を裏切られちゃってね。あれは大きな間違いだった。私が信じるべき人を見誤ったせいで、あんなことに…\nだから、今度こそ失敗した分を取り戻したいの。",
+                        ko: "이전에 믿음을 배신당한 적이 있어요. 그 덕분에 모든 일이 엉망이 됐죠. 잘못된 사람들을 믿었던 거예요. 하지만 이번이 바로잡을 기회예요.",
+                        pt: "Já quebraram minha confiança antes. Foi isso que fez tudo dar errado. Eu confiei nas pessoas erradas. Mas essa é a minha chance de fazer tudo dar certo.",
+                        es: "Ya han traicionado mi confianza. Así fue como todo empezó a salir mal. Confié en las personas equivocadas. Pero esta es mi oportunidad de enmendarlo.",
+                        fr: "Ça m'est déjà arrivé de faire confiance aux gens à tort. C'est d'ailleurs pour ça que tout a déraillé. Je me suis fiée aux mauvaises personnes. Mais maintenant, j'ai l'occasion de me racheter.",
+                        ru: "Мое доверие уже предавали. Именно из-за этого все пошло не так. Я поверила не тем людям. Но сейчас у меня появился шанс все исправить.",
+                        de: "Ich wurde schon mal enttäuscht. So ist überhaupt erst alles schiefgegangen. Ich hab den falschen Leuten vertraut. Aber jetzt hab ich die Chance, alles wiedergutzumachen."
+                    },
+                    expression: "sad1",
+                    nextTextById: "434160857791492096"
+                },
+                "434160857791492096": {
+                    internalTranslationId: "434160857791492096",
+                    text: {
+                        en: "You might not feel it yet, but you are a hero Beatrix. You will become one in time. There are so many amazing adventures ahead of you, I promise.",
+                        zh: "你可能还没感觉到，但你是个英雄，碧翠丝。你迟早会成为英雄的。我保证，前路还有很多精彩的冒险等着你。",
+                        ja: "あまり実感はないかもしれないけど、ベアトリクスこそ、この島を救えるヒーローだと思うの。そのうち、あなた自身が証明してくれるはず。\nきっと、これから素敵な冒険があなたを待っているはずだよ！",
+                        ko: "아직 그렇게 안 느낄지도 모르지만, 당신은 영웅이에요, 베아트릭스. 시간이 흐르면 그렇게 되겠죠. 미래에 수많은 멋진 모험이 기다리고 있어요. 약속해도 좋아요.",
+                        pt: "Você pode não ver isso ainda, mas você é uma heroína, Beatrix. Vai se tornar uma com o tempo. Tem tantas aventuras incríveis no seu caminho, eu prometo.",
+                        es: "Puede que aún no lo sientas, pero eres una heroína, Beatrix. El tiempo lo demostrará. Te esperan muchísimas aventuras increíbles, lo prometo.",
+                        fr: "Tu n'en as peut-être pas l'impression, mais tu es une héroïne, Beatrix. Une héroïne en devenir. Si tu savais toutes les aventures palpitantes qui t'attendent...",
+                        ru: "Возможно, ты пока в это не веришь, но ты герой, Беатрикс. Или очень скоро станешь им. Я обещаю, тебя ждет много классных приключений!",
+                        de: "Du spürst es vielleicht noch nicht, aber in dir steckt eine Heldin, Beatrix. Du wirst eine werden. Vor dir liegen so viele großartige Abenteuer, versprochen."
+                    },
+                    expression: "cheery1",
+                    nextTextById: "434160858261254144"
+                },
+                "434160858261254144": {
+                    internalTranslationId: "434160858261254144",
+                    text: {
+                        en: "In time, this will be just another chapter in the Adventures of Beatrix LeBeau. Another story for some little girl to read under a tree and dream that her life might ever be as grand a tale...",
+                        zh: "很快，这将成为碧翠丝·乐步历险记的新篇章，供世界某个角落的小女孩在树下阅读欣赏，并梦想着自己的人生会像这故事里的一样辉煌……",
+                        ja: "もしかしたら将来、ベアトリクス・ルボーの冒険譚の一節として語り継がれたりして。未来を生きる少女が木の下に腰かけて読み、壮大な冒険に思いをはせながら「いつか私もこうなりたい」って思えるような、そんな物語になるよ、きっと…",
+                        ko: "언젠가 이것도 베아트릭스 르뷰의 모험에서 하나의 장이 되겠죠. 나무 아래서 어떤 여자아이가 읽으며 자신의 삶도 이렇게나 멋질 수 있을까 꿈꾸는 또 하나의 이야기가...",
+                        pt: "Com o tempo, isso vai ser só mais um capítulo nas Aventuras de Beatrix LeBeau. Outra história para alguma garotinha ler embaixo de uma árvore e sonhar acordada, imaginando se a vida dela pode ser tão grandiosa assim...",
+                        es: "Con el tiempo, este será un capítulo más de las aventuras de Beatrix LeBeau. Otra historia para que una niña la lea bajo la sombra de un árbol y sueñe que su vida puede llegar a ser igual de emocionante…",
+                        fr: "Plus tard, tout ça ne sera qu'un chapitre de plus dans les aventures de Beatrix LeBeau. Une histoire parmi d'autres qu'une petite fille lira sous un arbre en rêvant de vivre une vie incroyable, elle aussi...",
+                        ru: "Со временем это станет еще одной главой в «Приключениях Беатрикс Лебо». Историей, которой зачитывается девочка под деревом, мечтая, что и ее жизнь будет так же эпична.",
+                        de: "Irgendwann wird das hier einfach ein weiteres Kapitel unter den Abenteuern Beatrix LeBeaus sein. Eine weitere Geschichte, die ein kleines Mädchen unter einem Baum liest und sie träumen lässt, ihr Leben wäre auch so eine atemberaubende Geschichte …"
+                    },
+                    nextOptionsById: [
+                        "434160851747500032",
+                        "434160852200484864",
+                        "434160852657664000"
+                    ]
+                },
+                "434160852657664000": {
+                    internalTranslationId: "434160852657664000",
+                    text: {
+                        en: "I better keep moving.",
+                        zh: "我还是动身吧。",
+                        ja: "先を急がなきゃ。",
+                        ko: "계속 움직이는 게 좋겠어요.",
+                        pt: "É melhor eu continuar.",
+                        es: "Mejor sigo andando.",
+                        fr: "Je ferais mieux de continuer.",
+                        ru: "Мне лучше не тормозить.",
+                        de: "Ich sollte weitergehen."
+                    },
+                    nextTextById: "434160858726821888"
+                },
+                "434160858726821888": {
+                    internalTranslationId: "434160858726821888",
+                    text: {
+                        en: "Happy to shed some light for you whenever you need it.",
+                        zh: "我很乐意在你需要的时候为你提供一些帮助。",
+                        ja: "必要なときはいつでも声をかけて。よろこんで答えるからさ。",
+                        ko: "필요할 때마다 알려드릴 수 있어서 저도 기뻐요.",
+                        pt: "Fico feliz de esclarecer o que você quiser, quando precisar.",
+                        es: "Me alegrará poder ayudarte cuando lo necesites.",
+                        fr: "Si jamais tu as une question, n'hésite pas.",
+                        ru: "Всегда рада пролить свет на то, что тебе нужно.",
+                        de: "Ich bring immer gern Lichts ins Dunkel, wenn nötig."
+                    },
+                    expression: "cheery1"
+                }
+            }
+        }
     },
     "gigihologram_x1136_y1828": {
         name: "Gigi Hologram",
@@ -74,7 +358,210 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
     "gigihologram_x1162_y1426": {
         name: "Gigi Hologram",
         position: { x: 1161.3832757045327, y: 1426.4362619247333 },
-        description: "Todo: insert a description for this Gigi hologram x1162_y1426"
+        description: "Todo: insert a description for this Gigi hologram x1162_y1426",
+        dialogue: {
+            firstVisitStartEntryId: "434144876759248896",
+            entries: {
+                "434144876759248896": {
+                    internalTranslationId: "434144876759248896",
+                    text: {
+                        en: "Isn't it beautiful? Despite everything there's a part of me that is still happy to see it all again...",
+                        zh: "这难道不美吗？尽管发生了这么多事，但是能再次看到这一切，我心里还是有些高兴的……",
+                        ja: "キレイだよねぇ。いろいろあったけど、私も心のどこかでもう一度この場所を見られてうれしいと思ってる気がする…",
+                        ko: "정말 아름답지 않나요? 이런 상황이지만 여전히 다시 볼 수 있어서 조금은 기쁘게 느껴져요...",
+                        pt: "Não é lindo? Apesar de tudo, tem uma parte de mim que fica feliz em ver tudo isso de novo...",
+                        es: "¿No es bonito? A pesar de todo, una parte de mí aún se alegra de volver a verlo…",
+                        fr: "C'est magnifique, non ? Malgré ce qui se passe, je suis contente de revoir tout ça...",
+                        ru: "Разве это не прекрасно? Несмотря ни на что, часть меня всё равно рада увидеть всё это снова...",
+                        de: "Ist es nicht wunderschön? Trotz allem ist ein Teil von mir einfach froh, das alles erneut zu sehen …"
+                    },
+                    expression: "happy1",
+                    nextOptionsById: [
+                        "434144879288414208",
+                        "434144879774953472",
+                        "434144880240521216"
+                    ]
+                },
+                "434144879288414208": {
+                    internalTranslationId: "434144879288414208",
+                    text: {
+                        en: "Am I... still inside the Labyrinth...?",
+                        zh: "我……是不是还在迷宫里面？",
+                        ja: "ここって…まだラビリンスの中…？",
+                        ko: "여긴... 아직 미로 안인가요...?",
+                        pt: "Eu ainda... estou dentro do Labirinto?",
+                        es: "¿Aún estoy… dentro del Laberinto…?",
+                        fr: "Je suis toujours dans... le Dédale ?",
+                        ru: "Я... всё ещё в лабиринте?..",
+                        de: "Bin ich noch … im Labyrinth …?"
+                    },
+                    nextTextById: "434144880701894656"
+                },
+                "434144880701894656": {
+                    internalTranslationId: "434144880701894656",
+                    text: {
+                        en: "Yes, you're still inside the Labyrinth, if you can believe it. It's a total recreation of aspects of the environment outside, down to the atmosphere.",
+                        zh: "没错，你还在迷宫里面，如果你愿意相信的话。这是对外界环境各个方面的全面再现，包括大气。",
+                        ja: "信じられないかもしれないけれど、そこはまだラビリンスの中なの。大気の細部に至るまで、外部のあらゆる環境が再構築された空間なのよ。",
+                        ko: "맞아요, 아직 미로 안이에요. 실감이 나진 않겠지만요. 여긴 공기까지 포함해서 바깥의 환경 요소를 완벽하게 재현했어요.",
+                        pt: "Sim, você ainda está dentro do Labirinto, acredite ou não. É uma recriação total de aspectos do ambiente lá de fora, inclusive da atmosfera.",
+                        es: "Sí, aunque parezca increíble, sigues dentro del Laberinto. Es una recreación completa de aspectos del entorno exterior, hasta la atmósfera.",
+                        fr: "Oui, tu es toujours dans le Dédale, même si c'est dur à croire. L'environnement extérieur a été recréé à l'identique, y compris l'atmosphère.",
+                        ru: "Да, веришь или нет, но ты все еще внутри лабиринта. Это полное воссоздание всех аспектов окружающей среды, включая атмосферу.",
+                        de: "Ja, du bist wirklich noch im Labyrinth. Das ist eine vollständige Nachbildung der Umgebungsaspekte draußen, bis hin zur Atmosphäre."
+                    },
+                    expression: "happy1",
+                    nextTextById: "434144881163268096"
+                },
+                "434144881163268096": {
+                    internalTranslationId: "434144881163268096",
+                    text: {
+                        en: "But even more astonishing is the scale of it all. It's actually bigger on the inside than it is on the outside. A total mind-bender!",
+                        zh: "但其实更令人惊讶的是它的空间有多宽阔，那里面比外面还要大，简直让人叹为观止！",
+                        ja: "驚くべきは、何と言ってもそのスケールの大きさ！ラビリンスは、外からの見た目よりも中はずっと広いの。ホント、キツネにつままれたような気分になっちゃう！",
+                        ko: "하지만 더욱 놀라운 점은 그 규모예요. 바깥보다 안이 더 크거든요. 정말 정신이 이상해질 정도죠!",
+                        pt: "Mas o que mais choca é o tamanho. É maior por dentro do que por fora. Bagunça a mente de qualquer um!",
+                        es: "Pero lo más asombroso es su tamaño. Es incluso más grande en el interior que en el exterior. ¡Te vuela la cabeza!",
+                        fr: "Le plus surprenant, c'est la taille de cet endroit. Figure-toi qu'il est plus grand à l'intérieur qu'à l'extérieur. C'est vraiment hallucinant !",
+                        ru: "Но больше всего поражает масштаб! Например, внутри он больше, чем снаружи. Вот это настоящий взрыв мозга!",
+                        de: "Aber die Größe von alldem ist sogar noch beeindruckender. Es ist innen tatsächlich größer als außen. Total verrückt!"
+                    },
+                    expression: "surprised1",
+                    nextTextById: "434144881654001664"
+                },
+                "434144881654001664": {
+                    internalTranslationId: "434144881654001664",
+                    text: {
+                        en: "Not everything here will make sense at first, or maybe ever. So just do what you do best: explore, collect, and figure out how best to navigate this place.",
+                        zh: "在这里，并不是所有的事物都在开始的时候合乎常理，抑或是从来都不会合乎常理。所以你只要做最擅长的就好了：比如探索呀，收集呀，再弄清楚探索这里的最佳方式。",
+                        ja: "ここで起きる現象は、最初はいろいろと理解できないこともあるでしょうね。「最初は」っていうか、そもそも理解すること自体、無理なのかも。\nだから、探索するのか、収集するのか、効率重視で前に進むのか…いつものベアトリクスのやり方で進んでいけば大丈夫。",
+                        ko: "처음에는 모든 것이 잘 이해가 안 될 거예요. 어쩌면 영영 그럴지도 모르고요. 그러니 잘 하는 걸 하세요. 탐험과 수집으로 여기를 헤쳐나갈 최선의 방법을 찾는 거죠.",
+                        pt: "Nem tudo vai fazer sentido imediatamente... talvez não fala nunca. Então dê seu melhor: explore, colete e descubra a melhor forma de navegar esse lugar.",
+                        es: "Al principio, no todo tendrá sentido aquí, y quizás nunca lo haga. Así que, haz lo tuyo: explora, recolecta y descubre la mejor manera de recorrer este lugar.",
+                        fr: "Tu ne comprendras pas tout au début, voire jamais. Alors fais ce que tu sais faire de mieux : explore, collecte et découvre la meilleure manière de te déplacer dans cet endroit.",
+                        ru: "Сначала многое здесь может показаться непонятным, а возможно, и не только сначала. Поэтому просто делай то, что у тебя получается лучше всего: исследуй, собирай информацию и придумывай, как лучше ориентироваться в этом месте.",
+                        de: "Nicht alles hier wird direkt einen Sinn ergeben. Oder überhaupt jemals. Tu einfach, was du am besten kannst: erkunden, sammeln und herausfinden, wie man sich an diesem Ort zurechtfindet."
+                    },
+                    expression: "pointing1",
+                    nextTextById: "434144882119569408"
+                },
+                "434144882119569408": {
+                    internalTranslationId: "434144882119569408",
+                    text: {
+                        en: "Knowing your way around and understanding how things work here will prove valuable in time.",
+                        zh: "去熟悉这里的环境，理解事物的运作方式，后面你会因此受益的。",
+                        ja: "厄介ごとを避ける方法や、ここで起きる現象のメカニズムが分かれば、きっと後々役に立つはずだよ。",
+                        ko: "이곳의 지리를 파악하고 어떤 식으로 돌아가는지 알아낸다면 언젠가 큰 도움이 될 거예요.",
+                        pt: "Saber como andar por aqui e entender como as coisas funcionam vai se mostrar importante depois de um tempo.",
+                        es: "Con el tiempo, resultará valioso saber cómo moverte y comprender cómo funciona todo aquí.",
+                        fr: "Si tu prends tes marques et que tu arrives à y voir plus clair, ça te sera utile plus tard.",
+                        ru: "Понимание местных особенностей и того, как здесь все устроено, со временем окажется полезным.",
+                        de: "Wenn du dich hier auskennst und verstehst, wie hier alles funktioniert, wird das später noch nützlich sein."
+                    },
+                    expression: "happy1",
+                    nextOptionsById: [
+                        "434144879288414208",
+                        "434144879774953472",
+                        "434144880240521216"
+                    ]
+                },
+                "434144879774953472": {
+                    internalTranslationId: "434144879774953472",
+                    text: {
+                        en: "I was in a room with strange lights and things got crazy.",
+                        zh: "我当时在一个有奇怪光线的房间里，周遭变得很疯狂。",
+                        ja: "変な光でいっぱいの場所にいたんだけど、その後大変なことになって…",
+                        ko: "수상한 빛이 나는 방에 있었는데 주위가 완전히 이상해졌어요.",
+                        pt: "Eu estava em um quarto com luzes estranhas e as coisas ficaram bem loucas.",
+                        es: "Estaba en una sala con luces extrañas y se desató la locura.",
+                        fr: "J'étais dans une pièce avec des lumières bizarres, c'était dingue.",
+                        ru: "Я была в помещении со странными огнями, и там начали происходить странности.",
+                        de: "Ich war in einem Raum mit komischen Lichtern und alles war echt verrückt."
+                    },
+                    nextTextById: "434144882580942848"
+                },
+                "434144882580942848": {
+                    internalTranslationId: "434144882580942848",
+                    text: {
+                        en: "When parts of the Labyrinth begin to shimmer and explode with radiant light, you need to watch out.",
+                        zh: "当迷宫的某些部分开始闪耀并爆发出辉光时，你需要小心一点。",
+                        ja: "ラビリンスの探索中に、一部の地面が輝いて強い光を放ちだしたら気を付けて。",
+                        ko: "미로의 일부가 반짝이면서 무지갯빛이 사방으로 퍼지기 시작하면, 주의해야 해요.",
+                        pt: "Quando partes do Labirinto começarem a brilhar e explodir com uma luz radiante, você precisa tomar cuidado.",
+                        es: "Cuando algunas partes del Laberinto empiecen a brillar y una luz radiante lo invada todo, ten cuidado.",
+                        fr: "Quand certaines parties du Dédale se mettent à scintiller et explosent d'une lumière éclatante, sois sur tes gardes.",
+                        ru: "Когда участки лабиринта начинают мерцать и вспыхивают ослепительным светом, тебе нужно быть очень осторожной.",
+                        de: "Wenn Teile des Labyrinths plötzlich schimmern und in hellem Licht explodieren, musst du aufpassen."
+                    },
+                    expression: "thinking1",
+                    nextTextById: "434144883059093504"
+                },
+                "434144883059093504": {
+                    internalTranslationId: "434144883059093504",
+                    text: {
+                        en: "I call them Prisma Disruptions. They are the unstable bursts of energy generated by the Prismacore. They come in waves, so learn to spot them and how to survive them.",
+                        zh: "我称之为棱镜干扰，那是棱镜核心产生的一种不稳定能量爆发，这种能量爆发呈波状涌动，所以你要学会辨认它们，学会如何在干扰来袭时生存下来。",
+                        ja: "それは「プリズマバースト」。プリズマコアから生じたエネルギーが不安定なバクハツとして放出されるときに起きる現象なの。波のように何度も押しよせてくるから、バーストが起きる場所を察知する方法と、バーストが起きたときに乗り切る方法を身に着けておくといいよ。",
+                        ko: "전 그걸 프리즈마 왜곡이라고 불러요. 프리즈마 코어가 생성한 불안정한 에너지의 폭발이죠. 몰아서 들이닥치니, 꼭 식별하고 살아남을 방법을 익혀 두세요.",
+                        pt: "Eu as chamo de Anomalias Prismáticas. Elas são as explosões instáveis de energia geradas pelo Núcleo Prismático. Elas vêm em ondas, portanto, aprenda a identificá-las e a sobreviver a elas.",
+                        es: "A este fenómeno lo llamo “alteración prismática”. Son ráfagas inestables de energía que genera el Nucleoprisma. Vienen en oleadas, así que aprende a detectarlas y a sobrevivir a ellas.",
+                        fr: "J'appelle ça des perturbations prismatiques. Ce sont des explosions d'énergie instables générées par le Prismacœur. Elles se produisent par vagues, tu dois donc apprendre à les repérer et à survivre.",
+                        ru: "Я называю это явление призматическим разрывом. Это всплеск нестабильной энергии, порожденный призма-ядром. Всплески происходят волнами, поэтому учись их обнаруживать и выживать в их разгаре.",
+                        de: "Ich nenne das Prismastörung. Es sind instabile Energieschübe des Prismakerns. Sie breiten sich in Wellen aus, also musst du lernen, sie zu erkennen und zu überleben."
+                    },
+                    nextTextById: "434144883512078336"
+                },
+                "434144883512078336": {
+                    internalTranslationId: "434144883512078336",
+                    text: {
+                        en: "Because though the disruptions are dangerous, they will prove essential for our work here... in time.",
+                        zh: "因为尽管棱镜干扰很危险，但它将对我们在这里的工作至关重要……迟早会的。",
+                        ja: "確かにプリズマバーストは危険な現象ではあるんだけど、ここでの私たちの作業には不可欠な存在でもあるはずなの…きっと…",
+                        ko: "왜곡이 위험하긴 하지만, 우리가 여기서 할 일에 꼭 필요할 테니까요... 언젠가는요.",
+                        pt: "Porque ainda que as anomalias sejam perigosas, você vai ver que são essenciais para o nosso trabalho aqui... com o tempo.",
+                        es: "Si bien estas alteraciones son peligrosas, resultarán esenciales para nuestro trabajo aquí… con el tiempo.",
+                        fr: "Même si les perturbations sont dangereuses, on aura absolument besoin d'elles... en temps voulu.",
+                        ru: "Потому что, хоть разрывы и опасны, они очень важны для нашей работы... в перспективе.",
+                        de: "Denn auch wenn die Störungen gefährlich sich, werden sie sich für unsere Arbeit hier als unerlässlich herausstellen … mit der Zeit."
+                    },
+                    nextOptionsById: [
+                        "434144879288414208",
+                        "434144879774953472",
+                        "434144880240521216"
+                    ]
+                },
+                "434144880240521216": {
+                    internalTranslationId: "434144880240521216",
+                    text: {
+                        en: "I'm going to get back to exploring.",
+                        zh: "我要回去探寻一番。",
+                        ja: "探検に戻るよ。",
+                        ko: "다시 탐험하러 가겠어요.",
+                        pt: "Eu vou voltar a explorar.",
+                        es: "Voy a volver a explorar.",
+                        fr: "Je retourne explorer.",
+                        ru: "Пожалуй, вернусь к исследованиям!",
+                        de: "Ich werde weiter erkunden."
+                    },
+                    nextTextById: "434144883965063168"
+                },
+                "434144883965063168": {
+                    internalTranslationId: "434144883965063168",
+                    text: {
+                        en: "Ok Beatrix, you know where to find me if you need me.... Well, sort of.",
+                        zh: "好了，碧翠丝，如果你需要我，你知道在哪里可以找到我……嗯，差不多吧。",
+                        ja: "それじゃあ、ベアトリクス。何かあったらまた会いに来てね。\n「会う」というか、実際に会ってるわけじゃないけど…",
+                        ko: "좋아요, 베아트릭스. 제가 필요하면 어디 있는지는 알겠죠... 뭐, 대략적으로요.",
+                        pt: "Certo, Beatrix, se precisar de mim, sabe onde me encontrar... mais ou menos.",
+                        es: "Bien, Beatrix, sabes dónde encontrarme si me necesitas… más o menos.",
+                        fr: "Voilà, Beatrix, tu sais où me trouver si tu as besoin de moi... Enfin, tu m'as comprise.",
+                        ru: "Ладно, Беатрикс, ты знаешь, где меня найти, если понадобится... Ну, примерно.",
+                        de: "Okay, Beatrix, du weißt, wo du mich findest, wenn du mich brauchst … Na ja, mehr oder weniger."
+                    },
+                    expression: "cheery1"
+                }
+            }
+        }
     },
     "gigihologram_x1163_y1570": {
         name: "Gigi Hologram",

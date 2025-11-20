@@ -189,7 +189,7 @@ export interface ShadowDoor {
 interface GigiDialogueEntryBase {
     internalTranslationId?: string;
     text: TranslatedType<string>;
-    expression?: "surprised1" | "happy1" | "thinking1" | "pointing1";
+    expression?: "surprised1" | "happy1" | "thinking1" | "pointing1" | "cheery1" | "sad1";
 }
 export interface GigiDialogueToTextEntry extends GigiDialogueEntryBase {
     nextTextById?: string;
