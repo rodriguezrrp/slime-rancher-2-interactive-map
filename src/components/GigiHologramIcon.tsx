@@ -4,7 +4,7 @@ import { icon_opacity, icon_template, research_drone_ls_key } from "../globals";
 import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
-import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiHologram } from "../types";
+import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiExpression, GigiHologram } from "../types";
 import { gigiExpressionImageUrls, handleChecked } from "../util";
 import { gigi_holograms } from "../data/gigi_holograms";
 
@@ -149,7 +149,7 @@ export function GigiConvo({
     }, [convoLog]);
 
 
-    let latestExpression: NonNullable<GigiDialogueToTextEntry["expression"]> = "happy1";
+    let latestExpression: GigiExpression = "happy1";
 
 
     return (

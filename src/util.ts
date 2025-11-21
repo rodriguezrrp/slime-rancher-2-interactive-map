@@ -1,4 +1,4 @@
-import { GigiDialogueToTextEntry, LocalStoragePlotPlan, LocalStorageSitePlan, Vec2 } from "./types";
+import { GigiDialogueToTextEntry, GigiExpression, LocalStoragePlotPlan, LocalStorageSitePlan, Vec2 } from "./types";
 import L from "leaflet";
 
 export function handleChecked(
@@ -175,7 +175,7 @@ import surprised1 from "/gigi/surprised1.png";
 import cheery1 from "/gigi/cheery1.png";
 import sad1 from "/gigi/sad1.png";
 
-export const gigiExpressionImageUrls: { [expression in NonNullable<GigiDialogueToTextEntry["expression"]>]: string } = {
+export const gigiExpressionImageUrls: { [expression in GigiExpression]: string } = {
     happy1: happy1,
     surprised1: surprised1,
     thinking1: thinking1,

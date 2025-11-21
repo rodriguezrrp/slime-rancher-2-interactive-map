@@ -13,8 +13,8 @@
     [hologramId: string]: Omit<NonNullable<import("../src/types.js").GigiHologram["dialogue"]>, "entries"> & {
         entries: {
             [translationId: string]: (
-                { next: string | null; changeExpression?: import("../src/types.js").GigiDialogueToTextEntry["expression"] }
-                | { nextOptions: string[]; changeExpression?: import("../src/types.js").GigiDialogueToTextEntry["expression"] }
+                { next: string | null; changeExpression?: import("../src/types.js").GigiExpression }
+                | { nextOptions: string[]; changeExpression?: import("../src/types.js").GigiExpression }
                 | null
             );
         }
