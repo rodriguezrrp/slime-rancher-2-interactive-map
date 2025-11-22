@@ -1,4 +1,3 @@
-import { Marker, Popup } from "react-leaflet";
 import { icon_opacity, icon_template, locked_door_ls_key } from "../globals";
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
@@ -7,6 +6,7 @@ import { LockedDoor } from "../types";
 import { MapType } from "../CurrentMapContext";
 import { handleChecked } from "../util";
 import { locked_doors } from "../data/locked_doors";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function LockedDoorIcon({ locked_door, keyName }: { locked_door: LockedDoor, keyName: string }) {
     const deprecatedKey = `${locked_door.name.toLowerCase().replace(" ", "")}${locked_door.pos.x}${locked_door.pos.y}`;
@@ -39,41 +39,34 @@ export function LockedDoorIcon({ locked_door, keyName }: { locked_door: LockedDo
         className: `${checked && icon_opacity}`
     });
 
+    const markerRefKey = `lockeddoor_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
+
     return (
-        <Marker key={keyName} position={[locked_door.pos.x, locked_door.pos.y]} icon={icon}>
-            <Popup>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center gap-5">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleChecked(locked_door_ls_key, keyName, checked, setChecked, deprecatedKey)}
-                                className="w-4 h-4"
-                            />
-                            <h1 className="ml-2 text-xl font-medium">{locked_door.name}</h1>
-                        </div>
-                    </div>
+        <MarkerAndPopupTemplate
+            markerRefKey={markerRefKey}
+            position={[locked_door.pos.x, locked_door.pos.y]}
+            icon={icon}
+            popupCheckedState={checked}
+            onPopupCheckChange={() => handleChecked(locked_door_ls_key, keyName, checked, setChecked, deprecatedKey)}
+            headerRowChildren={
+                <h1 className="ml-2 text-xl font-medium">{locked_door.name}</h1>
+            }
+        >
+            <div>
+                <span className="text-md font-bold">Plort Requirement: </span>
+                <span>{locked_door.plort}</span>
+            </div>
 
-                    <hr />
+            <div>
+                <span className="text-md font-bold">Description: </span>
+                <span>{locked_door.description}</span>
+            </div>
 
-                    <div>
-                        <span className="text-md font-bold">Plort Requirement: </span>
-                        <span>{locked_door.plort}</span>
-                    </div>
-
-                    <div>
-                        <span className="text-md font-bold">Description: </span>
-                        <span>{locked_door.description}</span>
-                    </div>
-
-                    <div>
-                        <span className="text-md font-bold">Unlocks: </span>
-                        <span>{locked_door.unlocks}</span>
-                    </div>
-                </div>
-            </Popup>
-        </Marker>
+            <div>
+                <span className="text-md font-bold">Unlocks: </span>
+                <span>{locked_door.unlocks}</span>
+            </div>
+        </MarkerAndPopupTemplate>
     );
 }
 
@@ -82,6 +75,8 @@ export function LockedDoorIcons(current_map: MapType) {
         return locked_doors[keyName].dimension === current_map;
     }).map((keyName) => {
         const locked_door = locked_doors[keyName];
-        return <LockedDoorIcon key={keyName} locked_door={locked_door} keyName={keyName} />;
+        return <LockedDoorIcon
+            key={keyName} locked_door={locked_door} keyName={keyName}
+        />;
     });
 }

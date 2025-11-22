@@ -168,18 +168,39 @@ export function yToLat(y: number, zoom: number, tileSizePx: number = 256): numbe
 }
 
 
-import happy1 from "/gigi/happy1.png";
-import thinking1 from "/gigi/thinking1.png";
-import pointing1 from "/gigi/pointing1.png";
-import surprised1 from "/gigi/surprised1.png";
-import cheery1 from "/gigi/cheery1.png";
-import sad1 from "/gigi/sad1.png";
+function compareArraysOneLevelDeep<T>(a: T[], b: T[]) {
+  if (a === b) return true;
+  if (a == null || b == null || a.length !== b.length) return false;
 
-export const gigiExpressionImageUrls: { [expression in GigiExpression]: string } = {
-    happy1: happy1,
-    surprised1: surprised1,
-    thinking1: thinking1,
-    pointing1: pointing1,
-    cheery1: cheery1,
-    sad1: sad1,
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+
+  return true;
 }
+
+function insertIntoSortedList<T>(arr: T[], element: T, cmp: ((a: T, b: T) => number) | (T extends number | bigint | string ? undefined : never)): T[] {
+    if(!cmp) {
+        if(typeof element === "number" || typeof element === "bigint")
+            cmp = (<V extends typeof element>(a: V, b: V) => a - b) as NonNullable<typeof cmp>;
+        else if(typeof element === "string")
+            cmp = ((a: string, b: string) => a === b ? 0 : a < b ? -1 : 1) as NonNullable<typeof cmp>;
+        else throw new Error("Must specify a custom comparison function in parameter `cmp`");
+    }
+
+    // Find the index where the element should be inserted
+    // If no element is found that is greater than or equal,
+    // it means the element should be appended to the end.
+    const insertIndex = arr.findIndex(item => cmp(item, element) >= 0);
+
+    if (insertIndex === -1) {
+        // If element is larger than all existing elements, append it
+        arr.push(element);
+    } else {
+        // Insert the element at the found index
+        arr.splice(insertIndex, 0, element);
+    }
+    return arr;
+}
+
+

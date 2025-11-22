@@ -1080,7 +1080,8 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         "418299640694861852"
                     ]
                 }
-            }
+            },
+            subsequentStartEntryId: "433468706430545920"
         }
     }
 };

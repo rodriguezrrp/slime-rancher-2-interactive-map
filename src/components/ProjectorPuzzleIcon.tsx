@@ -1,4 +1,3 @@
-import { Marker, Popup } from "react-leaflet";
 import { icon_opacity, icon_template, projector_puzzle_ls_key } from "../globals";
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
@@ -6,11 +5,12 @@ import L from "leaflet";
 import { ProjectorPuzzle } from "../types";
 import { handleChecked } from "../util";
 import { projector_puzzles } from "../data/projector_puzzles";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function ProjectorPuzzleIcon({
     projector_puzzle,
     projector_puzzle_beampoint,
-    puzzle_key_name: key_name,
+    puzzle_key_name: keyName,
     beampoint_type,
 }: {
     projector_puzzle: ProjectorPuzzle,
@@ -21,23 +21,23 @@ export function ProjectorPuzzleIcon({
 
     const { found, setFound } = useContext(FoundContext);
     const [checked, setChecked] = useState(
-        found.projector_puzzles ? found.projector_puzzles.some((k: string) => k === key_name) : false
+        found.projector_puzzles ? found.projector_puzzles.some((k: string) => k === keyName) : false
     );
 
     useEffect(() => {
-        setChecked(found.projector_puzzles ? found.projector_puzzles.some((k: string) => k === key_name) : false);
+        setChecked(found.projector_puzzles ? found.projector_puzzles.some((k: string) => k === keyName) : false);
     }, [found]);
 
     useEffect(() => {
         if (checked) {
             setFound({
                 ...found,
-                projector_puzzles: [...found.projector_puzzles, key_name],
+                projector_puzzles: [...found.projector_puzzles, keyName],
             });
         } else {
             setFound({
                 ...found,
-                projector_puzzles: [...found.projector_puzzles.filter((item: string) => item !== key_name)]
+                projector_puzzles: [...found.projector_puzzles.filter((item: string) => item !== keyName)]
             });
         }
     }, [checked]);
@@ -48,36 +48,30 @@ export function ProjectorPuzzleIcon({
         className: `${checked && icon_opacity} testing-class-on-leaflet-icons`
     });
 
+    const markerRefKey = `projector_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
+
     return (
-        <Marker key={key_name} position={[projector_puzzle_beampoint.position.x, projector_puzzle_beampoint.position.y]} icon={icon}>
-            <Popup>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center gap-5">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleChecked(projector_puzzle_ls_key, key_name, checked, setChecked)}
-                                className="w-4 h-4"
-                            />
-                            <h1 className="ml-2 text-xl font-medium">{projector_puzzle.name + " " + projector_puzzle_beampoint.nameSuffix}</h1>
-                        </div>
-                    </div>
+        <MarkerAndPopupTemplate
+            markerRefKey={markerRefKey}
+            position={[projector_puzzle_beampoint.position.x, projector_puzzle_beampoint.position.y]}
+            icon={icon}
+            popupCheckedState={checked}
+            onPopupCheckChange={() => handleChecked(projector_puzzle_ls_key, keyName, checked, setChecked)}
+            headerRowChildren={
+                <h1 className="ml-2 text-xl font-medium">{projector_puzzle.name + " " + projector_puzzle_beampoint.nameSuffix}</h1>
+            }
+        >
 
-                    <hr />
+            <div>
+                <span className="text-md font-bold">Description: </span>
+                <span>{projector_puzzle_beampoint.description}</span>
+            </div>
 
-                    <div>
-                        <span className="text-md font-bold">Description: </span>
-                        <span>{projector_puzzle_beampoint.description}</span>
-                    </div>
-
-                    <div>
-                        <span className="text-md font-bold">Puzzle Unlocks: </span>
-                        <span>{projector_puzzle.unlocks}</span>
-                    </div>
-                </div>
-            </Popup>
-        </Marker>
+            <div>
+                <span className="text-md font-bold">Puzzle Unlocks: </span>
+                <span>{projector_puzzle.unlocks}</span>
+            </div>
+        </MarkerAndPopupTemplate>
     );
 }
 

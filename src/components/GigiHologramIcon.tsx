@@ -1,15 +1,31 @@
-import { Marker, Popup } from "react-leaflet";
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { icon_opacity, icon_template, research_drone_ls_key } from "../globals";
 import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiExpression, GigiHologram } from "../types";
-import { gigiExpressionImageUrls, handleChecked } from "../util";
+import { handleChecked } from "../util";
 import { gigi_holograms } from "../data/gigi_holograms";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
-// TODO: move this to a configuration or settings area?
+// TODO: refactor the language to a configuration or settings area?
 const curLanguage = "en";
+
+import happy1 from "/gigi/happy1.png";
+import thinking1 from "/gigi/thinking1.png";
+import pointing1 from "/gigi/pointing1.png";
+import surprised1 from "/gigi/surprised1.png";
+import cheery1 from "/gigi/cheery1.png";
+import sad1 from "/gigi/sad1.png";
+
+export const gigiExpressionImageUrls: { [expression in GigiExpression]: string } = {
+    happy1: happy1,
+    surprised1: surprised1,
+    thinking1: thinking1,
+    pointing1: pointing1,
+    cheery1: cheery1,
+    sad1: sad1,
+}
 
 export function GigiHologramIcon({
     gigi_hologram,
@@ -22,7 +38,6 @@ export function GigiHologramIcon({
     setCurrentConvo: React.Dispatch<React.SetStateAction<JSX.Element>>
     keyName: string,
 }) {
-    const deprecatedKey = null;
     const { found, setFound } = useContext(FoundContext);
     const [checked, setChecked] = useState(
         found.gigi_holograms ? found.gigi_holograms.some((k: string) => k === keyName) : false
@@ -52,39 +67,34 @@ export function GigiHologramIcon({
         className: `${checked && icon_opacity}`
     });
 
-    return (
-        <Marker key={keyName} position={[gigi_hologram.position.x, gigi_hologram.position.y]} icon={icon}>
-            <Popup>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center gap-5">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked, deprecatedKey)}
-                                className="w-4 h-4"
-                            />
-                            <h1 className="ml-2 text-xl font-medium">{gigi_hologram.name}</h1>
-                        </div>
-                    </div>
-                    <hr />
-                    <div>
-                        <span className="text-md font-bold">Description: </span>
-                        <span>{gigi_hologram.description}</span>
-                    </div>
+    const markerRefKey = `gigihologram_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
-                    <button
-                        className="border w-[9rem] mt-2 p-1 self-end"
-                        onClick={() => {
-                            setShowConvo(true);
-                            setCurrentConvo(<GigiConvo gigi_hologram={gigi_hologram} setShowConvo={setShowConvo} />);
-                        }}
-                    >
-                        Access Conversation
-                    </button>
+    return (
+            <MarkerAndPopupTemplate
+                markerRefKey={markerRefKey}
+                position={[gigi_hologram.position.x, gigi_hologram.position.y]}
+                icon={icon}
+                popupCheckedState={checked}
+                onPopupCheckChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked)}
+                headerRowChildren={
+                    <h1 className="ml-2 text-xl font-medium">{gigi_hologram.name}</h1>
+                }
+            >
+                <div>
+                    <span className="text-md font-bold">Description: </span>
+                    <span>{gigi_hologram.description}</span>
                 </div>
-            </Popup>
-        </Marker>
+
+                <button
+                    className="border w-[9rem] mt-2 p-1 self-end"
+                    onClick={() => {
+                        setShowConvo(true);
+                        setCurrentConvo(<GigiConvo gigi_hologram={gigi_hologram} setShowConvo={setShowConvo} />);
+                    }}
+                >
+                    Access Conversation
+                </button>
+            </MarkerAndPopupTemplate>
     );
 }
 
