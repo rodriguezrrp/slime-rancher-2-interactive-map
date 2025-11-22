@@ -48,7 +48,7 @@ export function ProjectorPuzzleIcon({
         className: `${checked && icon_opacity} testing-class-on-leaflet-icons`
     });
 
-    const markerRefKey = `projector_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
+    const markerRefKey = `projector_${keyName}_${beampoint_type}`;  // add this prefix to make these unique among _all_ markers on the map
 
     return (
         <MarkerAndPopupTemplate
