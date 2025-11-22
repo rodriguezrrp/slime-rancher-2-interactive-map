@@ -17,6 +17,9 @@ import pointing1 from "/gigi/pointing1.png";
 import surprised1 from "/gigi/surprised1.png";
 import cheery1 from "/gigi/cheery1.png";
 import sad1 from "/gigi/sad1.png";
+import sad2 from "/gigi/sad2.png";
+import pensive1 from "/gigi/pensive1.png";
+import pensive2 from "/gigi/pensive2.png";
 
 export const gigiExpressionImageUrls: { [expression in GigiExpression]: string } = {
     happy1: happy1,
@@ -25,7 +28,12 @@ export const gigiExpressionImageUrls: { [expression in GigiExpression]: string }
     pointing1: pointing1,
     cheery1: cheery1,
     sad1: sad1,
+    sad2: sad2,
+    pensive1: pensive1,
+    pensive2: pensive2,
 }
+
+// export const _pensiveImageUnderlapHeight = 117 / 568;  // position image so that it cuts off at 117 image pixels up from the bottom of the image (image height is 568 pixels)
 
 export function GigiHologramIcon({
     gigi_hologram,
@@ -89,7 +97,7 @@ export function GigiHologramIcon({
                     className="border w-[9rem] mt-2 p-1 self-end"
                     onClick={() => {
                         setShowConvo(true);
-                        setCurrentConvo(<GigiConvo gigi_hologram={gigi_hologram} setShowConvo={setShowConvo} />);
+                        setCurrentConvo(<GigiConvo key={`convodialog_${keyName}`} gigi_hologram={gigi_hologram} setShowConvo={setShowConvo} />);
                     }}
                 >
                     Access Conversation
@@ -186,7 +194,7 @@ export function GigiConvo({
                             const isLastEntry = entryIndex === convoLog.length - 1;
                             if("optionsIds" in convoEntry) {
                                 return (
-                                    <div key={`${convoEntry.sourceEntryId}_options`}
+                                    <div key={`${entryIndex}_${convoEntry.sourceEntryId}_options`}
                                         className="gigi-option-group-entry flex flex-row justify-end"
                                     >
                                         {convoEntry.optionsIds.map((optionId, optionIndex) => {
@@ -208,15 +216,15 @@ export function GigiConvo({
                                 )
                             }
                             else {
-                                const thisExpression = dialogueEntries[convoEntry.entryId].expression;
+                                const thisExpression = dialogueEntries[convoEntry.entryId]?.expression;
                                 latestExpression = thisExpression ?? latestExpression;
 
-                                return <div key={convoEntry.entryId}
+                                return <div key={`${entryIndex}_${convoEntry.entryId}`}
                                     className="gigi-text-entry"
                                 >
                                     <img
                                         src={gigiExpressionImageUrls[latestExpression]}
-                                        alt={`Portrait of Gigi with a ${latestExpression.replace(/\d+$/ig,"").toLowerCase()} expression as shown in game.`}
+                                        alt={`Portrait of Gigi with a ${latestExpression.replace(/[^a-z\-]+/ig,"").toLowerCase()} expression as shown in game.`}
                                         aria-hidden
                                         className="gigi-portrait"
                                     />

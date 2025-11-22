@@ -186,7 +186,7 @@ export interface ShadowDoor {
     unlocks: string[];
 }
 
-export type GigiExpression = "surprised1" | "happy1" | "thinking1" | "pointing1" | "cheery1" | "sad1";
+export type GigiExpression = "surprised1" | "happy1" | "thinking1" | "pointing1" | "cheery1" | "sad1" | "sad2" | "pensive1" | "pensive2";
 interface GigiDialogueEntryBase {
     internalTranslationId?: string;
     text: TranslatedType<string>;

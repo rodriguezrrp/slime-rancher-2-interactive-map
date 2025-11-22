@@ -27,7 +27,7 @@ export default function MarkerAndPopupTemplate({
     type HandlerFnType = NonNullable<L.LeafletEventHandlerFnMap[keyof L.LeafletEventHandlerFnMap]>;
     type HandlerFnEvtParamType = Parameters<HandlerFnType>[0];
     const hoverOn = (e: HandlerFnEvtParamType) => {
-        console.debug('hoverOn ', e.type);
+        // console.debug('hoverOn ', e.type);
         const style = localMarkerRef.current?.getElement()?.style;
         if(typeof style !== "undefined" && nonHoveredZIndexRef.current === null) {
             nonHoveredZIndexRef.current = `${style.zIndex}`;
@@ -36,7 +36,7 @@ export default function MarkerAndPopupTemplate({
         }
     };
     const hoverOff = (e: HandlerFnEvtParamType) => {
-        console.debug('hoverOff ', e.type);
+        // console.debug('hoverOff ', e.type);
         const style = localMarkerRef.current?.getElement()?.style;
         if(typeof style !== "undefined" && nonHoveredZIndexRef.current !== null) {
             style.zIndex = nonHoveredZIndexRef.current;

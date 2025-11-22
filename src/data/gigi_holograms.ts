@@ -24,7 +24,313 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
     "gigihologram_x766_y2011": {
         name: "Gigi Hologram",
         position: { x: 765.2036780644474, y: 2011.9679857604647 },
-        description: "Todo: insert a description for this Gigi hologram x766_y2011"
+        description: "Todo: insert a description for this Gigi hologram x766_y2011",
+        dialogue: {
+            firstVisitStartEntryId: "523380586816630784",
+            entries: {
+                "523380586816630784": {
+                    internalTranslationId: "523380586816630784",
+                    text: {
+                        en: "Hi, Beatrix. Fascinating area, right?",
+                        zh: "碧翠丝，这区域很奇妙对吧？",
+                        ja: "こんにちは、ベアトリクス！ここは面白いエリアでしょう？",
+                        ko: "안녕, 베아트릭스. 정말 흥미로운 지역이죠, 안 그런가요?",
+                        pt: "Oi, Beatrix. Área fascinante, né?",
+                        es: "Hola, Beatrix. Es un área fascinante, ¿verdad?",
+                        fr: "Salut, Beatrix. C'est un endroit fascinant, n'est-ce pas ?",
+                        ru: "Привет, Беатрикс. Удивительное местечко, правда?",
+                        de: "Hi, Beatrix. Faszinierende Gegend, oder?"
+                    },
+                    expression: "happy1",
+                    nextOptionsById: [
+                        "523380587600965632",
+                        "523380588435632128"
+                    ]
+                },
+                "523380587600965632": {
+                    internalTranslationId: "523380587600965632",
+                    text: {
+                        en: "It's almost like some kind of museum!",
+                        zh: "简直像座博物馆！",
+                        ja: "博物館みたい！",
+                        ko: "거의 무슨 박물관 같네요!",
+                        pt: "Parece quase um tipo de museu!",
+                        es: "¡Es casi como un museo!",
+                        fr: "On dirait un musée !",
+                        ru: "Похоже на какой-нибудь музей!",
+                        de: "Fast wie eine Art Museum!"
+                    },
+                    nextTextById: "523380589240938496"
+                },
+                "523380589240938496": {
+                    internalTranslationId: "523380589240938496",
+                    text: {
+                        en: "That might be what glass cases say to us, but I believe they're here for another purpose. Actually, I'm convinced that they have something to do with the manipulation of time.",
+                        zh: "玻璃展柜或许给人这种印象，但我认为它们另有用途。事实上，我确信这些装置与时间操控有关。",
+                        ja: "あのガラスのケースからして、博物館って感じだよね。\nでも、この場所の本当の目的は、他にあると思うわ。\nこれは確信に近いんだけど、“時間操作”に関連することだと思う。",
+                        ko: "유리 케이스만 보면 그런 것 같지만, 전 다른 용도가 있다고 생각해요. 사실 전 저것이 시간 조작과 어떠한 관련이 있다고 확신하고 있죠.",
+                        pt: "É isso que caixas de vidro normalmente dizem pra gente, mas eu acho que elas estão aqui por outro motivo. Na verdade, eu tenho quase certeza de que têm algo a ver com manipulação do tempo.",
+                        es: "Puede que eso sea lo que nos digan las vitrinas, pero yo creo que están aquí por otra razón. De hecho, no tengo duda de que tienen algo que ver con la manipulación del tiempo.",
+                        fr: "C'est ce que semblent indiquer ces vitrines, mais je crois qu'elles sont là pour autre chose. En fait, je suis convaincue qu'elles ont quelque chose à voir avec la manipulation du temps.",
+                        ru: "Наверное, это из-за стеклянных витрин... но, по-моему, у них совсем другое предназначение. Я думаю, они как-то связаны с управлением временем.",
+                        de: "Die Glaskästen wirken vielleicht so, aber ich glaube, sie haben einen anderen Zweck. Ich denke, sie haben etwas mit der Manipulation von Zeit zu tun."
+                    },
+                    expression: "pointing1",
+                    nextTextById: "523380590050439168"
+                },
+                "523380590050439168": {
+                    internalTranslationId: "523380590050439168",
+                    text: {
+                        en: "I've observed the ones with plants for a while, and I've noticed that time's moving faster inside these cases than outside of them.",
+                        zh: "我观察这些植物展柜很久了，发现里面的时间流速比外界更快。",
+                        ja: "植物が入っているガラスケースをしばらく観察していたんだけど、\nどうやらケースの中と外では時間の流れるスピードが違うってことに\n気づいたの。",
+                        ko: "식물이 있는 것들을 한동안 관찰했는데, 케이스 바깥보다 안에서 시간이 더 빠르게 흐른다는 걸 깨달았어요.",
+                        pt: "Observei aquelas com plantas por um tempo, e percebi que o tempo passa mais rápido dentro delas do que fora.",
+                        es: "He estado observando las que tienen plantas y noté que el tiempo pasa más rápido dentro de las vitrinas que fuera de ellas.",
+                        fr: "J'observe depuis un certain temps celles qui contiennent des plantes et j'ai remarqué que le temps s'écoule plus vite à l'intérieur de celles-ci.",
+                        ru: "Я некоторое время наблюдала за теми, что с растениями, и заметила, что внутри них время течёт быстрее, чем снаружи.",
+                        de: "Die mit den Pflanzen hab ich eine Weile beobachtet. In den Kästen läuft die Zeit schneller als außerhalb."
+                    },
+                    expression: "happy1",
+                    nextTextById: "523380590868328448"
+                },
+                "523380590868328448": {
+                    internalTranslationId: "523380590868328448",
+                    text: {
+                        en: "I think that it must be some way of analyzing the Prismacore's effects on the natural world. Perhaps they're a way to help predict what would happen in the event of a breach.",
+                        zh: "这应该是用来分析棱镜核心对自然界影响的装置。或许能借此预测核心失控时的后果。",
+                        ja: "おそらくこのケースは、プリズマコアが自然界に与える影響を分析する\nためのものなんだと思う。多分、プリズマコアの力が外にあふれ出た\n場合に、どんなことが起きるのかを予想するためよ。",
+                        ko: "프리즈마 코어가 자연계에 미치는 효과를 분석하기 위한 일종의 방법일 거라 생각해요. 어쩌면 파손이 일어났을 때 무슨 일이 일어날지 예측하는 데 도움을 주기 위한 걸지도 모르고요.",
+                        pt: "Acho que deve ser um jeito de analisar os efeitos do Núcleo Prismático no mundo natural. Talvez seja uma forma de prever o que aconteceria em caso de ruptura.",
+                        es: "Creo que debe ser una forma de estudiar los efectos del Nucleoprisma en el mundo natural. Quizás sirvan para predecir qué sucedería en caso de que se produzca una grieta.",
+                        fr: "Il pourrait s'agir d'un moyen d'analyser les effets du Prismacœur sur les êtres vivants... et de prédire ce qui se passerait si une brèche devait survenir.",
+                        ru: "Полагаю, это способ изучать влияние призма-ядра на природу. Возможно, они помогают предсказать, что случится, если произойдёт прорыв ядра.",
+                        de: "Ich denke, dass man so den Effekt des Prismakerns auf die natürliche Umgebung analysieren kann. So könnte man abschätzen, was bei einem Bruch passiert."
+                    },
+                    nextOptionsById: [
+                        "523380591715577856",
+                        "523380592537661440"
+                    ]
+                },
+                "523380591715577856": {
+                    internalTranslationId: "523380591715577856",
+                    text: {
+                        en: "Is it happening with the tiny buildings too?",
+                        zh: "那些微缩建筑也是这样吗？",
+                        ja: "この辺りの小さい建物でも、\n実験してるってこと？",
+                        ko: "작은 건물에도 같은 현상이 일어나고 있나요?",
+                        pt: "Isso acontece também com os prédios pequenos?",
+                        es: "¿También sucede con las construcciones pequeñas?",
+                        fr: "Cela se produit-il aussi avec les petits bâtiments ?",
+                        ru: "А с миниатюрными зданиями тоже что-то происходит?",
+                        de: "Ist das auch so bei diesen winzigen Gebäuden?"
+                    },
+                    nextTextById: "523380593342967808"
+                },
+                "523380593342967808": {
+                    internalTranslationId: "523380593342967808",
+                    text: {
+                        en: "It might be, but I'm not sure.",
+                        zh: "有可能，但我不确定。",
+                        ja: "そういうことだと思う。確証はないけどね。",
+                        ko: "그럴지도 모르지만, 확실하진 않아요.",
+                        pt: "Talvez, mas não tenho certeza.",
+                        es: "Puede ser, pero no lo sé con certeza.",
+                        fr: "Peut-être, mais aucun moyen d'en être sûr.",
+                        ru: "Возможно, но я не уверена.",
+                        de: "Vielleicht, aber ich bin nicht sicher."
+                    },
+                    expression: "happy1",
+                    nextTextById: "523380594135691264"
+                },
+                "523380594135691264": {
+                    internalTranslationId: "523380594135691264",
+                    text: {
+                        en: "Maybe it is, or maybe it's manipulating space instead... or even a third thing that's so alien to us that we'll never have the context to figure it out",
+                        zh: "也许是空间扭曲……或是某种我们完全无法理解的第三类现象。",
+                        ja: "それとも、時間操作じゃなくて“空間操作”か…あるいは、私たちには\n到底理解も及ばない、まったく別の理由なのかも。",
+                        ko: "그럴 수도 있고, 공간을 조작하고 있을지도 모르죠... 아니면 우리에게 전혀 생소해서 영원히 알아낼 수 없는 제3의 현상일지도 모르고요.",
+                        pt: "Pode ser, ou talvez esteja manipulando o espaço em vez disso... ou até uma terceira coisa tão estranha pra nós que nunca vamos ter o contexto necessário pra entender.",
+                        es: "Puede que sí, o quizás en realidad manipula el espacio… o incluso una tercera dimensión tan desconocida que nunca tendremos el contexto para descubrirla.",
+                        fr: "Peut-être est-ce le cas, ou peut-être s'agit-il de manipulation de l'espace... ou même une troisième alternative qui nous est tellement étrangère que nous n'aurons jamais les connaissances nécessaires pour la concevoir.",
+                        ru: "Может, происходит. А может, здесь уже управление не временем, а пространством... или чем-то третьим — настолько чуждым, что мы просто никогда не поймём, что это.",
+                        de: "Vielleicht wird dort stattdessen der Raum manipuliert ... Oder es ist sogar irgendeine dritte Sache, die uns so fremd ist, dass wir sie nie verstehen werden."
+                    },
+                    expression: "thinking1",
+                    nextTextById: "523380594928414720"
+                },
+                "523380594928414720": {
+                    internalTranslationId: "523380594928414720",
+                    text: {
+                        en: "There are so many mysteries on Rainbow Island, Beatrix, and I don't think we'll solve even half of them in our lifetimes.",
+                        zh: "彩虹岛有太多未解之谜了，碧翠丝，恐怕我们穷尽一生也破解不了半数。",
+                        ja: "レインボー島には、分からないことがたくさんあるの。私たちが\n生きている間に分かることなんて、半分にも満たないんだろうな。",
+                        ko: "무지개 섬에는 수수께끼가 너무나도 많아요, 베아트릭스. 우리 생애 동안 반도 못 풀 거라 생각해요.",
+                        pt: "Existem tantos mistérios na Ilha Arco-Íris, Beatrix, e acho que não vamos resolver nem metade deles durante nossas vidas.",
+                        es: "Son tantos los misterios de la Isla Arcoíris, Beatrix, que no creo que nos alcance la vida para resolver ni la mitad.",
+                        fr: "Il y a tellement de mystères sur l'Île Arc-en-Ciel, Beatrix... Je pense que nous n'en résoudrons pas même la moitié au cours de notre existence.",
+                        ru: "На Радужном острове столько загадок, Беатрикс. Думаю, что за всю жизнь мы и половины не разгадаем.",
+                        de: "Auf der Regenbogeninsel gibt es so viele Mysterien, Beatrix. Ich glaube nicht, dass wir auch nur die Hälfte zu unseren Lebzeiten lösen werden."
+                    },
+                    nextTextById: "523380595721138176"
+                },
+                "523380595721138176": {
+                    internalTranslationId: "523380595721138176",
+                    text: {
+                        en: "Sometimes all you can do is look through the glass and wonder about what's happening on the other side.",
+                        zh: "有时候你只能隔着玻璃，揣测另一侧正在发生什么。",
+                        ja: "まるで、ガラス越しに不思議な世界を眺めて、ガラスの向こうでは\n何が起きているのか想像することしかできない、みたいな…そんな\n気持ちになるわ。",
+                        ko: "유리 너머를 바라보면서 반대쪽에서 무슨 일이 일어나고 있는지 궁금해하는 게 고작일 때가 있죠.",
+                        pt: "Às vezes, tudo que dá pra fazer é olhar pelo vidro e imaginar o que está acontecendo do outro lado.",
+                        es: "A veces, solo queda mirar a través del cristal y preguntarse qué sucede del otro lado.",
+                        fr: "Parfois, on ne peut que regarder à travers la vitre et s'interroger sur ce qui se passe de l'autre côté.",
+                        ru: "Иногда остаётся только смотреть сквозь стекло и гадать, что же происходит по ту сторону.",
+                        de: "Manchmal kann man eben einfach nur durchs Glas schauen und sich fragen, was wohl auf der anderen Seite passiert."
+                    },
+                    expression: "pensive1",
+                    nextOptionsById: [ "523380596513861632" ]
+                },
+                "523380596513861632": {
+                    internalTranslationId: "523380596513861632",
+                    text: {
+                        en: "Do you feel that way often?",
+                        zh: "你经常有这种感觉吗？",
+                        ja: "よくそういう気持ちになるの？",
+                        ko: "그렇게 느낄 때가 자주 있나요?",
+                        pt: "Você sente isso com frequência?",
+                        es: "¿Sientes eso a menudo?",
+                        fr: "Ça te le fait souvent ?",
+                        ru: "Ты часто так себя чувствуешь?",
+                        de: "Geht es dir oft so?"
+                    },
+                    nextTextById: "523380597340139520"
+                },
+                "523380597340139520": {
+                    internalTranslationId: "523380597340139520",
+                    text: {
+                        en: "I've felt that way for a long time, honestly.",
+                        zh: "说实话，这种感受伴随我很久了。",
+                        ja: "だいぶ前から、ずっとそんな気分かも。",
+                        ko: "솔직히 말하면 예전부터 그렇게 느꼈어요.",
+                        pt: "Eu sinto isso faz muito tempo, falando bem a verdade.",
+                        es: "Me he sentido así durante mucho tiempo, honestamente.",
+                        fr: "Ça fait longtemps que j'ai cette sensation, à vrai dire.",
+                        ru: "Честно говоря, я уже давно так себя чувствую.",
+                        de: "Schon seit sehr langer Zeit, ehrlich gesagt."
+                    },
+                    expression: "sad1",
+                    nextTextById: "523380598174806016"
+                },
+                "523380598174806016": {
+                    internalTranslationId: "523380598174806016",
+                    text: {
+                        en: "You know, my whole life was planned out: I'd grow up and then take over the ranch, just like my mom took over from Grandma. One day, I'd pass the ranch down to a child of my own. It was all meant with such love. A beautiful home, our family legacy.",
+                        zh: "我的人生原本被安排得明明白白：长大后继承牧场，就像妈妈继承外婆那样。将来某天再传给自己的孩子，这本该是个充满爱的循环。美丽的家园，家族的传承。",
+                        ja: "私の運命は生まれる前から決まってたから。お母さんがおばあちゃんから\n牧場を継いだように、私も牧場を継ぐ運命だった。同じように、いつか私\nの子供も牧場を継ぐんだって…愛があるからこそ、期待されてたと思う。\nだってお母さんたちにとって牧場は、家族の居場所であり宝なんだから。",
+                        ko: "제 인생은 전부 계획되어 있었어요. 엄마가 할머니에게서 그랬듯이 저도 자라서 목장을 물려받을 예정이었죠. 때가 되면, 저도 제 자식에게 목장을 물려주고요. 사랑이 넘치는 일이었어요. 아름다운 보금자리이자, 우리 가족의 유산이에요.",
+                        pt: "Sabe, minha vida toda estava planejada: eu cresceria e assumiria o rancho, do mesmo jeito que a minha mãe fez com a minha avó. Um dia, eu passaria o rancho pra um filho meu. Tudo foi pensado com tanto carinho. Uma casa linda, nosso legado de família.",
+                        es: "Sabes, toda mi vida estaba planificada: iba a crecer y a ocuparme del rancho, como lo hizo mi mamá después de mi abuela. Un día se lo iba a dejar a mi propia descendencia. Había tanto amor en todo. Un hogar precioso y un legado familiar.",
+                        fr: "Tu sais, ma vie était déjà toute tracée : je devais reprendre le ranch une fois adulte, comme ma mère l'a fait après ma grand-mère... pour le transmettre ensuite à un de mes enfants. Et cela avec tout l'amour du monde, bien entendu. Une belle maison, notre héritage familial.",
+                        ru: "Вся моя жизнь была распланирована: я должна была вырасти и унаследовать ранчо — так же, как мама унаследовала его от бабушки. А потом передать его своему ребёнку. Всё это задумывалось с такой любовью. Красивый дом, семейное дело...",
+                        de: "Mein ganzes Leben war durchgeplant, weißt du: Ich würde erwachsen werden und die Ranch übernehmen, so wie meine Mama sie von meiner Oma übernommen hatte. Eines Tages würde ich sie an mein eigenes Kind weitergeben. Ein wundervolles Zuhause, das Vermächtnis unserer Familie."
+                    },
+                    expression: "sad2",
+                    nextTextById: "523380598980112384"
+                },
+                "523380598980112384": {
+                    internalTranslationId: "523380598980112384",
+                    text: {
+                        en: "To me, it was such a small world, like being in one of these domes here, pressing my hands against the glass and imagining the life I'd be living if I hadn't been born on a ranch.",
+                        zh: "但对我来说，那就像被困在这些玻璃罩里，把手贴在玻璃上幻想着——如果没出生在牧场，人生会怎样？",
+                        ja: "でも、私にとって牧場は、まるでこのガラスのドームみたいな、\n狭い世界なの。ガラスの壁に手を当てて、もし牧場の外で生まれて\nいたら、一体どんな人生が歩めたんだろうって想像することしか\nできなかった。",
+                        ko: "제게는 너무나도 작은 세계였어요. 마치 여기 있는 돔 안에 살면서, 유리에 손을 대고 목장에서 태어나지 않았다면 어떤 삶을 보냈을지 상상하는 인생이죠.",
+                        pt: "Pra mim, era um mundo tão pequeno, como estar dentro de um desses domos aqui, com as mãos contra o vidro imaginando a vida que eu teria vivido se não tivesse nascido num rancho.",
+                        es: "Para mí, era un mundo tan pequeño que era como estar en uno de esos domos que hay aquí, con las manos contra el cristal e imaginando cómo sería mi vida si no hubiera nacido en un rancho.",
+                        fr: "Pour moi, le monde était si petit, comme si je me tenais sous l'un de ces dômes, pressant mes mains contre la vitre et imaginant la vie que je mènerais si je n'étais pas née dans un ranch.",
+                        ru: "Мой мир был совсем маленьким. Словно я — под стеклянным куполом, прижимаюсь к нему ладонями и мечтаю о жизни, которая могла бы быть, родись я где-нибудь ещё, а не на ранчо.",
+                        de: "Für mich war das so eine kleine Welt ... wie diese Kuppeln hier. Als würde ich die Hände gegen das Glas pressen und mir vorstellen, wie das Leben da draußen wäre."
+                    },
+                    expression: "pensive1",
+                    nextTextById: "523380599785418752"
+                },
+                "523380599785418752": {
+                    internalTranslationId: "523380599785418752",
+                    text: {
+                        en: "I came here to Rainbow Island to try to live that other life. But I'm trapped again now, this time for real. Isn't it ironic? I'm behind glass, shut away like everything else in here.",
+                        zh: "我来彩虹岛就是为了体验另一种人生。可现在又被困住了，这次是真的。多讽刺啊？我和这里的展品一样被关在玻璃后面。",
+                        ja: "だから私はレインボー島に行って、憧れの外の世界で人生を歩もうと\n思ったの。でも…結局、またここから出られなくなっちゃった。\nしかも、今度はそう簡単には出られない。皮肉よね…相変わらず、\n私はガラスのドームに閉じ込められたままなんだから。",
+                        ko: "전 그 다른 쪽 인생을 살아보기 위해 무지개 섬에 왔어요. 하지만 또 갇혀버렸네요. 이번엔 진짜로요. 아이러니하지 않나요? 여기 있는 모든 것처럼 저도 유리 속에 갇혀 있어요.",
+                        pt: "Vim pra Ilha Arco-Íris tentar viver essa outra vida. Mas agora tô presa de novo, dessa vez de verdade. Irônico, né? Atrás do vidro, isolada como todo o resto aqui.",
+                        es: "Vine a la Isla Arcoíris para intentar llevar esa otra vida. Pero ahora estoy atrapada de nuevo, esta vez de verdad. ¿No es irónico? Estoy detrás del cristal, aislada como todo lo que hay aquí.",
+                        fr: "Je suis venue sur l'Île Arc-en-Ciel pour changer de vie. Mais cette fois-ci, je me retrouve réellement piégée. Ironique, n'est-ce pas ? Enfermée derrière une vitre, comme tout le reste ici.",
+                        ru: "Я пришла на Радужный остров, чтобы попробовать прожить ту самую другую жизнь. А теперь я снова в ловушке — только теперь по-настоящему. Иронично, правда? Заперта за стеклом, как всё здесь.",
+                        de: "Ich bin zur Regenbogeninsel gekommen, um dieses andere Leben zu leben. Aber jetzt bin ich wieder gefangen und diesmal wirklich. Was für eine Ironie, nicht wahr? Ich bin hinter Glas, eingeschlossen wie alles andere hier."
+                    },
+                    expression: "pensive2",
+                    nextOptionsById: [ "523380600670416896" ]
+                },
+                "523380600670416896": {
+                    internalTranslationId: "523380600670416896",
+                    text: {
+                        en: "I'll head out to help free you as soon as I can.",
+                        zh: "我会尽快想办法救你出来。",
+                        ja: "早くそこから出してあげるためにも、\nもう行かなきゃ。",
+                        ko: "최대한 빨리 구하러 그쪽으로 갈게요.",
+                        pt: "Vou sair pra tentar te libertar assim que puder.",
+                        es: "Iré y te ayudaré a liberarte apenas pueda.",
+                        fr: "Je viendrai te libérer dès que possible.",
+                        ru: "Я продолжу путь и помогу тебе выбраться так скоро, как смогу.",
+                        de: "Ich versuche, dich so schnell wie möglich zu befreien."
+                    },
+                    nextTextById: "523380601471528960"
+                },
+                "523380601471528960": {
+                    internalTranslationId: "523380601471528960",
+                    text: {
+                        en: "I know we have to hurry, but take some time to enjoy what's in front of you, too.",
+                        zh: "我知道必须争分夺秒，但偶尔也该看看眼前的风景。",
+                        ja: "確かに急がないといけないとは思うけど、目の前の世界を楽しむことを\n忘れずにね。",
+                        ko: "서둘러야 하는 건 알지만, 동시에 눈앞의 것을 즐기는 여유도 가지면 좋을 것 같아요.",
+                        pt: "Eu sei que precisamos agir rápido, mas tira um tempinho pra aproveitar o que está na sua frente também.",
+                        es: "Sé que tenemos prisa, pero también tómate un momento para disfrutar lo que tienes delante.",
+                        fr: "Je sais que nous devons nous dépêcher, mais prends aussi le temps d'apprécier ce qui se trouve autour de toi.",
+                        ru: "Знаю, что время поджимает… но постарайся хоть немного насладиться тем, что вокруг.",
+                        de: "Ich weiß, wir müssen uns beeilen, aber genieße ruhig auch das, was du siehst."
+                    },
+                    expression: "happy1"
+                },
+                "523380592537661440": {
+                    internalTranslationId: "523380592537661440",
+                    text: {
+                        en: "No time to linger.",
+                        zh: "没时间驻足观赏了。",
+                        ja: "早く先へ行かなきゃ。",
+                        ko: "여기서 머물 시간은 없어요.",
+                        pt: "Não tenho tempo a perder.",
+                        es: "No hay tiempo que perder.",
+                        fr: "Pas le temps de s'attarder là.",
+                        ru: "Некогда задерживаться.",
+                        de: "Keine Zeit zum Ausruhen."
+                    },
+                    nextTextById: "523380601471528960"
+                },
+                "523380588435632128": {
+                    internalTranslationId: "523380588435632128",
+                    text: {
+                        en: "No time to linger, Gigi.",
+                        zh: "没时间驻足观赏了，琪琪。",
+                        ja: "ぐずぐずしてられないかも…",
+                        ko: "여기서 머물 시간은 없어요, 지지.",
+                        pt: "Não tenho tempo pra enrolar, Gigi.",
+                        es: "No hay tiempo que perder, Gigi.",
+                        fr: "Nous n'avons pas de temps à perdre, Gigi.",
+                        ru: "Некогда задерживаться, Джиджи.",
+                        de: "Keine Zeit zum Ausruhen, Gigi."
+                    },
+                    nextTextById: "523380601471528960"
+                }
+            }
+        }
     },
     "gigihologram_x817_y2171": {
         name: "Gigi Hologram",
@@ -34,7 +340,440 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
     "gigihologram_x838_y1796": {
         name: "Gigi Hologram",
         position: { x: 837.1297773985289, y: 1796.0589424879304 },
-        description: "Todo: insert a description for this Gigi hologram x838_y1796"
+        description: "Todo: insert a description for this Gigi hologram x838_y1796",
+        dialogue: {
+            firstVisitStartEntryId: "523379801986854912",
+            entries: {
+                "523379801986854912": {
+                    internalTranslationId: "523379801986854912",
+                    text: {
+                        en: "Hi, Beatrix. I've been calling this area the Terrarium.",
+                        zh: "嗨，碧翠丝。我把这个区域叫做生态箱。",
+                        ja: "こんにちは、ベアトリクス。ここは「テラリウム」よ。\n私はずっとそう呼んでるの。",
+                        ko: "안녕하세요, 베아트릭스. 전 여기를 테라리엄이라 부르고 있죠.",
+                        pt: "Oi, Beatrix. Tenho chamado essa área de Terrário.",
+                        es: "Hola, Beatrix. A esta área la llamo el Terrario.",
+                        fr: "Salut, Beatrix. J'appelle cette zone le Terrarium.",
+                        ru: "Привет, Беатрикс. Я зову это место террариумом.",
+                        de: "Hi, Beatrix. Dieses Gebiet nenne ich das Terrarium."
+                    },
+                    expression: "cheery1",
+                    nextOptionsById: [
+                        "523379806806110208",
+                        "523379807615610880",
+                        "523379808395751424"
+                    ]
+                },
+                "523379806806110208": {
+                    internalTranslationId: "523379806806110208",
+                    text: {
+                        en: "Why 'the Terrarium?'",
+                        zh: "为什么叫“生态箱”？",
+                        ja: "なんで「テラリウム」なの？",
+                        ko: "왜 '테라리엄' 인가요?",
+                        pt: "Por que “Terrário”?",
+                        es: "¿Por qué \"Terrario\"?",
+                        fr: "Pourquoi ce nom ?",
+                        ru: "Почему «террариумом»?",
+                        de: "Warum „Terrarium“?"
+                    },
+                    nextTextById: "523379809226223616"
+                },
+                "523379809226223616": {
+                    internalTranslationId: "523379809226223616",
+                    text: {
+                        en: "Well... you know, a terrarium is just a container that keeps plants outside of their usual environment.",
+                        zh: "嗯……你知道的，生态箱就是一个让植物脱离原生环境的容器。",
+                        ja: "なんて言うか…テラリウムって、いわば「植物を自然界から切り離した\n空間」みたいなものでしょ？",
+                        ko: "그게... 알다시피, 테라리엄이란 일반적 환경 밖에서도 유지되도록 식물을 넣은 용기일 뿐이죠.",
+                        pt: "Bom... Sabe, um terrário é só um recipiente que mantém plantas fora do ambiente natural delas.",
+                        es: "Bueno…, ya sabes, un terrario es un contenedor en el que las plantas están en un ambiente distinto al habitual.",
+                        fr: "Eh bien... un terrarium n'est qu'un conteneur dans lequel on conserve des plantes en dehors de leur environnement d'origine.",
+                        ru: "Ну… террариум — это просто помещение, где растения живут вне своей природной среды.",
+                        de: "Na ja ... Ein Terrarium ist nur ein Behältnis, in dem Pflanzen außerhalb ihrer natürlichen Umgebung gehalten werden."
+                    },
+                    expression: "pointing1",
+                    nextTextById: "523379810023141376"
+                },
+                "523379810023141376": {
+                    internalTranslationId: "523379810023141376",
+                    text: {
+                        en: "The first time I came through here, that's what it looked like to me. Just a biosphere, though a really beautiful one, with unique food and slimes.",
+                        zh: "我第一次经过这里时，它给我的就是这种感觉。就像一个生物圈，虽然是个非常美丽的，有着独特食物和史莱姆的生物圈。",
+                        ja: "初めてここに来たときに、まるでテラリウムみたいだなって思ったの。\nただ自然界から切り離されているってだけじゃなくて、すっごく\nキレイだし、ここにはユニークな食べ物やスライムもいるから。",
+                        ko: "여기를 처음 지나갔을 때, 제겐 그렇게 보였어요. 아주 아름답기는 했지만, 고유의 먹이와 슬라임이 있는 단순한 생물권일 뿐이었죠.",
+                        pt: "Da primeira vez que passei por aqui, foi essa a impressão que tive. Só uma biosfera, embora muito bonita, com alimentos únicos e slimes diferentes.",
+                        es: "Cuando llegué por primera vez aquí, pensé en eso. Era como una biosfera, aunque una muy bonita, con slimes y alimentos únicos.",
+                        fr: "Lors de mon premier passage ici, j'y ai simplement vu une magnifique biosphère avec une nourriture unique et des slimes.",
+                        ru: "Когда я попала сюда впервые, я увидела это именно так. Биосфера. Очень красивая, с редкой едой и слаймами.",
+                        de: "Als ich das erste Mal hier durchkam, musste ich eben daran denken. Einfach eine Biosphäre, aber eine echt schöne, mit einzigartigen Slimes und Speisen."
+                    },
+                    expression: "happy1",
+                    nextTextById: "523379810853613568"
+                },
+                "523379810853613568": {
+                    internalTranslationId: "523379810853613568",
+                    text: {
+                        en: "And... maybe that's true. It's possible that this is just a way to represent the outside world here in the Labyrinth, safely behind glass.",
+                        zh: "而且……也许确实如此。这可能只是用玻璃安全地将外部世界展现在迷宫中的一种方式。",
+                        ja: "もしかしたら…本当に、この空間はラビリンスの外の世界を一部\n切り離して、ここに保護してるのかもしれない。",
+                        ko: "그리고... 어쩌면 그게 사실일지도 몰라요. 여긴 미로에서 유리 속에 안전하게 바깥 세계를 나타내기 위한 수단일 뿐이라는 가능성이죠.",
+                        pt: "E... talvez isso seja verdade. É possível que essa seja uma forma de representar o mundo exterior aqui no Labirinto, de forma segura, por trás do vidro.",
+                        es: "Y… quizás es cierto. Puede que sea una forma de representar el mundo exterior dentro del Laberinto, detrás de un cristal protector.",
+                        fr: "Et... c'est peut-être le cas, tout compte fait. Il est possible que ce ne soit qu'une façon de représenter le monde extérieur ici, dans le Dédale, bien à l'abri derrière une vitre.",
+                        ru: "И… может, так и есть. Возможно, всё это — просто способ воссоздать внешний мир внутри лабиринта, под надёжным стеклом.",
+                        de: "Und ... vielleicht stimmt es. Vielleicht wird die Außenwelt nur hier im Labyrinth sicher hinter Glas repräsentiert."
+                    },
+                    nextTextById: "523379811671502848"
+                },
+                "523379811671502848": {
+                    internalTranslationId: "523379811671502848",
+                    text: {
+                        en: "But... I'm no longer so sure.",
+                        zh: "但……我现在不那么确定了。",
+                        ja: "まぁ…本当かどうかは、分からないけど。",
+                        ko: "하지만... 이제는 확신이 들지 않네요.",
+                        pt: "Mas... já não tenho mais tanta certeza.",
+                        es: "Pero… ya no lo sé con certeza.",
+                        fr: "Mais... je commence à douter.",
+                        ru: "Но… теперь я уже не уверена.",
+                        de: "Aber ... da bin ich mir nicht mehr so sicher."
+                    },
+                    expression: "thinking1",
+                    nextOptionsById: [
+                        "523379812455837696",
+                        "523379813261144064"
+                    ]
+                },
+                "523379812455837696": {
+                    internalTranslationId: "523379812455837696",
+                    text: {
+                        en: "So what do you think it really is?",
+                        zh: "那你觉得它究竟是什么？",
+                        ja: "じゃあ、本当は何だと思う？",
+                        ko: "그래서 진짜는 뭐라고 생각하는데요?",
+                        pt: "E o que você acha que é, de verdade?",
+                        es: "¿Y qué piensas que es?",
+                        fr: "Qu'est-ce que tu en penses ?",
+                        ru: "Так что же это на самом деле?",
+                        de: "Was denkst du, ist es wirklich?"
+                    },
+                    nextTextById: "523379814079033344"
+                },
+                "523379814079033344": {
+                    internalTranslationId: "523379814079033344",
+                    text: {
+                        en: "That's the thing, Beatrix. I have no way of knowing, not really. But...",
+                        zh: "问题就在这儿，碧翠丝。我真的无从得知。但是……",
+                        ja: "それが、分からないの。多分、その答えを知る方法もないわ。でも…",
+                        ko: "그게 문제예요, 베아트릭스. 제겐 확실하게 알 방법이 없어요. 하지만...",
+                        pt: "Esse é o problema, Beatrix. Não tenho como saber ao certo. Mas...",
+                        es: "Ese es el tema, Beatrix. No tengo forma de saberlo, la verdad. Pero…",
+                        fr: "C'est ça le problème, Beatrix. Je n'ai aucun moyen de savoir vraiment. Mais...",
+                        ru: "В том и дело, Беатрикс. Я правда не знаю. Но…",
+                        de: "Das ist es ja, Beatrix. Ich hab keine Ahnung, nicht wirklich. Aber ..."
+                    },
+                    expression: "thinking1",
+                    nextTextById: "523379814884339712"
+                },
+                "523379814884339712": {
+                    internalTranslationId: "523379814884339712",
+                    text: {
+                        en: "I'm very sure the Labyrinth as a whole is a facility that was intended to contain and stabilize the Prismacore. So logically, the Terrarium is here for some Prismacore-related reason.",
+                        zh: "我十分确定整个迷宫是为了封存并稳定棱镜核心而建造的设施。那么按逻辑来说，生态箱的存在必然与棱镜核心有关。",
+                        ja: "確かなのは、このラビリンス全体が、プリズマコアの力を抑え込んで\n安定化させるための巨大施設だってこと。\nつまり、当然、このテラリウムも、プリズマコアに関係する理由で\nここに存在してるってことになるわ。",
+                        ko: "전체적으로 보면 미로가 프리즈마 코어의 수용 및 안정화를 위한 시설이라는 건 확실해요. 그러니 논리적으로 테라리엄이 여기 있는 이유도 프리즈마 코어와 관련이 있겠죠.",
+                        pt: "Tenho quase certeza de que o Labirinto inteiro é uma instalação criada pra conter e estabilizar o Núcleo Prismático. Então, logicamente, o Terrário está aqui por algum motivo relacionado a ele.",
+                        es: "Es casi seguro que todo el Laberinto es un lugar que estaba destinado a contener y estabilizar el Nucleoprisma. Así que, lógicamente, el Terrario tiene algo que ver con él.",
+                        fr: "Je pense vraiment que le Dédale dans son ensemble est une installation destinée à contenir et à stabiliser le Prismacœur. Le Terrarium a donc un rapport avec ça.",
+                        ru: "Я почти уверена, что весь лабиринт — это комплекс, созданный для сдерживания и стабилизации призма-ядра. Так что логично предположить, что и террариум связан с ним.",
+                        de: "Ich bin ziemlich sicher, dass das Labyrinth als Ganzes dazu gedacht ist, den Prismakern einzudämmen und zu stabilisieren. Demnach müsste das Terrarium dann auch mit dem Prismakern zusammenhängen."
+                    },
+                    expression: "happy1",
+                    nextTextById: "523379815681257472"
+                },
+                "523379815681257472": {
+                    internalTranslationId: "523379815681257472",
+                    text: {
+                        en: "And if I think about what that could be...",
+                        zh: "如果让我推测其用途……",
+                        ja: "もし仮説を立てるなら…",
+                        ko: "그리고 그 이유가 무엇일지 생각해 본다면...",
+                        pt: "E se eu pensar no que isso poderia ser...",
+                        es: "Y, si pienso en cuál puede ser la razón…",
+                        fr: "Et en réfléchissant bien...",
+                        ru: "И если задуматься, чем это место могло быть...",
+                        de: "Und wenn ich mir die Möglichkeiten so anschaue ..."
+                    },
+                    nextTextById: "523379816478175232"
+                },
+                "523379816478175232": {
+                    internalTranslationId: "523379816478175232",
+                    text: {
+                        en: "I wonder if it's a seed bank of some kind. Like, if things went really bad in the future, if the Prismacore became too unstable and really, truly breached... this would be a way to ensure that some of the flora would survive the ensuing calamity.",
+                        zh: "我在想这是否是某种种子库。比如当未来情况恶化，棱镜核心彻底失控爆发时……这里能确保部分植物在灾难中幸存。",
+                        ja: "ここは種を保存している空間なのかも。もし、将来、生命に危険が及ぶ\n大惨事が起きてしまったら…プリズマコアが暴走して手に負えない状態に\nなってしまったら…そんな事態のために、この安全な場所で生き物たちを\n保護してるんじゃない？",
+                        ko: "어쩌면 일종의 종자 은행이 아닐까 생각해요. 미래에 상황이 정말 나빠진다면, 만약 프리즈마 코어가 심하게 불안정해져서 정말, 진짜로 파괴된다면... 식물 일부라도 그 후 발생할 재앙에서 확실히 살아남도록 하는 방법이 되겠죠.",
+                        pt: "Será que é uma espécie de banco de sementes? Tipo, se as coisas dessem muito errado no futuro, se o Núcleo Prismático se tornasse instável demais e realmente se rompesse... isso seria uma forma de garantir que parte da flora sobrevivesse à calamidade que viria.",
+                        es: "¿Será algún tipo de banco de semillas? Digo, si en el futuro todo se fuera al tacho, si el Nucleoprisma se volviera muy inestable y se rompiera del todo…, quizás esta sería una forma de garantizar que parte de la flora sobreviviera a la calamidad.",
+                        fr: "Je me demande s'il ne s'agit pas d'une sorte de banque de semences. Si les choses tournaient vraiment mal dans le futur, si le Prismacœur devenait trop instable et se brisait... ce serait un moyen de s'assurer la survie d'une partie de la flore au cataclysme qui s'ensuivrait.",
+                        ru: "Может, это что-то вроде банка семян. Знаешь, на случай, если всё пойдёт совсем плохо, если призма-ядро станет нестабильным и выйдет из-под контроля… Это могло бы спасти хоть какую-то часть флоры от катастрофы.",
+                        de: "Ich frage mich, ob es eine Art Samenbank ist. Wenn in der Zukunft alles den Bach runtergeht und der Prismakern so instabil wird, dass er zusammenbricht ... dann könnte man so sicherstellen, dass ein Teil der Flora die Katastrophe überlebt."
+                    },
+                    expression: "pensive1",
+                    nextTextById: "523379817296064512"
+                },
+                "523379817296064512": {
+                    internalTranslationId: "523379817296064512",
+                    text: {
+                        en: "If so, that would mean the Terrarium is basically, well, an insurance policy, so that if the worst happens, there could be a do-over.",
+                        zh: "若真如此，生态箱本质上就是份保险——当最坏的情况发生时，还能有重来的机会。",
+                        ja: "だとしたら、このテラリウムはある意味“保険”みたいなものね。\n最悪の事態が起きた場合でも、もう一度この環境を復元できるように\nするための保険ってこと。",
+                        ko: "그렇다면, 테라리엄은 사실상 보험이나 다름없다는 뜻이네요. 최악의 상황이 발생하더라도, 다시 할 수 있도록요.",
+                        pt: "Se for isso, o Terrário é basicamente, bom, uma apólice de seguro pra que, se o pior acontecer, haja uma segunda chance.",
+                        es: "En tal caso, eso significaría que el Terrario es, digamos, una póliza de seguro que nos daría otra oportunidad si ocurre lo peor.",
+                        fr: "Si c'est le cas, cela signifierait que le Terrarium est en fait un genre de police d'assurance, de sorte que si le pire se produit, on peut tout recommencer.",
+                        ru: "Если так, то террариум — это, по сути, страховка. Чтобы, если случится страшное, можно было хоть с чего-то начать по новой.",
+                        de: "Dann wäre das Terrarium eine Art, na ja, Absicherung. Im schlimmsten Fall könnte man noch mal von vorn anfangen."
+                    },
+                    nextTextById: "523379818080399360"
+                },
+                "523379818080399360": {
+                    internalTranslationId: "523379818080399360",
+                    text: {
+                        en: "I mean, relatable.",
+                        zh: "倒是能理解。",
+                        ja: "なんか、その気持ち分かるかも。",
+                        ko: "뭐랄까, 공감이 가네요.",
+                        pt: "É, dá pra compreender.",
+                        es: "Pues me identifica.",
+                        fr: "Enfin, je veux dire, on peut l'imaginer.",
+                        ru: "Что ж, могу понять.",
+                        de: "Kann ich verstehen."
+                    },
+                    expression: "pensive2",
+                    nextOptionsById: [
+                        "523379818885705728",
+                        "523379819695206400"
+                    ]
+                },
+                "523379818885705728": {
+                    internalTranslationId: "523379818885705728",
+                    text: {
+                        en: "What part of that do you relate to?",
+                        zh: "你理解哪部分？",
+                        ja: "「分かるかも」って？",
+                        ko: "어느 부분이 공감이 가는데요?",
+                        pt: "O que exatamente você acha compreensível nisso?",
+                        es: "¿Con qué parte te identificas?",
+                        fr: "Que veux-tu dire ?",
+                        ru: "Что именно?",
+                        de: "Wieso kannst du das verstehen?"
+                    },
+                    nextTextById: "523379820555038720"
+                },
+                "523379820555038720": {
+                    internalTranslationId: "523379820555038720",
+                    text: {
+                        en: "Well, that's...",
+                        zh: "这个嘛……",
+                        ja: "それは…",
+                        ko: "그게, 그건...",
+                        pt: "Bom...",
+                        es: "Bueno, eso es…",
+                        fr: "Eh bien...",
+                        ru: "Ну, это...",
+                        de: "Also ..."
+                    },
+                    expression: "surprised1",
+                    nextTextById: "523379821393899520"
+                },
+                "523379821393899520": {
+                    internalTranslationId: "523379821393899520",
+                    text: {
+                        en: "...",
+                        zh: "……",
+                        ja: "…",
+                        ko: "...",
+                        pt: "...",
+                        es: "…",
+                        fr: "...",
+                        ru: "...",
+                        de: "..."
+                    },
+                    expression: "pensive1",
+                    nextTextById: "523379822186622976"
+                },
+                "523379822186622976": {
+                    internalTranslationId: "523379822186622976",
+                    text: {
+                        en: "O-of course I want to think that my actions in the past might help save the future. I mean, I think it's natural to want to set things up so the future can be better, even if there's no way to know for sure what helps.",
+                        zh: "当、当然我也希望过去的所作所为能拯救未来。即便无法确定哪些努力会奏效，但是人们本能地想要创造更美好的未来。",
+                        ja: "も、もちろん、私の過去の行動が、未来を救うことになるはずだって\n信じたいけど…より良い未来を残すために、前もって対策をしておきたい\nと思うのは当然のことだなって思うの。その対策が本当に意味のあること\nなのかは、分からなかったとしてもね。",
+                        ko: "무, 물론 과거의 제 행동이 미래를 구하는 데 도움이 되었다고 생각하고 싶죠. 제 말은, 더 나은 미래가 되도록 만드는 건 자연스럽다고 생각해요. 무엇이 도움이 될지 확실하게 알 길이 없어도요.",
+                        pt: "C-Claro que eu quero acreditar que minhas ações no passado podem ajudar a salvar o futuro. Digo, acho que é natural querer deixar as coisas preparadas pra que o futuro seja melhor, mesmo sem ter como saber com certeza o que realmente vai ajudar.",
+                        es: "C-claro que me gusta pensar que mis acciones pasadas podrían salvar el futuro. Digo, me parece natural buscar una solución en pos de un mañana mejor, incluso si no hay certeza de qué ayuda y qué no.",
+                        fr: "B-Bien sûr, j'ai besoin de croire que mes actions peuvent contribuer à préserver l'avenir. Il est naturel de penser de la sorte, même s'il n'y a aucun moyen de savoir si cela aura un réel impact.",
+                        ru: "К-конечно, я надеюсь, что мои усилия помогут спасти будущее. Думаю, в этом нет ничего странного — просто хочется оставить после себя что-то хорошее, даже если не знаешь, будет ли в этом толк.",
+                        de: "I-ich meine, was ich in der Vergangenheit getan habe, hilft ja hoffentlich dabei, die Zukunft zu retten. Man will doch alles dafür tun, um eine bessere Zukunft zu bekommen. Auch wenn man nicht genau wissen kann, was wirklich hilft."
+                    },
+                    expression: "happy1",
+                    nextTextById: "523379823033872384"
+                },
+                "523379823033872384": {
+                    internalTranslationId: "523379823033872384",
+                    text: {
+                        en: "But...",
+                        zh: "但……",
+                        ja: "でも…",
+                        ko: "그렇지만...",
+                        pt: "Mas...",
+                        es: "Pero…",
+                        fr: "Mais...",
+                        ru: "Но...",
+                        de: "Aber ..."
+                    },
+                    expression: "pensive2",
+                    nextTextById: "523379823839178752"
+                },
+                "523379823839178752": {
+                    internalTranslationId: "523379823839178752",
+                    text: {
+                        en: "If you think of it another way: to all those who exist in the future, what's happening right now is the past. We want those people of the future to look back at what we're doing and feel like it made all the difference to them.",
+                        zh: "换个角度想：对于未来的人们而言，此刻发生的一切都是过去。我们希望后人回望时，能感受到此刻的抉择改变了他们的命运。",
+                        ja: "こうも考えられるかもしれないわ。未来を生きる人たちにとって、\n今起きていることは過去のことでしょう？それなら、今の私たちの\n行動を、未来の人に振り返ってもらえたらいいと思うし、私たちの\n行動によって、より良い未来を迎えてもらえたらうれしいと思うの。",
+                        ko: "다른 방식으로 생각해 본다면, 미래에 존재하는 모두의 입장에서는 지금 일어나는 건 과거의 일이에요. 미래의 사람들이 우리가 지금 하는 일을 돌아보고 그들 입장에서 결정적인 영향을 주었다고 느끼길 바라요.",
+                        pt: "Se você pensar de outro jeito: pra todos que existem no futuro, o que está acontecendo agora já é passado. A gente quer que essas pessoas olhem pra trás, pro que estamos fazendo, e sintam que isso fez toda a diferença pra elas.",
+                        es: "Velo de esta forma: para quienes existan en el futuro, lo que sucede hoy será su pasado. Queremos que esas personas piensen en lo que estamos haciendo y sientan que marcó una diferencia.",
+                        fr: "Disons que pour tous ceux qui existent dans le futur, ce qui se passe aujourd'hui est le passé. Nous voulons que les gens du futur regardent ce que nous faisons et réalisent que nos actions ont fait la différence.",
+                        ru: "Если взглянуть под другим углом: для будущих поколений наш сегодняшний день уже станет прошлым. И хочется верить, что, оглядываясь назад, они увидят — наши действия сделали их мир лучше.",
+                        de: "Anders betrachtet: Für alle, die in der Zukunft existieren, ist das hier die Vergangenheit. Wir wollen doch, dass die aus der Zukunft zu uns zurückschauen und das Gefühl haben, wir hätten etwas verändert."
+                    },
+                    nextTextById: "523379824648679424"
+                },
+                "523379824648679424": {
+                    internalTranslationId: "523379824648679424",
+                    text: {
+                        en: "Or, better yet, we want to make it so they never had to worry in the first place.",
+                        zh: "更理想的情况是——我们此刻的努力让他们根本无需担忧。",
+                        ja: "まぁ…そもそも、未来の人に心配の種を残さないのが、理想的では\nあるけどね。",
+                        ko: "더 좋은 건, 그들이 처음부터 걱정할 필요조차 없도록 만들고 싶어요.",
+                        pt: "Ou, melhor ainda, que elas nem precisem se preocupar com nada disso.",
+                        es: "O, mejor aún, queremos hacerlo para que ni siquiera tengan que pensar en eso.",
+                        fr: "Ou, mieux encore, nous voulons faire en sorte qu'ils n'aient jamais à s'en inquiéter.",
+                        ru: "Или так: нам хочется всё сделать так, чтобы им там вообще не пришлось ни о чем волноваться.",
+                        de: "Oder noch besser – wir wollen sicherstellen, dass sie sich gar nicht erst sorgen müssen."
+                    },
+                    expression: "happy1",
+                    nextTextById: "523379825487540224"
+                },
+                "523379825487540224": {
+                    internalTranslationId: "523379825487540224",
+                    text: {
+                        en: "What we do here will make all the difference eventually. I have to believe that.",
+                        zh: "我们在此所做的一切终将改变未来，我必须相信这点。",
+                        ja: "とにかく、今の私たちの行動は、より良い未来につながるはず。\nそう信じないと！",
+                        ko: "우리가 여기서 하는 일은 결과적으로 큰 영향을 줄 거예요. 그럴 거라 믿어야만 하죠.",
+                        pt: "O que fazemos aqui vai fazer toda a diferença, no fim das contas. Eu tenho que acreditar nisso.",
+                        es: "A la larga, lo que hacemos aquí marcará una diferencia. Es lo que debo creer.",
+                        fr: "Ce que nous faisons ici finira par faire la différence. Je dois y croire.",
+                        ru: "То, что мы делаем здесь, в конечном счёте всё изменит к лучшему. Я должна в это верить.",
+                        de: "Was wir hier tun, macht am Ende den Unterschied aus. Das muss ich einfach glauben."
+                    },
+                    nextOptionsById: [ "523379826301235200" ]
+                },
+                "523379826301235200": {
+                    internalTranslationId: "523379826301235200",
+                    text: {
+                        en: "All we can do is live in the moment. I'll head onward.",
+                        zh: "活在当下才是正道，我继续前进了。",
+                        ja: "今は目の前のことに集中しないと。\n先へ行くね。",
+                        ko: "우리가 할 수 있는 건 순간을 살아가는 것뿐이죠. 전 앞으로 나아갈 거예요.",
+                        pt: "Tudo que podemos fazer é viver o agora. Vou seguir em frente.",
+                        es: "Lo único que podemos hacer es vivir el presente. Seguiré adelante.",
+                        fr: "Tout ce que nous pouvons faire, c'est vivre le moment présent.",
+                        ru: "Всё, что мы можем, — жить настоящим. Я продолжу свой путь.",
+                        de: "Wir können nur den Moment leben. Ich muss weitermachen."
+                    },
+                    nextTextById: "523379827114930176"
+                },
+                "523379827114930176": {
+                    internalTranslationId: "523379827114930176",
+                    text: {
+                        en: "Things are in a bad state, but... there's a lot to see and love here. I hope you can take the time to enjoy it, too.",
+                        zh: "虽然现状糟糕……但这里仍有许多值得发现与珍爱的事物，希望你也愿意驻足欣赏。",
+                        ja: "まだまだ大変なことはあるけれど…ここは素敵な場所よ。\nベアトリクスにも、楽しんでもらえたらいいな。",
+                        ko: "지금 상황은 좋지 않지만, 그래도... 여기 볼 것이나 마음에 드는 게 많이 있어요. 당신도 여유를 내서 즐길 수 있었다면 좋겠네요.",
+                        pt: "As coisas estão ruins, mas... ainda tem muito aqui pra ver e amar. Espero que você consiga aproveitar um pouco também.",
+                        es: "Las cosas no marchan bien, pero… aquí hay mucho por ver y apreciar. Ojalá tú también te tomes un momento para disfrutarlo.",
+                        fr: "La situation est terrible, mais... il y a beaucoup de choses qui méritent d'être sauvées. J'espère que tu prendras le temps d'en profiter, toi aussi.",
+                        ru: "Ситуация тяжёлая, но... здесь так много красоты и тепла. Надеюсь, ты тоже найдёшь минутку, чтобы этим насладиться.",
+                        de: "Die Lage ist ganz schön übel ... aber hier gibt es auch viel Schönes. Ich hoffe, du kannst es auch genießen."
+                    },
+                    expression: "happy1"
+                },
+                "523379819695206400": {
+                    internalTranslationId: "523379819695206400",
+                    text: {
+                        en: "I'll try to stop it before it gets to that.",
+                        zh: "我会尽力阻止那种情况发生。",
+                        ja: "最悪の事態は、早く食い止めなきゃ",
+                        ko: "그렇게 되기 전에 내가 막겠어요.",
+                        pt: "Vou tentar impedir que chegue a esse ponto.",
+                        es: "Intentaré ponerle fin antes de que llegue a eso.",
+                        fr: "Je ferai en sorte d'arrêter ça avant que les choses en arrivent là.",
+                        ru: "Я постараюсь не довести до такого.",
+                        de: "Das versuche ich zu verhindern."
+                    },
+                    nextTextById: "523379827114930176"
+                },
+                "523379813261144064": {
+                    internalTranslationId: "523379813261144064",
+                    text: {
+                        en: "I should probably keep moving.",
+                        zh: "也许我该继续前进了。",
+                        ja: "そろそろ行かなきゃ。",
+                        ko: "계속 움직이는 편이 낫겠어요.",
+                        pt: "Provavelmente é melhor eu continuar andando.",
+                        es: "Creo que debería irme.",
+                        fr: "Je devrais peut-être y aller.",
+                        ru: "Мне нужно двигаться дальше.",
+                        de: "Ich sollte weitergehen."
+                    },
+                    nextTextById: "523379827114930176"
+                },
+                "523379807615610880": {
+                    internalTranslationId: "523379807615610880",
+                    text: {
+                        en: "What's this area for? Preservation?",
+                        zh: "这个区域是用来保存什么的吗？",
+                        ja: "どんなエリア？保護されてるエリアなの？",
+                        ko: "여긴 뭘 위한 장소인데요? 보존?",
+                        pt: "Para que serve essa área? Preservação?",
+                        es: "¿Para qué es esta área? ¿Para preservación?",
+                        fr: "À quoi sert cet endroit ? À la préservation ?",
+                        ru: "Это место… для чего оно? Для хранения?",
+                        de: "Was passiert hier? Artenschutz?"
+                    },
+                    nextTextById: "523379814079033344"
+                },
+                "523379808395751424": {
+                    internalTranslationId: "523379808395751424",
+                    text: {
+                        en: "I'll head on in to check it out right now.",
+                        zh: "我现在就进去看看。",
+                        ja: "自分の目で確かめてみるよ。",
+                        ko: "지금 당장 확인하러 들어가 볼게요.",
+                        pt: "Vou entrar agora pra dar uma olhada.",
+                        es: "Iré a echarle un vistazo ahora mismo.",
+                        fr: "Je vais aller voir ça tout de suite.",
+                        ru: "Пойду осмотрюсь прямо сейчас.",
+                        de: "Ich schau mich mal um."
+                    },
+                    nextTextById: "523379827114930176"
+                }
+            }
+        }
     },
     "gigihologram_x878_y1466": {
         name: "Gigi Hologram",
@@ -44,7 +783,299 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
     "gigihologram_x991_y1920": {
         name: "Gigi Hologram",
         position: { x: 990.798055036119, y: 1920.583222632502 },
-        description: "Todo: insert a description for this Gigi hologram x991_y1920"
+        description: "Todo: insert a description for this Gigi hologram x991_y1920",
+        dialogue: {
+            firstVisitStartEntryId: "523382731968245760",
+            entries: {
+                "523382731968245760": {
+                    internalTranslationId: "523382731968245760",
+                    text: {
+                        en: "Oh no... there's gold here. So even the Terrarium is starting to be affected. At least it's probably still a useful shortcut.",
+                        zh: "糟了……这里出现黄金了。连生态箱都开始被侵蚀。不过倒是个捷径。",
+                        ja: "そんな…ここも金色になってる。\nテラリウムまでもが浸食されてるなんて…でも、近道するには便利な\n場所なのよね。",
+                        ko: "아, 이런... 이건 황금이네요. 이제 테라리엄까지 영향을 받기 시작하고 있어요. 그래도 아직까지는 지름길로 쓸만하겠지만요.",
+                        pt: "Ah, não... Tem ouro aqui. Então até o Terrário está começando a ser afetado. Pelo menos ainda deve ser um atalho útil.",
+                        es: "Ay, no… Hay oro aquí. Entonces, incluso el Terrario empieza a verse afectado. Al menos, es probable que aún sea un atajo útil.",
+                        fr: "Oh non... il y a de l'or ici. Même le Terrarium commence à être touché. Enfin, c'est probablement un autre raccourci utile.",
+                        ru: "О нет... золото. Значит, и террариум начал искажаться. Хотя, может, здесь всё ещё можно срезать.",
+                        de: "O nein ... Hier ist Gold. Also ist auch schon das Terrarium betroffen. Immerhin ist es wohl noch eine praktische Abkürzung."
+                    },
+                    expression: "surprised1",
+                    nextOptionsById: [
+                        "523382733075542016",
+                        "523382733901819904",
+                        "523382734740680704"
+                    ]
+                },
+                "523382733075542016": {
+                    internalTranslationId: "523382733075542016",
+                    text: {
+                        en: "The gold's a problem, right?",
+                        zh: "黄金很危险对吧？",
+                        ja: "金色になったらマズいんだよね？",
+                        ko: "황금이 문제가 되는 거 맞죠?",
+                        pt: "O ouro é um problema, né?",
+                        es: "El oro es un problema, ¿cierto?",
+                        fr: "L'or... C'est un problème, hein ?",
+                        ru: "Золото — это плохо, да?",
+                        de: "Das Gold ist ein Problem, oder?"
+                    },
+                    nextTextById: "523382735625678848"
+                },
+                "523382735625678848": {
+                    internalTranslationId: "523382735625678848",
+                    text: {
+                        en: "Anywhere close to the Prismacore can be affected by its reality-altering properties. Materials changing from one to another, switching from solid to liquid or gas, flickering entirely out of existence...",
+                        zh: "任何靠近棱镜核心的区域都可能被它的现实扭曲特性影响。物质相互转化，固态液态气态切换，甚至彻底消失……",
+                        ja: "プリズマコアの近くでは、現実をねじ曲げてしまうエネルギーの影響が\n強いの。物質が別の物質に変化したり、個体が液体や気体になったり、\n物体が突然消えてしまったり…",
+                        ko: "프리즈마 코어와 가까운 곳이라면 어디든 그 현실을 바꾸는 속성에 영향을 받을 수 있어요. 고체에서 액체나 기체로 바뀌는 물질에, 깜빡이며 아예 존재 자체가 사라지기도 하죠...",
+                        pt: "Qualquer lugar perto do Núcleo Prismático pode ser afetado pelas propriedades de alteração da realidade dele. Materiais mudando de um tipo pra outro, passando de sólido pra líquido ou gás, sumindo completamente...",
+                        es: "Todo lugar cercano al Nucleoprisma puede verse afectado por sus propiedades que alteran la realidad: materiales que se transmutan, que pasan de estado sólido a líquido o gaseoso, o que desaparecen por completo…",
+                        fr: "Tout ce qui se trouve à proximité du Prismacœur peut être affecté par ses propriétés d'altération de la réalité. Les matériaux se transforment, passent de l'état solide à l'état liquide ou gazeux, disparaissent complètement...",
+                        ru: "Всё, что оказывается рядом с призма-ядром, может исказиться под его влиянием: материя меняется — одно вещество превращается в другое, твёрдое становится жидким или газом, а то и вовсе исчезает...",
+                        de: "Alles in der Nähe des Prismakerns kann von seinen realitätsverändernden Effekten betroffen sein. Stoffe verändern sich, wechseln von fest zu flüssig oder gasförmig oder verschwinden einfach ganz ..."
+                    },
+                    expression: "surprised1",
+                    nextTextById: "523382736426790912"
+                },
+                "523382736426790912": {
+                    internalTranslationId: "523382736426790912",
+                    text: {
+                        en: "Outside the Labyrinth, it's seemingly harmless changes, but here, it's more dangerous. Imagine if the section of the floor you're standing on vanished under you, or if the only door out became a wall of solid rock...",
+                        zh: "迷宫之外的变化看似无害，但在这里却充满危险。想象你脚下的地面突然消失，或是唯一的出口变成岩石峭壁……",
+                        ja: "ラビリンスの外では、害のない影響しかないように思えるかもしれない\nけど、ここでは危険な結果を招くこともあるの。エリアの地面が突然\n消えてしまったり、唯一の出口が岩になってしまったり…そんな可能性\nだってあるわ。",
+                        ko: "미로 밖에서는 무해해 보이는 변화예요. 하지만 여기선 좀 더 위험하죠. 지금 서 있는 바닥의 일부가 사라지거나, 유일한 출구의 문이 돌덩이로 변한다고 상상해 보세요...",
+                        pt: "Fora do Labirinto, são mudanças aparentemente inofensivas, mas aqui, são perigosas. Imagina se a parte do chão onde você está simplesmente desaparece, ou se a única saída vira uma parede de pedra maciça...",
+                        es: "Fuera del Laberinto, parecen cambios inofensivos, pero aquí son peligrosos. Imagina si el piso que está justo debajo de ti se desintegrara o si la única salida al exterior se convirtiera en un muro sólido de roca.",
+                        fr: "À l'extérieur du Dédale, il s'agit de changements apparemment inoffensifs, mais ici, c'est plus dangereux. Imagine que la partie du sol sur laquelle tu te trouves disparaisse sous tes pieds, ou que la seule porte de sortie se transforme en une paroi rocheuse...",
+                        ru: "За пределами лабиринта эти изменения почти безвредны, но здесь они весьма опасны. Представь, что участок пола под тобой просто исчезнет... или что единственная дверь обернётся каменной стеной.",
+                        de: "Außerhalb des Labyrinths sind die Veränderungen offenbar harmlos, aber hier ist es gefährlicher. Stell dir vor, der Boden unter deinen Füßen verschwindet einfach oder die einzige Ausgangstür wird zu einem massiven Felsen ..."
+                    },
+                    expression: "pointing1",
+                    nextTextById: "523382737257263104"
+                },
+                "523382737257263104": {
+                    internalTranslationId: "523382737257263104",
+                    text: {
+                        en: "And the gold... that seems to be the most potent of the transmutations, and it's probably the fate of this world if left unchecked.",
+                        zh: "而黄金……似乎是嬗变反应中最剧烈的一种，若放任不管，这很可能就是世界最终的归宿。",
+                        ja: "そして、この金色に変化する現象は…おそらく、物体変化の影響を\n最大に受けている証拠かもしれない。このまま放っておけば、\nこの世界全体が金色になってしまうかも。",
+                        ko: "그리고 황금은... 가장 강력한 변성 현상으로 보이는데, 그대로 둔다면 이 세계를 끝장내고 말겠죠.",
+                        pt: "E o ouro... parece ser a transmutação mais potente, e provavelmente o destino desse mundo se ninguém fizer nada.",
+                        es: "Y el oro… Esa parece ser la transmutación más poderosa, y todo este mundo correría esa suerte si se lo dejara librado al azar.",
+                        fr: "Et l'or... il semble que ce soit la plus puissante des transmutations, et c'est probablement le destin de ce monde si tout devient hors de contrôle.",
+                        ru: "А золото... это, похоже, самая мощная форма превращения. И, возможно, именно в него превратится весь наш мир, если не остановить процесс.",
+                        de: "Und das Gold ... Es scheint die stärkste Umwandlung zu sein und vielleicht auch das Schicksal dieser Welt, wenn wir nichts unternehmen."
+                    },
+                    expression: "happy1",
+                    nextTextById: "523382738058375168"
+                },
+                "523382738058375168": {
+                    internalTranslationId: "523382738058375168",
+                    text: {
+                        en: "It all feels like King Midas from my storybooks.",
+                        zh: "这让我想起了童话里的米达斯国王。",
+                        ja: "まるで、本で読んだミダス王の話みたい。",
+                        ko: "모든 게 마치 제가 읽었던 동화책 속의 미다스 왕 같네요.",
+                        pt: "Tudo isso me lembra o Rei Midas dos meus livros de histórias.",
+                        es: "Todo esto me recuerda al rey Midas de mis libros de cuentos.",
+                        fr: "Ça me fait penser à l'histoire du roi Midas.",
+                        ru: "Всё это напоминает мне историю про царя Мидаса.",
+                        de: "Erinnert mich an König Midas aus meinen Büchern."
+                    },
+                    expression: "pensive1",
+                    nextOptionsById: [ "523382738859487232" ]
+                },
+                "523382738859487232": {
+                    internalTranslationId: "523382738859487232",
+                    text: {
+                        en: "King Midas?",
+                        zh: "米达斯国王？",
+                        ja: "ミダス王？",
+                        ko: "미다스 왕?",
+                        pt: "Rei Midas?",
+                        es: "¿El rey Midas?",
+                        fr: "Le roi Midas ?",
+                        ru: "Царя Мидаса?",
+                        de: "König Midas?"
+                    },
+                    nextTextById: "523382739689959424"
+                },
+                "523382739689959424": {
+                    internalTranslationId: "523382739689959424",
+                    text: {
+                        en: "It's an old myth about a king named Midas who wished to have all he touched turn to gold. He became rich beyond measure, but soon discovered that he could no longer eat or drink, and withered away.",
+                        zh: "那是个古老传说：名为米达斯的国王许愿让他触碰之物都变成黄金。因此他获得了无尽财富，但很快他发现这同时也导致自己无法进食，最终命殒。",
+                        ja: "ええ。触ったものすべてを黄金に変える力が欲しいと願った、\n「ミダス」という王の神話よ。彼は、その力で莫大な財を成したわけ\nだけど、同時に、触った食べ物も黄金になってしまって、結局は食事が\nできなくなって死んでしまうの。",
+                        ko: "미다스라는 왕에 대한 고전 신화예요. 그는 만지는 모든 것이 황금으로 변하길 바랐죠. 상상할 수 없을 정도로 부자가 되었지만, 곧 먹거나 마시는 것조차 할 수 없다는 걸 깨닫고 말라죽었어요.",
+                        pt: "É um mito antigo sobre um rei chamado Midas que desejou que tudo o que ele tocasse virasse ouro. Ele ficou mais rico do que podia imaginar, mas logo descobriu que não podia mais comer nem beber, e acabou definhando.",
+                        es: "Es un antiguo mito sobre un rey llamado Midas, que deseaba convertir en oro todo lo que tocaba. Se volvió inmensamente rico, pero pronto descubrió que no podía comer ni beber, y se puso muy débil.",
+                        fr: "Il s'agit d'un mythe qui raconte l'histoire d'un roi nommé Midas. Il avait fait le vœu de transformer en or tout ce qu'il touchait. Il devint immensément riche, mais découvrit alors qu'il ne pouvait plus manger ni boire, et dépérit.",
+                        ru: "Это древняя легенда. Царь Мидас пожелал, чтобы всё, к чему он прикасался, превращалось в золото. Он стал богаче всех, но вскоре понял, что не может ни есть, ни пить — и угас.",
+                        de: "Eine alte Legende über einen König, der sich wünschte, alles, was er berührte, würde zu Gold werden. Er wurde unaussprechlich reich, bemerkte aber bald, dass er nichts mehr essen oder trinken konnte, und siechte langsam dahin."
+                    },
+                    expression: "sad1",
+                    nextTextById: "523382740512043008"
+                },
+                "523382740512043008": {
+                    internalTranslationId: "523382740512043008",
+                    text: {
+                        en: "When I first discovered the Prismacore, I was horrified at seeing the whole ecosystem turning to gold. I called for help, but those that arrived saw only the value of that gold.",
+                        zh: "当初发现棱镜核心时，看到整个生态系统黄金化的景象让我毛骨悚然。我呼救而来的人，眼里却只有黄金的价值。",
+                        ja: "初めてプリズマコアを発見したときは、いろんな生き物が黄金に\n変わっていくのを見て、本当に怖かったわ。人に助けを求めたけど、\nみんな黄金の価値に目がくらむばかりだった。",
+                        ko: "제가 프리즈마 코어를 처음 발견했을 때, 생태계 전체가 황금으로 변하는 걸 보고 경악했어요. 도움을 요청했지만, 도달한 이들은 전부 그 황금의 가치만 보았죠.",
+                        pt: "Quando descobri o Núcleo Prismático pela primeira vez, fiquei horrorizada ao ver todo o ecossistema virando ouro. Pedi ajuda, mas quem chegou só viu o valor daquele ouro.",
+                        es: "Cuando descubrí el Nucleoprisma, me horroricé al ver que todo el ecosistema se convertía en oro. Busqué ayuda, pero quienes acudieron solo vieron el valor del metal.",
+                        fr: "Lorsque j'ai découvert le Prismacœur, j'ai été horrifiée de voir tout l'écosystème se transformer en or. J'ai appelé à l'aide, mais ceux qui sont arrivés n'ont eu d'yeux que pour la valeur de cet or.",
+                        ru: "Когда я впервые обнаружила призма-ядро, меня ужаснуло, что вся экосистема превращается в золото. Я звала на помощь, но пришедшие увидели не опасность, а наживу.",
+                        de: "Als ich den Prismakern entdeckte, war ich schockiert, weil das ganze Ökosystem sich in Gold verwandelte. Ich rief um Hilfe, aber alle, die herkamen, sahen nur den Wert des Goldes."
+                    },
+                    expression: "sad2",
+                    nextTextById: "523382741329932288"
+                },
+                "523382741329932288": {
+                    internalTranslationId: "523382741329932288",
+                    text: {
+                        en: "...It ended in disaster when they tried to harness its full power. I won't let that happen again. We can't.",
+                        zh: "……当他们试图掌控核心全部力量时，灾难就降临了。我绝不会让历史重演，我们绝不能。",
+                        ja: "そして…そういう悪い人たちがプリズマコアの力を利用しようとして、\n大変なことに…あんな悪夢は、もう二度と起こしちゃいけない。",
+                        ko: "...그들은 그 힘을 온전히 다루려 했지만, 재앙으로 끝나고 말았어요. 전 다시는 그렇게 두지 않겠어요. 우리는 그럴 수 없어요.",
+                        pt: "... Terminou em desastre quando tentaram usar todo o poder dele. Não vou deixar isso acontecer de novo. Não podemos deixar acontecer.",
+                        es: "Terminó siendo un desastre cuando intentaron aprovechar todo su poder. No dejaré que vuelva a suceder. No podemos.",
+                        fr: "... Ils ont essayé d'exploiter toute cette puissance, et ça s'est soldé par un désastre. Il ne faut pas que cela se reproduise. Jamais.",
+                        ru: "Всё обернулось катастрофой, когда они попытались подчинить себе силу призма-ядра. Я не допущу повторения истории. Мы не допустим.",
+                        de: "... Sie wollten diese Kraft nutzen und alles endete in einer Katastrophe. Das lasse ich nicht noch mal zu. Das dürfen wir nicht."
+                    },
+                    expression: "pensive1",
+                    nextOptionsById: [
+                        "523382742143627264",
+                        "523382734740680704"
+                    ]
+                },
+                "523382742143627264": {
+                    internalTranslationId: "523382742143627264",
+                    text: {
+                        en: "So I should hurry and make use of that shortcut?",
+                        zh: "所以我该抓紧利用那条捷径？",
+                        ja: "近道を使って、先を急いだほうがいい？",
+                        ko: "그래서 서둘러 그 지름길을 사용해야 하나요?",
+                        pt: "Então é melhor eu correr e usar logo esse atalho?",
+                        es: "Entonces, ¿debería apurarme y usar ese atajo?",
+                        fr: "Je dois donc me dépêcher et utiliser ce raccourci ?",
+                        ru: "Значит, мне лучше поторопиться и попробовать срезать?",
+                        de: "Also sollte ich mich beeilen und die Abkürzung nutzen?"
+                    },
+                    nextTextById: "523382742982488064"
+                },
+                "523382742982488064": {
+                    internalTranslationId: "523382742982488064",
+                    text: {
+                        en: "Right, I remember there being one there. Though my memory isn't that reliable these days.",
+                        zh: "对，我记得那里有一条。虽然最近的记性不太可靠。",
+                        ja: "そうね。たしか、ひとつ近道があったと思うわ。\n…といっても、最近の私の記憶力は頼りないものだけどね。",
+                        ko: "맞아요, 거기에 지름길이 있었다는 게 기억나네요. 요새 제 기억이 그렇게 믿을 만하진 않지만요.",
+                        pt: "Certo, lembro que tinha um ali. Mas minha memória já não é mais tão confiável.",
+                        es: "Cierto, recuerdo que había uno allí. Aunque no me fío mucho de mi memoria últimamente.",
+                        fr: "C'est vrai, je me souviens qu'il y en avait un. Mais ma mémoire n'est pas très fiable, ces derniers temps.",
+                        ru: "Да, кажется, там был проход. Хотя на свою память сейчас не особо полагаюсь.",
+                        de: "Ja, ich erinnere mich an eine Abkürzung. Allerdings ist mein Gedächtnis auch nicht mehr so verlässlich."
+                    },
+                    expression: "pointing1",
+                    nextTextById: "523382743829737472"
+                },
+                "523382743829737472": {
+                    internalTranslationId: "523382743829737472",
+                    text: {
+                        en: "Shortcuts are funny things. Space and time are both full of shortcuts, when you think about it — I mean, I used my memories of the area and quantum tech to set up these projectors. That's a kind of time-based shortcut.",
+                        zh: "捷径真是奇妙。仔细想想，时空本身充满捷径——比如我用记忆结合量子科技搭建这些投影仪，就是种时间层面的捷径。",
+                        ja: "近道って、不思議よね。\n時間にも空間にも、近道はたくさん存在するわ。そもそも、\nこのプロジェクターも、私の記憶とクァンタムテクノロジーを使って\n設置したの。時空の近道を使ってね。",
+                        ko: "지름길은 참 기묘해요. 생각해 보면 공간과 시간은 지름길로 가득 차 있죠. 제 말은, 이 영사기를 설치하는 데 이 지역에 관한 제 기억과 양자 기술을 사용했거든요. 그건 일종의 시간 기반 지름길이라 할 수 있어요.",
+                        pt: "Atalhos são coisas engraçadas. Espaço e tempo estão cheios deles, se você parar pra pensar... Digo, usei minhas memórias da área e tecnologia quântica pra montar esses projetores. Isso é um tipo de atalho temporal.",
+                        es: "Los atajos son algo curioso. El espacio y el tiempo están llenos de ellos, si lo piensas bien. Digo, recurrí a mis recuerdos del área y a la tecnología cuántica para instalar estos proyectores. Es como un atajo temporal.",
+                        fr: "Les raccourcis représentent un phénomène vraiment étrange. L'espace et le temps sont constellés de raccourcis, quand on y pense. J'ai utilisé mes connaissances de la région et la technologie quantique pour installer ces projecteurs. C'est une sorte de raccourci temporel.",
+                        ru: "Забавно, но кратчайшие тропы бывают не только в пространстве, но и во времени. Эти проекторы, например, я настраивала, опираясь на воспоминания и квантовые технологии — по сути, срез через время.",
+                        de: "Abkürzungen sind schon witzig. Raum und Zeit sind voller Abkürzungen, wenn man mal darüber nachdenkt. Ich hab meine Erinnerungen an diese Gegend und die Quantentechnologie benutzt, um diese Projektoren aufzustellen. Quasi eine zeitliche Abkürzung."
+                    },
+                    expression: "happy1",
+                    nextTextById: "523382744668598272"
+                },
+                "523382744668598272": {
+                    internalTranslationId: "523382744668598272",
+                    text: {
+                        en: "Physical shortcuts are maybe more recognizable. Knowing there are quick ways back to places you've been before... it can make all the difference, right? It can completely change what you'd otherwise do. I know it has for me.",
+                        zh: "实体捷径可能更直观。知道有返回旧地的近路……会彻底改变决策对吧？至少对我而言确实如此。",
+                        ja: "物理的な近道の方が、感覚的に分かりやすいわよね。前に行ったことの\nある場所に、素早く戻れるんだもの。それって、とっても便利じゃない？\nだって、近道がなかったら、まったく違う行動をとることになってた\nかもしれないし。まぁ、とにかく、私はそう思うわ。",
+                        ko: "물리적 지름길 쪽이 좀 더 이해하기 쉽겠네요. 이미 갔던 장소에 빠르게 돌아갈 수 있는 수단이 있다고 알게 되면... 아주 큰 차이가 될 수 있어요, 안 그런가요? 원래 했을 행동을 완전히 바꿔놓을 수 있죠. 제 경우에는 그랬거든요.",
+                        pt: "Atalhos físicos são mais fáceis de reconhecer. Saber que existem caminhos rápidos de volta pra lugares onde você já esteve... pode mudar tudo, né? Pode mudar completamente o que você faria de outro jeito. Aconteceu comigo.",
+                        es: "Los atajos físicos quizás sean más fáciles de reconocer. Saber que hay formas rápidas de volver a lugares donde estuviste… puede hacer una gran diferencia, ¿no? Puede cambiar por completo lo que harías normalmente. Para mí, lo ha hecho.",
+                        fr: "Les raccourcis physiques sont peut-être plus facilement identifiables. Savoir qu'il existe des moyens rapides de retourner à des endroits où on se trouvait par le passé... ça peut faire toute la différence, n'est-ce pas ? Le pouvoir de changer nos actions... Ça a été le cas pour moi.",
+                        ru: "Физические тропы, пожалуй, проще понять. Когда знаешь, как быстро вернуться туда, где уже бывал… это может повлиять на твои решения. Со мной так и вышло.",
+                        de: "Physische Abkürzungen sind wohl leichter zu erkennen. Wenn man schneller zu einem Ort zurückkehren kann, an dem man schon mal war ... Ein gewaltiger Unterschied, oder? Das kann dein Verhalten komplett ändern. Bei mir auf jeden Fall."
+                    },
+                    nextTextById: "523382745478098944"
+                },
+                "523382745478098944": {
+                    internalTranslationId: "523382745478098944",
+                    text: {
+                        en: "Though I suppose we often find ourselves in the same place in the end, one way or another.",
+                        zh: "不过到头来，我们似乎总会以各种方式回到原点。",
+                        ja: "いずれにしても、思いもよらずに、結局は元いた場所に戻ってきて\nしまうことって、誰にもでもあるわよね…",
+                        ko: "그렇지만 보통은 어떤 방법으로든 결국 같은 장소에 도달하는 것 같지만요.",
+                        pt: "Mas acho que, no fim das contas, a gente sempre acaba no mesmo lugar de alguma forma.",
+                        es: "Aunque supongo que, en definitiva, a menudo volvemos al mismo lugar, de una u otra forma.",
+                        fr: "Mais je suppose que d'une manière ou d'une autre, on finit toujours au même endroit à la fin.",
+                        ru: "Хотя, в конце концов, мы всё равно часто оказываемся в одной и той же точке. Так или иначе.",
+                        de: "Aber am Ende landen wir wohl doch irgendwie immer am selben Ort, so oder so."
+                    },
+                    nextOptionsById: [ "523382734740680704" ]
+                },
+                "523382733901819904": {
+                    internalTranslationId: "523382733901819904",
+                    text: {
+                        en: "There's a shortcut through here?",
+                        zh: "这里是条捷径？",
+                        ja: "ここは近道なの？",
+                        ko: "여기를 지나가는 지름길이 있다고요?",
+                        pt: "Tem um atalho por aqui?",
+                        es: "¿Hay un atajo por aquí?",
+                        fr: "Un raccourci ?",
+                        ru: "Здесь можно срезать?",
+                        de: "Hier ist eine Abkürzung?"
+                    },
+                    nextTextById: "523382742982488064"
+                },
+                "523382734740680704": {
+                    internalTranslationId: "523382734740680704",
+                    text: {
+                        en: "Time to head on.",
+                        zh: "该继续前进了。",
+                        ja: "そろそろ進まなきゃ。",
+                        ko: "나아갈 시간이에요.",
+                        pt: "Hora de seguir em frente.",
+                        es: "Es hora de seguir.",
+                        fr: "Il faut y aller.",
+                        ru: "Пора двигаться дальше.",
+                        de: "Weiter geht’s."
+                    },
+                    nextTextById: "523382746308571136"
+                },
+                "523382746308571136": {
+                    internalTranslationId: "523382746308571136",
+                    text: {
+                        en: "Talk to you soon, Beatrix.",
+                        zh: "回头聊，碧翠丝。",
+                        ja: "またお話ししましょう、ベアトリクス。",
+                        ko: "조만간 또 이야기해요, 베아트릭스.",
+                        pt: "Até breve, Beatrix.",
+                        es: "Hablamos pronto, Beatrix.",
+                        fr: "À plus tard, Beatrix.",
+                        ru: "До скорого, Беатрикс.",
+                        de: "Bis bald, Beatrix."
+                    },
+                    expression: "happy1"
+                }
+            }
+        }
     },
     "gigihologram_x1004_y1415": {
         name: "Gigi Hologram",

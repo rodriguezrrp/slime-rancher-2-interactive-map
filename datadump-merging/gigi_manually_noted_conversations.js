@@ -159,6 +159,149 @@ export const gigi_manually_noted_conversations = {
                 "434160858726821888": { next: null, changeExpression: "cheery1" },
         }
     },
+    "gigihologram_x838_y1796": {
+        firstVisitStartEntryId: "523379801986854912",
+        entries: {
+            // Hi, Beatrix. I've been calling this area the Terrarium.
+            "523379801986854912": { nextOptions: ["523379806806110208", "523379807615610880", "523379808395751424"], changeExpression: "cheery1" },
+            // [1/3] [Why 'the Terrarium?']
+            "523379806806110208": { next: "523379809226223616" },
+                // Well... you know, a terrarium is just a container that keeps plants outside of their usual environment.
+                "523379809226223616": { next: "523379810023141376", changeExpression: "pointing1" },
+                // The first time I came through here, that's what it looked like to me. Just a biosphere, though a really beautiful one, with unique food and slimes.
+                "523379810023141376": { next: "523379810853613568", changeExpression: "happy1" },
+                // And... maybe that's true. It's possible that this is just a way to represent the outside world here in the Labyrinth, safely behind glass.
+                "523379810853613568": { next: "523379811671502848" },
+                // But... I'm no longer so sure.
+                "523379811671502848": { nextOptions: ["523379812455837696", "523379813261144064"], changeExpression: "thinking1" },
+                // [1/2] [So what do you think it really is?]
+                "523379812455837696": { next: "523379814079033344" },
+                    // That's the thing, Beatrix. I have no way of knowing, not really. But...
+                    "523379814079033344": { next: "523379814884339712", changeExpression: "thinking1" },
+                    // I'm very sure the Labyrinth as a whole is a facility that was intended to contain and stabilize the Prismacore. So logically, the Terrarium is here for some Prismacore-related reason.
+                    "523379814884339712": { next: "523379815681257472", changeExpression: "happy1" },
+                    // And if I think about what that could be...
+                    "523379815681257472": { next: "523379816478175232" },
+                    // I wonder if it's a seed bank of some kind. Like, if things went really bad in the future, if the Prismacore became too unstable and really, truly breached... this would be a way to ensure that some of the flora would survive the ensuing calamity.
+                    "523379816478175232": { next: "523379817296064512", changeExpression: "pensive1" },
+                    // If so, that would mean the Terrarium is basically, well, an insurance policy, so that if the worst happens, there could be a do-over.
+                    "523379817296064512": { next: "523379818080399360" },
+                    // I mean, relatable.
+                    "523379818080399360": { nextOptions: ["523379818885705728", "523379819695206400"], changeExpression: "pensive2" },
+                    // [1/2] [What part of that do you relate to?]
+                    "523379818885705728": { next: "523379820555038720" },
+                        // Well, that's...
+                        "523379820555038720": { next: "523379821393899520", changeExpression: "surprised1" },
+                        // ...
+                        "523379821393899520": { next: "523379822186622976", changeExpression: "pensive1" },
+                        // O-of course I want to think that my actions in the past might help save the future. I mean, I think it's natural to want to set things up so the future can be better, even if there's no way to know for sure what helps.
+                        "523379822186622976": { next: "523379823033872384", changeExpression: "happy1" },
+                        // But...
+                        "523379823033872384": { next: "523379823839178752", changeExpression: "pensive2" },
+                        // If you think of it another way: to all those who exist in the future, what's happening right now is the past. We want those people of the future to look back at what we're doing and feel like it made all the difference to them.
+                        "523379823839178752": { next: "523379824648679424" },
+                        // Or, better yet, we want to make it so they never had to worry in the first place.
+                        "523379824648679424": { next: "523379825487540224", changeExpression: "happy1" },
+                        // What we do here will make all the difference eventually. I have to believe that.
+                        "523379825487540224": { nextOptions: ["523379826301235200"] },
+                        // [All we can do is live in the moment. I'll head onward.]
+                        "523379826301235200": { next: "523379827114930176" },
+                        // Things are in a bad state, but... there's a lot to see and love here. I hope you can take the time to enjoy it, too.
+                        "523379827114930176": { next: null, changeExpression: "happy1" },
+                    // [2/2] [I'll try to stop it before it gets to that.]
+                    "523379819695206400": { next: "523379827114930176" },
+                // [2/2] [I should probably keep moving.]
+                "523379813261144064": { next: "523379827114930176" },
+            // [2/3] [What's this area for? Preservation?]
+            "523379807615610880": { next: "523379814079033344" },
+            // [3/3] [I'll head on in to check it out right now.]
+            "523379808395751424": { next: "523379827114930176" },
+        }
+    },
+    "gigihologram_x766_y2011": {
+        firstVisitStartEntryId: "523380586816630784",
+        entries: {
+            // Hi, Beatrix. Fascinating area, right?
+            "523380586816630784": { nextOptions: ["523380587600965632", "523380588435632128"], changeExpression: "happy1" },
+            // [1/2] [It's almost like some kind of museum!]
+            "523380587600965632": { next: "523380589240938496" },
+                // That might be what glass cases say to us, but I believe they're here for another purpose. Actually, I'm convinced that they have something to do with the manipulation of time.
+                "523380589240938496": { next: "523380590050439168", changeExpression: "pointing1" },
+                // I've observed the ones with plants for a while, and I've noticed that time's moving faster inside these cases than outside of them.
+                "523380590050439168": { next: "523380590868328448", changeExpression: "happy1" },
+                // I think that it must be some way of analyzing the Prismacore's effects on the natural world. Perhaps they're a way to help predict what would happen in the event of a breach.
+                "523380590868328448": { nextOptions: ["523380591715577856", "523380592537661440"] },
+                // [1/2] [Is it happening with the tiny buildings too?]
+                "523380591715577856": { next: "523380593342967808" },
+                    // It might be, but I'm not sure.
+                    "523380593342967808": { next: "523380594135691264", changeExpression: "happy1" },
+                    // Maybe it is, or maybe it's manipulating space instead... or even a third thing that's so alien to us that we'll never have the context to figure it out
+                    "523380594135691264": { next: "523380594928414720", changeExpression: "thinking1" },
+                    // There are so many mysteries on Rainbow Island, Beatrix, and I don't think we'll solve even half of them in our lifetimes.
+                    "523380594928414720": { next: "523380595721138176" },
+                    // Sometimes all you can do is look through the glass and wonder about what's happening on the other side.
+                    "523380595721138176": { nextOptions: ["523380596513861632"], changeExpression: "pensive1" },
+                    // [Do you feel that way often?]
+                    "523380596513861632": { next: "523380597340139520" },
+                    // I've felt that way for a long time, honestly.
+                    "523380597340139520": { next: "523380598174806016", changeExpression: "sad1" },
+                    // You know, my whole life was planned out: I'd grow up and then take over the ranch, just like my mom took over from Grandma. One day, I'd pass the ranch down to a child of my own. It was all meant with such love. A beautiful home, our family legacy.
+                    "523380598174806016": { next: "523380598980112384", changeExpression: "sad2" },
+                    // To me, it was such a small world, like being in one of these domes here, pressing my hands against the glass and imagining the life I'd be living if I hadn't been born on a ranch.
+                    "523380598980112384": { next: "523380599785418752", changeExpression: "pensive1" },
+                    // I came here to Rainbow Island to try to live that other life. But I'm trapped again now, this time for real. Isn't it ironic? I'm behind glass, shut away like everything else in here.
+                    "523380599785418752": { nextOptions: ["523380600670416896"], changeExpression: "pensive2" },
+                    // [I'll head out to help free you as soon as I can.]
+                    "523380600670416896": { next: "523380601471528960" },
+                    // I know we have to hurry, but take some time to enjoy what's in front of you, too.
+                    "523380601471528960": { next: null, changeExpression: "happy1" },
+                // [2/2] [No time to linger.]
+                "523380592537661440": { next: "523380601471528960" },
+            // [2/2] [No time to linger, Gigi.]
+            "523380588435632128": { next: "523380601471528960" },
+        }
+    },
+    "gigihologram_x991_y1920": {
+        firstVisitStartEntryId: "523382731968245760",
+        entries: {
+            // Oh no... there's gold here. So even the Terrarium is starting to be affected. At least it's probably still a useful shortcut.
+            "523382731968245760": { nextOptions: ["523382733075542016", "523382733901819904", "523382734740680704"], changeExpression: "surprised1" },
+            // [1/3] [The gold's a problem, right?]
+            "523382733075542016": { next: "523382735625678848" },
+                // Anywhere close to the Prismacore can be affected by its reality-altering properties. Materials changing from one to another, switching from solid to liquid or gas, flickering entirely out of existence...
+                "523382735625678848": { next: "523382736426790912", changeExpression: "surprised1" },
+                // Outside the Labyrinth, it's seemingly harmless changes, but here, it's more dangerous. Imagine if the section of the floor you're standing on vanished under you, or if the only door out became a wall of solid rock...
+                "523382736426790912": { next: "523382737257263104", changeExpression: "pointing1" },
+                // And the gold... that seems to be the most potent of the transmutations, and it's probably the fate of this world if left unchecked.
+                "523382737257263104": { next: "523382738058375168", changeExpression: "happy1" },
+                // It all feels like King Midas from my storybooks.
+                "523382738058375168": { nextOptions: ["523382738859487232"], changeExpression: "pensive1" },
+                // [King Midas?]
+                "523382738859487232": { next: "523382739689959424" },
+                // It's an old myth about a king named Midas who wished to have all he touched turn to gold. He became rich beyond measure, but soon discovered that he could no longer eat or drink, and withered away.
+                "523382739689959424": { next: "523382740512043008", changeExpression: "sad1" },
+                // When I first discovered the Prismacore, I was horrified at seeing the whole ecosystem turning to gold. I called for help, but those that arrived saw only the value of that gold.
+                "523382740512043008": { next: "523382741329932288", changeExpression: "sad2" },
+                // ...It ended in disaster when they tried to harness its full power. I won't let that happen again. We can't.
+                "523382741329932288": { nextOptions: ["523382742143627264", "523382734740680704"], changeExpression: "pensive1" },
+                // [1/2] [So I should hurry and make use of that shortcut?]
+                "523382742143627264": { next: "523382742982488064" },
+                // Right, I remember there being one there. Though my memory isn't that reliable these days.
+                "523382742982488064": { next: "523382743829737472", changeExpression: "pointing1" },
+                // Shortcuts are funny things. Space and time are both full of shortcuts, when you think about it — I mean, I used my memories of the area and quantum tech to set up these projectors. That's a kind of time-based shortcut.
+                "523382743829737472": { next: "523382744668598272", changeExpression: "happy1" },
+                // Physical shortcuts are maybe more recognizable. Knowing there are quick ways back to places you've been before... it can make all the difference, right? It can completely change what you'd otherwise do. I know it has for me.
+                "523382744668598272": { next: "523382745478098944" },
+                // Though I suppose we often find ourselves in the same place in the end, one way or another.
+                "523382745478098944": { nextOptions: ["523382734740680704"] },
+            // [2/3] [There's a shortcut through here?]
+            "523382733901819904": { next: "523382742982488064" },
+            // [3/3] [Time to head on.]
+            "523382734740680704": { next: "523382746308571136" },
+                // Talk to you soon, Beatrix.
+                "523382746308571136": { next: null, changeExpression: "happy1" },
+        }
+    },
     // "": {
     //     firstVisitStartEntryId: ,
     //     entries: {
