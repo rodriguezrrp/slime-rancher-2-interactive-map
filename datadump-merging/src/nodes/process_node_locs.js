@@ -5084,10 +5084,55 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
     /** @type {{ [hologramId: string]: import("../../../src/types.js").GigiHologram["dialogue"] }} */
     const processedDialogues = {};
 
-    for (const hologramId of Object.keys(gigi_manually_noted_conversations)) {
-        const hologramConvo = gigi_manually_noted_conversations[hologramId];
+    const keysToProcessQueue = Object.keys(gigi_manually_noted_conversations);
+    let prevKeysToProcessCt = -1;
 
-        processedDialogues[hologramId] = {
+    // while still processing keys from the queue
+    keyProcessingLoop:
+    while (prevKeysToProcessCt !== keysToProcessQueue.length) {
+        prevKeysToProcessCt = keysToProcessQueue.length;
+        if(keysToProcessQueue.length <= 0) break;
+
+        const originalHologramId = keysToProcessQueue.pop();
+        let hologramId = originalHologramId;
+        
+        let hologramConvo = gigi_manually_noted_conversations[hologramId];
+        
+        if(typeof hologramConvo.convoReference !== "undefined") {
+            // try to resolve convoReference chain if possible
+
+            // while(typeof hologramConvo.convoReference !== "undefined") {
+            //     hologramId = hologramConvo.convoReference;
+            //     let processedConvo = processedDialogues[hologramId];
+            //     if(typeof processedConvo !== "undefined") {
+            //         // found processed convo
+            //         processedDialogues[originalHologramId] = processedConvo;
+            //         continue keyProcessingLoop;
+            //     }
+            //     // did not find processed convo with this key; go to next manually noted convo and see whether it also has a convoReference
+            //     hologramConvo = gigi_manually_noted_conversations[hologramId];
+            // }
+
+            // // encountered the end of the convo reference chain, yet have not processed the root referenced convo yet; re-queue the original id to come back to this convo later, hopefully after its referenced convo has finally been processed
+            // keysToProcessQueue.unshift(originalHologramId);
+            // continue keyProcessingLoop;
+
+            while(typeof hologramConvo.convoReference !== "undefined") {
+                hologramId = hologramConvo.convoReference;
+                hologramConvo = gigi_manually_noted_conversations[hologramId];
+                // console.debug(hologramId, hologramConvo);
+            }
+
+            // encountered the end of the convo reference chain. time to process it unless it has already been processed.
+            if(processedDialogues[hologramId]) {
+                processedDialogues[originalHologramId] = processedDialogues[hologramId];
+                continue keyProcessingLoop;
+            }
+        }
+
+        // hologramId and hologramConvo both point to an un-processed manually noted conversation.
+
+        processedDialogues[originalHologramId] = {
             firstVisitStartEntryId: hologramConvo.firstVisitStartEntryId,
             entries: Object.fromEntries(Object.entries(hologramConvo.entries).filter(e => e[0] !== "")
                 .map(([translationId, info]) => {
@@ -5114,8 +5159,9 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
             )
         };
 
+        // check to add in the optional subsequentStartEntryId property
         if(typeof hologramConvo.subsequentStartEntryId !== "undefined") {
-            processedDialogues[hologramId].subsequentStartEntryId = hologramConvo.subsequentStartEntryId;
+            processedDialogues[originalHologramId].subsequentStartEntryId = hologramConvo.subsequentStartEntryId;
         }
     }
 

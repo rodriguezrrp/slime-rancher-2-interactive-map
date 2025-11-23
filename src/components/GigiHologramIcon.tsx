@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { icon_opacity, icon_template, research_drone_ls_key } from "../globals";
+import { icon_opacity, icon_template, gigi_hologram_ls_key } from "../globals";
 import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
@@ -18,6 +18,7 @@ import surprised1 from "/gigi/surprised1.png";
 import cheery1 from "/gigi/cheery1.png";
 import sad1 from "/gigi/sad1.png";
 import sad2 from "/gigi/sad2.png";
+import sad3 from "/gigi/sad3.png";
 import pensive1 from "/gigi/pensive1.png";
 import pensive2 from "/gigi/pensive2.png";
 
@@ -29,6 +30,7 @@ export const gigiExpressionImageUrls: { [expression in GigiExpression]: string }
     cheery1: cheery1,
     sad1: sad1,
     sad2: sad2,
+    sad3: sad3,
     pensive1: pensive1,
     pensive2: pensive2,
 }
@@ -83,7 +85,7 @@ export function GigiHologramIcon({
                 position={[gigi_hologram.position.x, gigi_hologram.position.y]}
                 icon={icon}
                 popupCheckedState={checked}
-                onPopupCheckChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked)}
+                onPopupCheckChange={() => handleChecked(gigi_hologram_ls_key, keyName, checked, setChecked)}
                 headerRowChildren={
                     <h1 className="ml-2 text-xl font-medium">{gigi_hologram.name}</h1>
                 }

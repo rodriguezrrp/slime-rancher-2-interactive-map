@@ -28,6 +28,8 @@ const keyCannotIncludeAsSubstring = [
     "endPoint_x740_y183",  // Projector puzzle end point -- seems to be unused / unobtainable / out of bounds?
     "startPoint_x-513_y-1039",  // Projector puzzle start point -- seems to be unused / unobtainable / out of bounds?
     "endPoint_x-486_y-1065",  // Projector puzzle end point -- seems to be unused / unobtainable / out of bounds?
+
+    "teleporter_LabyrinthHub_B_x1103_y1506",  // ancient teleporter on the ground but seems to only be for decoration, never activated
 ];
 const keyDisallowedSubstringRegex = new RegExp(`(${keyCannotIncludeAsSubstring.join('|')})`);
 

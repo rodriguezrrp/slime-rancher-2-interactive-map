@@ -120,6 +120,8 @@ export interface UserData {
     found_shadow_doors: string[];
     found_gigi_holograms: string[];
     found_projector_puzzles: string[];
+    found_teleport_pads: string[];
+    found_nullifier_doors: string[];
 }
 
 export interface Pin {
@@ -186,7 +188,7 @@ export interface ShadowDoor {
     unlocks: string[];
 }
 
-export type GigiExpression = "surprised1" | "happy1" | "thinking1" | "pointing1" | "cheery1" | "sad1" | "sad2" | "pensive1" | "pensive2";
+export type GigiExpression = "surprised1" | "happy1" | "thinking1" | "pointing1" | "cheery1" | "sad1" | "sad2" | "sad3" | "pensive1" | "pensive2";
 interface GigiDialogueEntryBase {
     internalTranslationId?: string;
     text: TranslatedType<string>;
