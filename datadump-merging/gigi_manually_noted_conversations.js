@@ -16,8 +16,8 @@
             Omit<NonNullable<import("../src/types.js").GigiHologram["dialogue"]>, "entries"> & {
                 entries: {
                     [translationId: string]: (
-                        { next: string | null; changeExpression?: import("../src/types.js").GigiExpression }
-                        | { nextOptions: string[]; changeExpression?: import("../src/types.js").GigiExpression }
+                        { next: string | null; changeExpression?: import("../src/types.js").GigiExpression, italics?: boolean }
+                        | { nextOptions: string[]; changeExpression?: import("../src/types.js").GigiExpression, italics?: boolean }
                         | null
                     );
                 }
@@ -484,39 +484,270 @@ export const gigi_manually_noted_conversations = {
                 "434192429836038144": { next: null, changeExpression: "pensive1" },
         }
     },
-    // "": {
-    //     firstVisitStartEntryId: ,
-    //     entries: {
-    //         //
-    //         "": { next: "" },
-    //     }
-    // },
-    // "": {
-    //     firstVisitStartEntryId: ,
-    //     entries: {
-    //         //
-    //         "": { next: "" },
-    //     }
-    // },
-    // "": {
-    //     firstVisitStartEntryId: ,
-    //     entries: {
-    //         //
-    //         "": { next: "" },
-    //     }
-    // },
-    // "": {
-    //     firstVisitStartEntryId: ,
-    //     entries: {
-    //         //
-    //         "": { next: "" },
-    //     }
-    // },
-    // "": {
-    //     firstVisitStartEntryId: ,
-    //     entries: {
-    //         //
-    //         "": { next: "" },
-    //     }
-    // },
+    "gigihologram_x500_y1104": {
+        firstVisitStartEntryId: "434196761864204288",
+        entries: {
+            // Hello Beatrix. Seems you are not lost in the dream just yet.
+            "434196761864204288": { nextOptions: ["434196764397563904", "434196764867325952", "434169722817900544"], changeExpression: "happy1" },
+            // [1/3] [Everything here seems to be turning gold...]
+            "434196764397563904": { next: "434196765337088000" },
+                // Yes, due to Dream Land's proximity to the Prismacore you're seeing some of the worst of its effects.
+                "434196765337088000": { next: "434166475315113984", changeExpression: "surprised1" },
+                // Outside the Labyrinth you have seen mostly chromatic changes to the world, but inside, where the effects are amplified, elemental properties will shift entirely.
+                "434166475315113984": { next: "434196765790072832", changeExpression: "surprised1" },
+                // In here I have seen water turn to glass, trees to metal, and whole structures surrounding the Prismacore become nearly invisible before vanishing entirely, as if they just phased right out of reality.
+                "434196765790072832": { next: "434196766251446272", changeExpression: "thinking1" },
+                // Bit by bit all of Dream Land will turn to gold unless we stop it. Where you stand will grow heavy and fall from the sky. In time, the generated atmosphere here will collapse and further destabilize the Labyrinth.
+                "434196766251446272": { next: "434196766717014016" },
+                // And once the Labyrinth falls and the Prismacore's energy radiates across the whole of the Far, Far Range, it will transform this world into something unrecognizable, taking all life on the planet with it.
+                "434196766717014016": { nextOptions: ["434196767195164672"] },
+                // [The slimes...]
+                "434196767195164672": { next: "434196767660732416" },
+                // Yes, even the tenacious slimes couldn't possibly survive such a catastrophe. But we won't let that happen. You and I will find a way.
+                "434196767660732416": { nextOptions: ["434196764397563904", "434196764867325952", "434169722817900544"], changeExpression: "surprised1" },
+            // [2/3] [Do you feel lost, Gigi?]
+            "434196764867325952": { next: "434196768130494464" },
+                // I feel lost all the time. But maybe never more so than when I traveled across the Glass Desert.
+                "434196768130494464": { nextOptions: ["434196768587673600", "434166471632515072"], changeExpression: "thinking1" },
+                // [1/2] [You crossed the Glass Desert?]
+                "434196768587673600": { next: "434196769053241344" },
+                    // Yes, twice actually, if you can believe it. And to be honest it nearly killed me...
+                    "434196769053241344": { next: "434196769531392000", changeExpression: "surprised1" },
+                    // You see, when I started researching the Glass Desert I discovered that the name was hardly befitting such a place. What I saw was verdant and teeming with life.
+                    "434196769531392000": { next: "434196769996959744" },
+                    // This is due to a very special kind of water that flows there that can almost magically grow- well, who am I kidding, you know this all quite well.
+                    "434196769996959744": { next: "434196770475110400" },
+                    // So because of this I didn't prepare well enough. And on my return trip... the Glass Desert earned its reputation.
+                    "434196770475110400": { next: "434196770932289536", changeExpression: "sad1" },
+                    // It was a barren wasteland. The winds stung my face and blinded me. And every time I thought I had my bearing the world around me would erupt into flames.
+                    "434196770932289536": { next: "434639513852735488", changeExpression: "thinking1" },
+                    // I spent so many days just huddled in caves trying to find the courage to press on. But I knew I had to. I had to get back to Rainbow Island and find a solution.
+                    "434639513852735488": { nextOptions: ["434196771376885760", "434166471632515072"], changeExpression: "sad1" },
+                    // [1/2] [How did you find the strength to press on?]
+                    "434196771376885760": { next: "434196771855036416" },
+                    // Gigi pauses for a moment and runs the tatters of her cloak between her fingers.
+                    "434196771855036416": { next: "434196772320604160", changeExpression: "sad3", italics: true },
+                    // This cloak belonged to my grandmother. Well, it was the blanket that she used to keep around her legs later in life. That's what I saw in photos anyway. And then it belonged to my mother until she gave it to me.
+                    "434196772320604160": { next: "434196772781977600", changeExpression: "sad1" },
+                    // Mom used to sew up every tear or fray the moment it happened. So many little stitches that didn't quite match, the way she tried to keep it all together.
+                    "434196772781977600": { next: "434196773243351040" },
+                    // One day I was sitting on the floor of a cave, listening to the storm rage outside. I was wrapped in my cloak and just crying from the weight of it all. I was tired and it all felt unbearable.
+                    "434196773243351040": { next: "434196773717307392", changeExpression: "sad3" },
+                    // And then I felt my mom protecting me. I looked at all the zigzagging stitches wrapped around me and realized she kept it all together for me, whatever it took to do the job.
+                    "434196773717307392": { next: "434196774170292224" },
+                    // And maybe now it is torn and frayed and will never be the same. But it's still here. It saved me just like we'll save this place. It might never be quite the same but we'll hold it all together, Beatrix.
+                    "434196774170292224": { nextOptions: ["434196764397563904", "434196764867325952", "434169722817900544"], changeExpression: "sad1" },
+                // [2/2] [I think it's time I head out.]
+                "434166471632515072": { next: "434196774627471360" },
+            // [3/3] [I need to be on my way.]
+            "434169722817900544": { next: "434196774627471360" },
+                // Carry on, Beatrix.
+                "434196774627471360": { next: null, changeExpression: "pensive1" },
+        }
+    },
+    "gigihologram_x1004_y1415": {
+        firstVisitStartEntryId: "434169717507911680",
+        entries: {
+            // What an incredible view... so easy to get lost in the beauty of it. That is, until a Prisma Disruption turns it all to chaos.
+            "434169717507911680": { nextOptions: ["434169719974162432"], changeExpression: "cheery1" },
+            //   Note: When visiting this Gigi hologram for the first time, the dialog below plays out and Gigi gives you the disrution detector blueprint.
+            //         When visiting it for subsequent times, the intro line above skips straight to the nextOptions ["434169721878376448", "434169722331361280", "434169722817900544"] instead.
+            // [Yeah, finding your way around here is hard enough without them.]
+            "434169719974162432": { next: "434169720464896000" },
+            // I thought that might be the case, so I have been developing a gadget that should prove useful to you.
+            "434169720464896000": { next: "434169720938852352", changeExpression: "pointing1" },
+            // I call it a Disruption Detector and it does exactly that: placing them around the Labyrinth will tell you when a Prisma Disruption is about to happen in that area. It even works on your map!
+            "434169720938852352": { next: "434169721408614400", changeExpression: "happy1" },
+            // I'll give you one I made myself as well as the blueprint so you can fabricate as many as you need.
+            "434169721408614400": { nextOptions: ["434169721878376448", "434169722331361280", "434169722817900544"] },
+            // [1/3] [How do I use the Disruption Detector again?]
+            "434169721878376448": { next: "434169723275079680" },
+                // Don't worry, I get a little jumbled up in the head sometimes too. Part of the side effects of, well...
+                "434169723275079680": { next: "434169723770007552", changeExpression: "surprised1" },
+                // Anyway, using a Disruption Detector is easy. Just fabricate one and drop it anywhere in the Labyrinth where you want to track Prisma Disruptions.
+                "434169723770007552": { next: "434169724218798080", changeExpression: "pointing1" },
+                // Once placed, a Disruption Detector will then let you know if a Prisma Disruption is about to happen or is currently happening in that area.
+                "434169724218798080": { next: "434629957986709504", changeExpression: "happy1" },
+                // It even works on your map, so be sure to place a bunch and get as much of the Labyrinth covered as possible if you're looking to collect loads of Prisma Plorts, something we'll need when you find me.
+                "434629957986709504": { nextOptions: ["434169722331361280", "434169722817900544"] },
+            // [2/3] [How do I acquire Prisma Plorts?]
+            "434169722331361280": { next: "434169724671782912" },
+                // Prisma Plorts can be acquired within the chaotic Prisma Disruptions that happen all over the Labyrinth. Prismatic Disruptions will cause areas to suddenly glow with prismatic energy, intensifying over time.
+                "434169724671782912": { next: "434169725158322176", changeExpression: "pointing1" },
+                // During these disruptions, you can find food on the ground that has become unstable from the effects of the Prismacore. If you feed this food to slimes, those slimes will produce an Unstable Plort.
+                "434169725158322176": { nextOptions: ["434169725653250048"], changeExpression: "happy1" },
+                // [Unstable Plorts? How do I stabilize them?]
+                "434169725653250048": { next: "434169726093651968" },
+                // Unstable plorts can be stabilized into Prisma Plorts using stabilizers that you will find in the Labyrinth. Based on my findings, they come in two forms.
+                "434169726093651968": { next: "434169726567608320", changeExpression: "pointing1" },
+                // First are the large, ring-like Ancient Stabilizer devices you will find tucked away in the Labyrinth. They're big and hard to miss.
+                "434169726567608320": { next: "434169727016398848", changeExpression: "happy1" },
+                // Then there are the ethereal Temporal Stabilizers that randomly appear as small, golden rings of energy during Prisma Disruptions. Disruptions are chaotic so keep your eyes peeled.
+                "434169727016398848": { next: "434169727490355200" },
+                // In either case, shooting Unstable Plorts through these rings will yield Prisma Plorts. And with Ancient Stabilizers you can even leap through them to stabilize all your plorts at once. It's fun!
+                "434169727490355200": { next: "434629960771727360", changeExpression: "cheery1" },
+                // Well, fun if it weren't for the fact that the world around you at the time is likely exploding with dangerous energies and unstable plorts are flying out of your tank...
+                "434629960771727360": { next: "434634062582935552", changeExpression: "thinking1" },
+                // Either way, it's an adventure, right?
+                "434634062582935552": { nextOptions: ["434169721878376448", "434169722331361280", "434169722817900544"], changeExpression: "cheery1" },
+            // [3/3] [I need to be on my way.]
+            "434169722817900544": { next: "434169727981088768" },
+                // Happy exploring!
+                "434169727981088768": { next: null, changeExpression: "cheery1" },
+        }
+    },
+    "gigihologram_x878_y1466": {
+        firstVisitStartEntryId: "434198584142491648",
+        entries: {
+            // I can hardly believe you made it this far, Beatrix. This labyrinth would swallow up a normal person. But you, you're different. I was right to put my faith in you.
+            "434198584142491648": { next: "434198586608742400", changeExpression: "surprised1" },
+            // The Prismacore lies ahead. Maybe together we now stand a chance of stopping this thing and changing the future of the Far, Far Range...
+            "434198586608742400": { nextOptions: ["434198589339234304"], changeExpression: "happy1" },
+            
+            // Below is dialogue this gigi hologram held before 1.0. I tried to reconstruct it how it was before the 1.0 update removed it. I left it disconnected from the dialogue above, as it is no longer part of the game experience.
+
+            // The conclusion to our story awaits in our next content update! In the meantime be sure to explore the Labyrinth, chat with Gigi everywhere, and build infrastructure with gadgets to aid your travels.
+            "434198587065921536": { next: "434198587523100672" },
+            // Thank you so much for your support, feedback, and enthusiasm for Slime Rancher. We can't wait for you to see what's next!
+            "434198587523100672": { nextOptions: ["434198587980279808", "434198588420681728", "434198588886249472", "434198589339234304"] },
+            // [When will the next content update be released?]
+            "434198587980279808": { next: "434198589813190656" },
+                // You can be the first to know by following Slime Rancher on social media, or by subscribing to our newsletter at <style=\"weblink\"><link=\"https://gsght.com/c/4l9e90\">slimerancher.com</link></style>
+                "434198589813190656": { nextOptions: ["434198587980279808", "434198588420681728", "434198588886249472", "434198589339234304"] },
+            // [How do I make Slime Rancher even better?]
+            "434198588420681728": { next: "434198590266175488" },
+                // Slime Rancher is only possible through the support of our community. You can support us by leaving reviews for Slime Rancher, streaming it, or chatting about it with other members of our community.
+                "434198590266175488": { next: "434198590719160320" },
+                // Even just telling a friend, relative, or particularly influential neighborhood cat about it helps spread the word!
+                "434198590719160320": { nextOptions: ["434198587980279808", "434198588420681728", "434198588886249472", "434198589339234304"] },
+            // [I really, really love slimes.]
+            "434198588886249472": { next: "434198591176339456" },
+                // They really, really love you too.
+                "434198591176339456": { nextOptions: ["434198587980279808", "434198588420681728", "434198588886249472", "434198589339234304"] },
+
+            // [I'm ready to get back to exploring!]
+            "434198589339234304": { next: "434169727981088768" },
+                // Note: there are two gigi dialogue translation entries with the exact same text, "Happy exploring!", and I could not determine which was used in this conversation so I just made an educated guess.
+                // Happy exploring!
+                "434169727981088768": { next: null, changeExpression: "happy1" },
+        }
+    },
+    "gigihologram_x134_y2247": {
+        firstVisitStartEntryId: "512404458169856000",
+        entries: {
+            // Here it is, Beatrix… the Prismacore.\r
+            "512404458169856000": { next: "512404595482980352", changeExpression: "happy1" },
+            // I was breathless when I first saw it. Seeing the way light twisted and moved within it, the way it seemed to change with every moment… It was like staring into the infinite. If I only knew then what would become of it, of me... of everything.
+            "512404595482980352": { next: "512405717933256704", changeExpression: "surprised1" },
+            // I’m sorry to have brought you here. To have you pulled you into all this. But it was the only way.\r
+            "512405717933256704": { nextOptions: ["527360988719771648"], changeExpression: "sad1" },
+            // [But where are you, Gigi?]
+            "527360988719771648": { next: "527357008383995904" },
+            // I’m afraid I still can’t greet you in person. I would have loved to thank you properly. But I’ve locked myself away in the facility on the other side of this room. I’ll try to explain everything. After all you’ve been through to get here, I at least owe you that much.
+            "527357008383995904": { next: "527357083470426112", changeExpression: "pensive2" },
+            // So let’s start over. My name is…\r
+            "527357083470426112": { next: "527357621113090048", changeExpression: "happy1" },
+            // Gigi Twillgers-West.\r
+            "527357621113090048": { next: "527357752021512192", changeExpression: "cheery1" },
+            // I’m the granddaughter of Hobson and Thora.\r
+            "527357752021512192": { nextOptions: ["527356088736706560"], changeExpression: "happy1" },
+            // [Wait, how is that possible?]
+            "527356088736706560": { next: "527359885328412672" },
+            // You might not believe this, but… the short answer is that I’m from the future. In my time, I discovered Rainbow Island and the Prismacore, and… things went badly. It was rapidly destabilizing, and when I tried to fix it, I only made it worse. I called the wrong people to help, and they tried to exploit its unnatural power. 
+            "527359885328412672": { next: "527360055189336064", changeExpression: "sad1" },
+            // Everything quickly fell apart after that. There was an explosion. Prismatic light tore across Rainbow Island and into the atmosphere of the Far, Far Range. I shielded myself from the blast, but my arm… something happened.
+            "527360055189336064": { next: "527360305023053824", changeExpression: "sad2" },
+            // The energy from the Prismacore imprinted itself on me. I can feel it coursing in my arm despite my efforts to contain it. It’s why I’ve sealed myself away and needed your help: when I get near the Prismacore it causes the destabilization to accelerate, like it’s reacting to its own energy signature.
+            "527360305023053824": { nextOptions: ["527360902036090880"], changeExpression: "sad3" },
+            // [But if you’re here, what about back… home?]
+            "527360902036090880": { next: "527361539041816576" },
+            // My world — the Far, Far Range in my time… it’s on the brink of disaster. The Prismacore’s energy has blanketed the atmosphere and has begun to warp the environment as it has here: changing trees to metal, water to glass, and even phasing the natural world out of reality.
+            "527361539041816576": { next: "527361573745487872", changeExpression: "sad1" },
+            // In time, there will be nothing left to sustain the ecosystem. Faced with that… knowing that I had a hand in causing it all… I had to do something. 
+            "527361573745487872": { nextOptions: ["527363917346402304"], changeExpression: "sad2" },
+            // [So how did you… travel here?\r]
+            "527363917346402304": { next: "527364226567270400" },
+            // Remember during your previous journey in the Glass Desert, where my grandfather led you to a “portal beyond space and time?” When you got there, it seemed like it was ruined.
+            "527364226567270400": { next: "527364268539670528", changeExpression: "pointing1" },
+            // Well, that’s because I had already used it. I was able to direct the one in my world to this point in our timeline. There was just one problem…
+            "527364268539670528": { next: "527364314953838592", changeExpression: "happy1" },
+            // …It crumbled from the shock of activating when I arrived. I didn’t realize it would be a one way trip.\r
+            "527364314953838592": { nextOptions: ["527365295787634688"], changeExpression: "surprised1" },
+            // [So you’re stuck here?]
+            "527365295787634688": { next: "527365580824145920" },
+            // Yes. Perhaps there’s a way of repairing the portal, but like so many things here, it’s beyond my understanding. So I have to accept that I will never return home... never see my family again.
+            "527365580824145920": { next: "527365598020792320", changeExpression: "thinking1" },
+            // But it will be worth it if we can somehow stabilize the Prismacore. If we can do that, then not only do we save everything here and now, but it will fix my mistakes in the future. I have to believe that.
+            "527365598020792320": { nextOptions: ["527366192357863424"], changeExpression: "happy1" },
+            // [How do we stabilize the Prismacore?\n]
+            "527366192357863424": { next: "527366405030047744" },
+            // In my research here, I have discovered that whoever built the Grey Labyrinth created devices called Harmonizers designed to stabilize the Prismacore… only they just didn’t work. There’s evidence that it was attempted multiple times, each time having the opposite effect and making the situation worse.
+            "527366405030047744": { nextOptions: ["527366769041108992"], changeExpression: "pointing1" },
+            // [But if they didn’t work before, how will it work this time?]
+            "527366769041108992": { next: "527367021353660416" },
+            // I’ll have to explain later. But I think I have something that maybe they didn’t… something that might allow it to work this time.
+            "527367021353660416": { next: "527367034532163584", changeExpression: "thinking1" },
+            // There’s only one problem: the Harmonizers are lost. There’s no record of where they are located. Heck, there’s no record of what they even look like. I am completely in the dark here and don’t know what to do.
+            "527367034532163584": { nextOptions: ["528420089105117184"], changeExpression: "sad1" },
+            // [You know, your grandfather once gave me some great advice.]
+            "528420089105117184": { next: "528419886759309312" },
+            // Oh? What did he say? Never give up? To keep pushing through when all the odds are stacked against you? My mom always said grandpa had a way with words.
+            "528419886759309312": { nextOptions: ["528420424708157440"], changeExpression: "thinking1" },
+            // [He said, “Keep your peepers peeled.”]
+            "528420424708157440": { next: "528420990658179072" },
+            // Huh? What do you mean?
+            "528420990658179072": { nextOptions: ["528421599239106560"], changeExpression: "surprised1" },
+            // [The only way to find something hidden is to look for it.]
+            "528421599239106560": { next: "528422067466039296" },
+            // But where do we even start?\r
+            "528422067466039296": { nextOptions: ["528422403345903616"], changeExpression: "thinking1" },
+            // [I’ve seen some funny looking walls here. Seems like a good place to start.]
+            "528422403345903616": { next: "528422630249361408" },
+            // Beatrix, that’s it! I kept thinking I’d find a door or something I couldn’t enter. But what if they’re hidden in plain sight? I… I think I could make some new tech that you could use to test this theory.
+            "528422630249361408": { next: "528422765066874880", changeExpression: "cheery1" },
+            // Head on over to the Exchange Station on the balcony above and I’ll get you set up!\r
+            "528422765066874880": { nextOptions: ["528422907241197568"], changeExpression: "pointing1" },
+            // [On my way!]
+            "528422907241197568": { next: null },
+        }
+    },
+    "gigihologram_x1076_y907": {
+        firstVisitStartEntryId: "434189984019935232",
+        entries: {
+            // It seems you're awfully good at finding secrets. Took me forever to find this spot.
+            "434189984019935232": { nextOptions: ["434189987203411968", "434189987656396800", "434189988105187328"], changeExpression: "surprised1" },
+            // [1/3] [Secrets seem to be the building blocks of this place.]
+            "434189987203411968": { next: "434189988549783552" },
+                // It would seem that way. I suspect part of its strange layout is that the Labyrinth was built upon over time. And eventually more creative solutions had to be developed to make it even bigger than it could be.
+                "434189988549783552": { nextOptions: ["434189989002768384"], changeExpression: "surprised1" },
+                // [Creative solutions?]
+                "434189989002768384": { next: "434189989472530432" },
+                // You know the way that the Labyrinth appears bigger on the inside than it is outside? I think that was somehow technology adapted from the Prismacore itself.
+                "434189989472530432": { next: "434189989963264000", changeExpression: "pointing1" },
+                // Because while this sounds crazy, the Prismacore's energy in its most concentrated form seems to be able to bend reality itself.
+                "434189989963264000": { next: "434189990416248832", changeExpression: "happy1" },
+                // I think the Labyrinth was eventually expanded to try to contain all of the Prismacore's energy, and then when that wasn't working, some kind of reality-bending technology was used to make it even bigger.
+                "434189990416248832": { next: "434189990873427968" },
+                // But then at some point everything started failing. And the Prismacore's energy is now radiating out across Rainbow Island.
+                "434189990873427968": { next: "434637451849003008", changeExpression: "thinking1" },
+                // In some ways my arrival to this place was just in time. In time and altogether out of it I suppose..
+                "434637451849003008": { nextOptions: ["434189987203411968", "434189987656396800", "434189988105187328"] },
+            // [2/3] [Speaking of secrets, why did you pretend to be an AI?]
+            "434189987656396800": { next: "434189991326412800" },
+                // I'm sorry, but I had to be sure I could trust Viktor, and I needed to know he could figure out what I couldn't. You see, the doors to the Labyrinth were locked to you but not to me. At least, not any more.
+                "434189991326412800": { next: "434189991829729280", changeExpression: "thinking1" },
+                // When I first encountered the Prismacore, before I got here, when the catastrophe occurred... it left me marked in a way. I tried to shield myself from the blast. I survived, but something was different.
+                "434189991829729280": { next: "434189992282714112", changeExpression: "pensive2" },
+                // Part of the energy signature of the Prismacore is now a part of me. It's why I can't get too close to it and why I need you to help me.
+                "434189992282714112": { next: "434189992735698944", changeExpression: "sad2" },
+                // So you need to understand that I just couldn't have it all happen again. If I were to hand over the keys to this place to the wrong person... Well, you'll just have to trust me that this is our last chance at this.
+                "434189992735698944": { next: "434189993218043904", changeExpression: "thinking1" },
+                // There's no going back for me.
+                "434189993218043904": { nextOptions: ["434189987203411968", "434189987656396800", "434189988105187328"], changeExpression: "pensive1" },
+            // [3/3] [On to the next secret then...]
+            "434189988105187328": { next: "434189993696194560" },
+                // If anyone can find it it's you, Beatrix.
+                "434189993696194560": { next: null, changeExpression: "pensive1" },
+        }
+    },
 }

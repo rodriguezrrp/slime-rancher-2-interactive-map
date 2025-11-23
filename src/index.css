@@ -42,11 +42,15 @@
     @apply mx-7;
   } */
 
-  /* background-image: url('/scanlines.png'); */
-  width: 80%;
-  /* min-height: 60%;
-  max-height: 95%; */
-  height: 80%;
+  width: 95%;
+  height: 90%;
+  @screen sm {
+    /* background-image: url('/scanlines.png'); */
+    width: 80%;
+    /* min-height: 60%;
+    max-height: 95%; */
+    height: 80%;
+  }
 
   --gigi-portrait-max-h: 20vh;
   --gigi-portrait-max-w: 15%;
@@ -56,13 +60,16 @@
   @apply p-4 px-5 m-1 rounded-xl bg-white text-slate-950 font-medium text-xl drop-shadow-md relative z-20;
 }
 
-body.hasHover .gigi-convo {
-  /* show gigi portrait of hovered text entry, or the last text entry if none are hovered */
-  /* note: uses selector list argument "of" in :nth-last-child, which is relatively newly-available Baseline 2023 (see https://caniuse.com/css-nth-child-of) */
-  & .gigi-text-entry:hover .gigi-portrait,
-  &:not(:has(.gigi-text-entry:hover)) .gigi-text-entry:nth-last-child(1 of .gigi-text-entry) .gigi-portrait
-  {
-    @apply opacity-90;
+@screen sm {
+  /* if sm breakpoint, screen is big enough to show gigi portrait */
+  body.hasHover .gigi-convo {
+    /* show gigi portrait of hovered text entry, or the last text entry if none are hovered */
+    /* note: uses selector list argument "of" in :nth-last-child, which is relatively newly-available Baseline 2023 (see https://caniuse.com/css-nth-child-of) */
+    & .gigi-text-entry:hover .gigi-portrait,
+    &:not(:has(.gigi-text-entry:hover)) .gigi-text-entry:nth-last-child(1 of .gigi-text-entry) .gigi-portrait
+    {
+      @apply opacity-90;
+    }
   }
 }
 
@@ -83,7 +90,7 @@ body.hasHover .gigi-convo {
 }
 
 .gigi-option-button {
-  @apply p-2 px-7 m-1 rounded-full border-[6px] border-white bg-white text-slate-950 font-medium text-xl w-2/3 drop-shadow-md;
+  @apply p-2 px-7 m-1 rounded-full border-[6px] border-white bg-white text-slate-950 font-medium text-xl w-auto drop-shadow-md;
   /* transition: all 0.2s; */
   
   /* &.selected:not(:has(+ .gigi-option-button:hover, + .gigi-option-button:focus)) */

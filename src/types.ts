@@ -192,6 +192,7 @@ export type GigiExpression = "surprised1" | "happy1" | "thinking1" | "pointing1"
 interface GigiDialogueEntryBase {
     internalTranslationId?: string;
     text: TranslatedType<string>;
+    italics?: boolean,
     expression?: GigiExpression;
 }
 export interface GigiDialogueToTextEntry extends GigiDialogueEntryBase {

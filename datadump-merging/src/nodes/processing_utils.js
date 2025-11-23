@@ -573,7 +573,7 @@ export function looseJsonStringify(
 
     // try to treat obj as a js type that is not a generic object
     
-    if(typeof retypedObj === "string" || typeof retypedObj === "number") {
+    if(typeof retypedObj === "string" || typeof retypedObj === "number" || typeof retypedObj === "boolean") {
         return JSON.stringify(retypedObj);
     }
     

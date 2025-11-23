@@ -1,6 +1,6 @@
 import { CurrentMapContext, MapType } from "./CurrentMapContext";
 import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, MapOptions, icon } from "leaflet";
-import { LayerGroup, LayersControl, MapContainer, Marker, Popup, useMap, useMapEvent, useMapEvents } from "react-leaflet";
+import { LayerGroup, LayersControl, MapContainer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { LocalStoragePin, Pin } from "./types";
 import { useContext, useEffect, useRef, useState } from "react";
 import { FaCode } from "react-icons/fa6";
@@ -21,7 +21,7 @@ import { NullifierDoorIcons } from "./components/NullifierDoorIcon";
 import { gigiExpressionImageUrls, GigiHologramIcons } from "./components/GigiHologramIcon";
 import { ProjectorPuzzleIcons } from "./components/ProjectorPuzzleIcon";
 import { TeleportPadIcons } from "./components/TeleportPadIcon";
-import { MapMarkersContextProvider, MapMarkerSwitchingProps } from "./components/popupUtils";
+import { MapMarkersContextProvider } from "./components/popupUtils";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
@@ -461,9 +461,6 @@ function App() {
             document.head.removeChild(styleSheet);
         };
     }, [current_map]);
-
-    const markerRefs = useRef<{ [markerRefKey: string]: L.Marker | null }>({ });
-    const mapMarkerSwitchingPropsRef = useRef<MapMarkerSwitchingProps>();
 
     console.debug('in App function');
 

@@ -48,6 +48,17 @@ export function entryExportFilter(targetFileName, key, obj) {
         return false;
     }
 
+    if(key === "gigihologram_x82_y2225") {
+        // the final gigi hologram - leave its conversation up to the player to discover! :)
+        obj = { ...obj };
+        /** @type {import("../../../src/types.js").GigiHologram["dialogue"]} */
+        const customDialogue = {
+            firstVisitStartEntryId: "nospoilers",
+            entries: { "nospoilers": { text: { en: "No spoilers! Play the game for yourself to discover the last Gigi hologram's dialogue! \u263A" }, expression: "cheery1", italics: true } }
+        }
+        obj.dialogue = customDialogue;
+    }
+
     // get all keys of Vec2s or arrays of Vec2s
     const posKeys = Object.keys(obj).filter(k => (
         (typeof obj[k] === "object" && typeof obj[k].x === "number" && typeof obj[k].y === "number" && typeof obj[k].z === "undefined")
@@ -101,11 +112,9 @@ export function entryExportFilter(targetFileName, key, obj) {
             // manually setting it.
             obj.pos = { x: -311, y: -307 };
         }
-
-        return obj;
     }
 
-    // export the entry as-is
-    return true;
+    // export the entry
+    return obj;
 
 }

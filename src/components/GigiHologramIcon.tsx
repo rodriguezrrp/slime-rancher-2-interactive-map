@@ -112,6 +112,7 @@ type _EntryId = keyof NonNullable<GigiHologram["dialogue"]>["entries"];
 type _ConvoLogEntry = {
     text: string,
     entryId: _EntryId,
+    italics?: boolean,
     nextTextId?: _EntryId,
     nextOptionsIds?: GigiDialogueToOptionsEntry["nextOptionsById"],
 } | {
@@ -142,7 +143,8 @@ export function GigiConvo({
             return {
                 entryId: sourceEntry.nextTextId,
                 nextTextId: "nextTextById" in entry ? entry.nextTextById : undefined,
-                text: entry.text[curLanguage],
+                text: entry.text[curLanguage] ?? entry.text.en ?? Object.values(entry.text)[0],
+                italics: entry.italics,
                 nextOptionsIds: "nextOptionsById" in entry ? entry.nextOptionsById : undefined,
             };
         }
@@ -197,11 +199,11 @@ export function GigiConvo({
                             if("optionsIds" in convoEntry) {
                                 return (
                                     <div key={`${entryIndex}_${convoEntry.sourceEntryId}_options`}
-                                        className="gigi-option-group-entry flex flex-row justify-end"
+                                        className="gigi-option-group-entry flex flex-col justify-end"
                                     >
                                         {convoEntry.optionsIds.map((optionId, optionIndex) => {
                                             const thisOptionEntry = (dialogueEntries[optionId] as GigiDialogueToTextEntry);
-                                            const optionText = thisOptionEntry.text[curLanguage];
+                                            const optionText = thisOptionEntry.text[curLanguage] ?? thisOptionEntry.text.en ?? Object.values(thisOptionEntry.text)[0];
                                             return <GigiConvoOptionButton
                                                 key={`${optionId}`}
                                                 entryIndex={entryIndex}
@@ -230,7 +232,7 @@ export function GigiConvo({
                                         aria-hidden
                                         className="gigi-portrait"
                                     />
-                                    <p>{convoEntry.text}</p>
+                                    <p>{convoEntry.italics ? <i>{convoEntry.text}</i> : convoEntry.text}</p>
                                     {isLastEntry && <GigiConvoTextNextButton
                                         hasMoreConvo={!!(convoEntry.nextTextId || convoEntry.nextOptionsIds)}
                                         convoEntry={convoEntry}

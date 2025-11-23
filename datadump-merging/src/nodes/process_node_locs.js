@@ -2091,7 +2091,6 @@ async function exportGigiHologramsFromAssetsMapping(/** @type {AssetsMappingType
     const mergedGigiTSData = { ...existingGigiHologramTSDataByGigiHologramKey };
     
     const processedDialogues = processManualGigiConversations(cacheOpts);
-    // console.log(dialogues);
 
     console.log("Merging existing and extracted Gigi hologram data");
     
@@ -5073,10 +5072,6 @@ function manufactureTeleporterPadIdFromAssets(/** @type {AssetJSONType} */ asset
     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
 }
-// function manufacturePlotPlannerIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ gameObjJSON, /** @type {{ x: number, y: number, z: number }} */ ingamePos) {
-//     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
-//     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
-// }
 
 function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
     cacheOpts = { ...defaultCacheSettings, ...cacheOpts };
@@ -5094,37 +5089,23 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
         if(keysToProcessQueue.length <= 0) break;
 
         const originalHologramId = keysToProcessQueue.pop();
+        /** @type {string} */
         let hologramId = originalHologramId;
         
         let hologramConvo = gigi_manually_noted_conversations[hologramId];
         
-        if(typeof hologramConvo.convoReference !== "undefined") {
+        if("convoReference" in hologramConvo) {
             // try to resolve convoReference chain if possible
 
-            // while(typeof hologramConvo.convoReference !== "undefined") {
-            //     hologramId = hologramConvo.convoReference;
-            //     let processedConvo = processedDialogues[hologramId];
-            //     if(typeof processedConvo !== "undefined") {
-            //         // found processed convo
-            //         processedDialogues[originalHologramId] = processedConvo;
-            //         continue keyProcessingLoop;
-            //     }
-            //     // did not find processed convo with this key; go to next manually noted convo and see whether it also has a convoReference
-            //     hologramConvo = gigi_manually_noted_conversations[hologramId];
-            // }
-
-            // // encountered the end of the convo reference chain, yet have not processed the root referenced convo yet; re-queue the original id to come back to this convo later, hopefully after its referenced convo has finally been processed
-            // keysToProcessQueue.unshift(originalHologramId);
-            // continue keyProcessingLoop;
-
-            while(typeof hologramConvo.convoReference !== "undefined") {
+            while("convoReference" in hologramConvo) {
                 hologramId = hologramConvo.convoReference;
                 hologramConvo = gigi_manually_noted_conversations[hologramId];
                 // console.debug(hologramId, hologramConvo);
             }
 
-            // encountered the end of the convo reference chain. time to process it unless it has already been processed.
+            // encountered the end of the convo reference chain. time to process it, unless it has already been processed.
             if(processedDialogues[hologramId]) {
+                // it was already processed
                 processedDialogues[originalHologramId] = processedDialogues[hologramId];
                 continue keyProcessingLoop;
             }
@@ -5145,6 +5126,10 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
 
                     if(info.changeExpression) {
                         dialogueEntry.expression = info.changeExpression;
+                    }
+
+                    if(info.italics) {
+                        dialogueEntry.italics = info.italics;
                     }
 
                     if(info.nextOptions) {
