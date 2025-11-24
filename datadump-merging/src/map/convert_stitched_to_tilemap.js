@@ -31,7 +31,11 @@ export function convertToTilemap(mapFilePath = 'map.png', outDirPath = 'map', _p
             const imgWidthPx = metadata.width;
             if(typeof imgWidthPx === "undefined") throw new Error(`Unable to determine width of input image ${mapFilePath}`);
 
-            const pipListProcess = spawn('pip', ["list"]);
+            const pipListProcess = (
+                _pythonCLIname
+                ? spawn(_pythonCLIname, ["-m", "pip", "list"])
+                : spawn('pip', ["list"])
+            );
 
             let errs = [];
             let outs = [];

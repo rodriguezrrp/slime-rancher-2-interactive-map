@@ -701,11 +701,11 @@ export function extractL10nTablesToCache(cacheOpts, globsKey) {
 
     if(cacheOpts.exportToCache) {
         const _export = () => {
-            writeFileSync(`./data_cache/${globsKey}L10nData.json`, JSON.stringify(l10nData));
-            console.log("Exported drone localization tables to cache.");
+            writeFileSync(`./data_cache/${globsKey}L10nData.json`, JSON.stringify(l10nData, undefined, 4), { encoding: "utf-8" });
+            console.log(`Exported ${globsKey} localization tables to cache.`);
         };
         if(cacheOpts.exportToCache === "sync") {
-            console.log("Exporting drone localization tables to cache...");
+            console.log(`Exporting ${globsKey} localization tables to cache...`);
             _export();
         }
         else (async () => { _export(); })();

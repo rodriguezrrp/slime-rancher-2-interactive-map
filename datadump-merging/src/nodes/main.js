@@ -1,11 +1,17 @@
 import minimist from "minimist";
 import { exportAllNodeCoordsFromScenesJSON, ExtractionTypes } from "./process_node_locs.js";
 
+function tryBooleanifyArg(arg) {
+    if(arg === true || arg === 1 || arg === "1" || (typeof arg === "string" && (arg.toLowerCase() === "true" || arg.toLowerCase() === "y"))) return true;
+    if(arg === false || arg === 0 || arg === "0" || (typeof arg === "string" && (arg.toLowerCase() === "false" || arg.toLowerCase() === "n"))) return false;
+    return arg;
+}
+
 // eslint-disable-next-line no-undef
 const args = minimist(process.argv.slice(2));
 
-const useCache = args["usecache"] ?? undefined;
-const exportToCache = args["exporttocache"] ?? undefined;
+const useCache = tryBooleanifyArg(args["usecache"] ?? undefined);
+const exportToCache = tryBooleanifyArg(args["exporttocache"] ?? undefined);
 
 if(args["onlyextract"] && args["only"]) {
     console.warn(`Warning: Both --onlyextract and its alias --only were specified.`

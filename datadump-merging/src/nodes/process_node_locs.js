@@ -26,8 +26,13 @@ import { _schema_MapType, _schema_Vec2, matchAgainstSchema, schemautils } from "
 
 /** @typedef {("assetsmapping" | "pods" | "researchdrones" | "shadowplortdepos" | "gigiholograms" | "nullifierdoors" | "stabilizinggates" | "projectorpuzzles" | "gordos" | "puzzledoors" | "mapnodes" | "teleporters")} ExtractionTypesType */
 /** @type {ExtractionTypesType[]} */
-export const ExtractionTypes = [
+const SpecialExtractionTypes = [
     "assetsmapping",
+    "translationtables"
+];
+/** @type {ExtractionTypesType[]} */
+export const ExtractionTypes = [
+    ...SpecialExtractionTypes,
     "pods",
     "researchdrones",
     "shadowplortdepos",
@@ -55,9 +60,17 @@ export async function exportAllNodeCoordsFromScenesJSON(
     
     const onlySet = Array.isArray(only) && only.length > 0 ? new Set(only.map(s => s.toLowerCase())) : null;
 
-    if(onlySet?.size === 1 && onlySet.has("assetsmapping")) {
-        // only get (and presumably cache) assets mapping.
-        await getOrExtractScenesAssetsMapping(cacheOpts);
+    const onlySpecialExtractionTypes = onlySet !== null && Array.from(onlySet).every(s => SpecialExtractionTypes.includes(s));
+
+    if(onlySpecialExtractionTypes) {
+        if(onlySet.has("assetsmapping")) {
+            // only get (and presumably cache) assets mapping.
+            await getOrExtractScenesAssetsMapping(cacheOpts);
+        }
+        if(onlySet.has("translationtables")) {
+            // only get (and presumably cache) translation tables.
+            await justExtractL10nTables(cacheOpts);
+        }
         return;
     }
     
@@ -5151,6 +5164,12 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
     }
 
     return processedDialogues;
+}
+
+export function justExtractL10nTables(/** @type {CacheOpts} */ cacheOpts) {
+    for(const l10nGlobsKey of Object.keys(L10N_TABLES_GLOBS)) {
+        extractL10nTablesToCache(cacheOpts, l10nGlobsKey);
+    }
 }
 
 // extractScenesToCacheJSON();
