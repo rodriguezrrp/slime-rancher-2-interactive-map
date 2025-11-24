@@ -642,7 +642,7 @@ export function looseJsonStringify(
             _shouldQuote !== false
             && (
                 _shouldQuote === true
-                || !/[a-z_][a-z0-9_]*/i.test(k)
+                || !/^[a-z_][a-z0-9_]*$/i.test(k)
             )
         ) ? `"${k}": ` : `${k}: `;
         str += newlineIndent + _keyStr + looseJsonStringify(retypedObj[k], indent, transformingFns, _curIndent, _curIndent + indent, updatedKeysChain) + comma;

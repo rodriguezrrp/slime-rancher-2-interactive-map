@@ -50,15 +50,18 @@ export function entryExportFilter(targetFileName, key, originalObj) {
         return false;
     }
 
-    if(key === "gigihologram_x82_y2225") {
+    if(/gigi_hologram/i.test(targetFileName) && Object.values(obj.dialogue?.labeledAltEntrypoints || {}).includes("nospoilers")) {
         // the final gigi hologram - leave its conversation up to the player to discover! :)
         obj = { ...obj };
-        /** @type {import("../../../src/types.js").GigiHologram["dialogue"]} */
-        const customDialogue = {
-            firstVisitStartEntryId: "nospoilers",
-            entries: { "nospoilers": { text: { en: "No spoilers! Play the game for yourself to discover the last Gigi hologram's dialogue! \u263A" }, expression: "cheery1", italics: true } }
-        }
-        obj.dialogue = customDialogue;
+        /** @type {NonNullable<import("../../../src/types.js").GigiHologram["dialogue"]>["entries"]} */
+        const noSpoilerDialogueEntries = {
+            "nospoilers": {
+                text: { en: "No spoilers! Play the game for yourself to discover the last Gigi hologram's dialogue! \u263A" },
+                expression: "cheery1",
+                italics: true
+            }
+        };
+        obj.dialogue.entries = { ...noSpoilerDialogueEntries, ...obj.dialogue.entries };
     }
 
     // get all keys of Vec2s or arrays of Vec2s

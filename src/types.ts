@@ -207,8 +207,8 @@ export interface GigiHologram {
     position: Vec2;
     description: string;
     dialogue?: {
-        firstVisitStartEntryId: string,
-        subsequentStartEntryId?: string,
+        firstVisitStartEntryId: string;
+        labeledAltEntrypoints?: { [label: string]: string };
         entries: {
             [id: string]: GigiDialogueToTextEntry | GigiDialogueToOptionsEntry;
         }

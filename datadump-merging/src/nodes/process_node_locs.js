@@ -172,7 +172,7 @@ const _jsonStringifyTransformerFns = {
         if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
         if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
     },
-    shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
+    shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : (keysChain.length >= 2 && keysChain[keysChain.length - 2] === "entries") ? true : null,
     shouldInlineObj: (key, depth, keysChain, obj) => {
         // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
         // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
@@ -4112,44 +4112,31 @@ function readExistingGigiHologramsTSData(/** @type {CacheOpts} */ cacheOpts) {
         throw new Error("unexpected loose json parse result, did not match expected schema");
     }
 
-    // const _jsonStringifyTransformerFns = {
-    //     transformer: (obj, key, keys) => {
-    //         if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
-    //         if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
-    //         if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
-    //     },
-    //     shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
-    //     shouldInlineObj: (key, depth, keysChain, obj) => {
-    //         // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
-    //         // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
-    //         // return null;
-    //         return (
-    //             (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
-    //             || (Array.isArray(obj) && obj.length <= 1)
-    //         ) ? false : null;
-    //     },
-    //     shouldSortKeys: (key, depth, keysChain, obj) => {
-    //         if(depth === 0) return sortStringsWithNumbers;
-    //         if(depth === 1) {
-    //             const _lookup = Object.fromEntries(["internalId", "name", "log", "archive", "pos", "position", "description", "dimension"].map((v, i) => [v, i]));
-    //             const _default = Object.keys(_lookup).length;
-    //             return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
-    //         }
-    //         if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
-    //             // put "en" lang as first item, order all other lang keys lexographically
-    //             return (a, b) => {
-    //                 a = a.toLowerCase(); b = b.toLowerCase();
-    //                 return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
-    //             };
-    //         }
-    //     }
-    // };
-
     const fnWriteGigiHologramsBackToFile = (/** @type {{ [tsDataGigiHologramKey: string]: ExistingGigiHologramDataType }} */ mergedGigiHologramTSData) => {
         const dataObjAsJsCode = looseJsonStringify(
             filterDataObjBeforeExport(PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, mergedGigiHologramTSData),
             "    ",
-            _jsonStringifyTransformerFns
+            { ..._jsonStringifyTransformerFns,
+                shouldSortKeys: (key, depth, keys, obj) => {
+                    if (key === "dialogue") {
+                        // put "entries" as the last item
+                        return (a, b) => {
+                            a = a.toLowerCase(); b = b.toLowerCase();
+                            if(a === b) return 0;
+                            if(a === "entries") return 1;
+                            if(b === "entries") return -1;
+                            let defaultResult = _jsonStringifyTransformerFns.shouldSortKeys(key, depth, keys, obj);
+                            if(typeof defaultResult === "function") {
+                                return defaultResult(a, b);
+                            }
+                            else if(defaultResult === true) {
+                                return sortStringsWithNumbers(a, b);
+                            }
+                            else return 0;
+                        };
+                    }
+                }
+            }
         );
         
         const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
@@ -5126,6 +5113,7 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
         prevKeysToProcessCt = keysToProcessQueue.length;
         if(keysToProcessQueue.length <= 0) break;
 
+        /** @type {string} */
         const originalHologramId = keysToProcessQueue.pop();
         /** @type {string} */
         let hologramId = originalHologramId;
@@ -5155,11 +5143,13 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
             firstVisitStartEntryId: hologramConvo.firstVisitStartEntryId,
             entries: Object.fromEntries(Object.entries(hologramConvo.entries).filter(e => e[0] !== "")
                 .map(([translationId, info]) => {
+                    const _translationIdExtraction = /^[a-zA-Z_\-]*([0-9]{18})[a-zA-Z_\-]*$/.exec(translationId);
+                    const translationIdCleaned = _translationIdExtraction ? _translationIdExtraction[1] : translationId;
 
                     /** @type {NonNullable<import("../../../src/types.js").GigiHologram["dialogue"]>["entries"][string]} */
                     const dialogueEntry = {
-                        internalTranslationId: translationId,
-                        text: l10nTranslationsFor("CommStation", translationId, cacheOpts),
+                        internalTranslationId: translationIdCleaned,
+                        text: l10nTranslationsFor("CommStation", translationIdCleaned, cacheOpts),
                     };
 
                     if(info.changeExpression) {
@@ -5182,9 +5172,9 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
             )
         };
 
-        // check to add in the optional subsequentStartEntryId property
-        if(typeof hologramConvo.subsequentStartEntryId !== "undefined") {
-            processedDialogues[originalHologramId].subsequentStartEntryId = hologramConvo.subsequentStartEntryId;
+        // check to add in the optional alternate entrypoints property
+        if(typeof hologramConvo.labeledAltEntrypoints !== "undefined") {
+            processedDialogues[originalHologramId].labeledAltEntrypoints = hologramConvo.labeledAltEntrypoints;
         }
     }
 

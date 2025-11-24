@@ -28,7 +28,9 @@
 export const gigi_manually_noted_conversations = {
     "gigihologram_x1364_y1007": {
         firstVisitStartEntryId: "418299640669696000",
-        subsequentStartEntryId: "433468706430545920",
+        labeledAltEntrypoints: {
+            "Subsequent Visit": "433468706430545920",
+        },
         entries: {
             // It's... it's you! I can't believe it. Oh my gosh. Um, hello Beatrix- I mean, Ms LeBeau. I mean, is Beatrix ok?
             "418299640669696000": { next: "418299640694861824", changeExpression: "surprised1" },
@@ -547,11 +549,17 @@ export const gigi_manually_noted_conversations = {
     },
     "gigihologram_x1004_y1415": {
         firstVisitStartEntryId: "434169717507911680",
+        labeledAltEntrypoints: {
+            "Subsequent Visit": "434169717507911680_subsequentvisit",
+        },
         entries: {
             // What an incredible view... so easy to get lost in the beauty of it. That is, until a Prisma Disruption turns it all to chaos.
             "434169717507911680": { nextOptions: ["434169719974162432"], changeExpression: "cheery1" },
+            // What an incredible view... so easy to get lost in the beauty of it. That is, until a Prisma Disruption turns it all to chaos.
+            "434169717507911680_subsequentvisit": { nextOptions: ["434169721878376448", "434169722331361280", "434169722817900544"], changeExpression: "cheery1" },
             //   Note: When visiting this Gigi hologram for the first time, the dialog below plays out and Gigi gives you the disrution detector blueprint.
             //         When visiting it for subsequent times, the intro line above skips straight to the nextOptions ["434169721878376448", "434169722331361280", "434169722817900544"] instead.
+            //         That is why I have duplicated the first line with the alternate nextOptions as an alternate entrypoint.
             // [Yeah, finding your way around here is hard enough without them.]
             "434169719974162432": { next: "434169720464896000" },
             // I thought that might be the case, so I have been developing a gadget that should prove useful to you.
@@ -634,6 +642,10 @@ export const gigi_manually_noted_conversations = {
     },
     "gigihologram_x134_y2247": {
         firstVisitStartEntryId: "512404458169856000",
+        labeledAltEntrypoints: {
+            "After Activating Harmonizers": "528406570288705536",
+            "After Stabilizing Core": "nospoilers"
+        },
         entries: {
             // Here it is, Beatrix… the Prismacore.\r
             "512404458169856000": { next: "512404595482980352", changeExpression: "happy1" },
@@ -709,6 +721,52 @@ export const gigi_manually_noted_conversations = {
             "528422765066874880": { nextOptions: ["528422907241197568"], changeExpression: "pointing1" },
             // [On my way!]
             "528422907241197568": { next: null },
+
+            // This is it, Beatrix. With the Harmonizers activated, and with your help, I can attempt to stabilize the Prismacore. Are you ready?
+            "528406570288705536": { next: "528371201086222336", changeExpression: "surprised1" },
+            // It works like this: the Prismacore is constantly emitting a chaotic array of energy waves that seemingly take the form of color in our world. But it’s totally out of sync with our world, in a way that runs deep, like in an elemental way. That’s how it warps reality around it.
+            "528371201086222336": { next: "528371201086222336", changeExpression: "pointing1" },
+            // But this is where you come in. The Harmonizers you activated emit a special energy pulse that reverberates through the whole of the Labyrinth. Combined, they form a kind of harmonious energy wave, and when directed at the Prismacore, it attempts to change it, to make it harmonious too.
+            "528371201086222336": { nextOptions: ["528372202270781440"], changeExpression: "happy1" },
+            // [But you said it was attempted before and never worked?]
+            "528372202270781440": { next: "528372807345270784" },
+            // Yes, that’s true. But I think I have something that the architects of this system did not: my arm. \r
+            "528372807345270784": { next: "528372915524759552", changeExpression: "sad1" },
+            // I can feel the energy waves of the Prismacore in my arm. I can feel its chaos… and so I think I will be able to change its wavelength and create that harmony. Because I’ll be able to feel it myself.
+            "528372915524759552": { nextOptions: ["528373981557452800"], changeExpression: "sad3" },
+            // [Ok, what do you need me to do?]
+            "528373981557452800": { next: "528374290384056320" },
+            // Once you’re ready, I’ll begin overlaying the Harmonizer’s wavelengths onto the Prismacore. This will cause incredible disruptions and send the Prismacore into a state of chaos until we can actually stabilize it.\r\n
+            "528374290384056320": { next: "528374334084509696", changeExpression: "pointing1" },
+            // This chaos will have a volatile effect on the world around us, transmuting even slimes into masses of horrible Tarr that will fill this room and ultimately destroy everything unless we do something about it.
+            "528374334084509696": { next: "528374369555738624", changeExpression: "surprised1" },
+            // I’ll need you to fight back and destroy all the Tarr before they destabilize the Prismacore and take us down with it. Normally, water can’t exist here for long. It turns to glass this close to the Prismacore.
+            "528374369555738624": { next: "528374611244118016", changeExpression: "pointing1" },
+            // But the Harmonizers resonate through the water that flows here now. So grab it when you can and wipe out those Tarr!
+            "528374611244118016": { nextOptions: ["528375375807016960"], changeExpression: "happy1" },
+            // [What if things get really out of hand?]
+            "528375375807016960": { next: "528377335033524224" },
+            // I’ve got you covered! I’ve rigged a hydro shower above the Prismacore. It only needs to build up enough pressure to be used. So to do that, pack it full of slimes! Not only might it save the day, but you’ll save some slimes with it.\r\n
+            "528377335033524224": { next: "528378858748669952", changeExpression: "cheery1" },
+            // Also, I’ll store the contents of your vac tank during the process so you’ll have plenty of room for slimes.\r
+            "528378858748669952": { next: "528378932769746944", changeExpression: "happy1" },
+            // I know this all sounds like a lot, and a total long shot. But it’s our only chance.\r
+            "528378932769746944": { next: "528378958938009600", changeExpression: "pensive1" },
+            // So, are you ready?\r
+            "528378958938009600": { nextOptions: ["459162940231806976", "528382405372440576", "459163070364282880"], changeExpression: "happy1" },
+            // [1/3] [Let’s do this]
+            "459162940231806976": { next: "459163883820183552" },
+                // Once more, I’m counting on you, Beatrix.\r
+                "459163883820183552": { next: null, changeExpression: "happy1" },
+            // [2/3] [Can you explain how all this is going to work again?]
+            "528382405372440576": { next: "528374290384056320" },   // TODO: double check this is the correct next entry
+            // [3/3] [I need to prepare a bit more.]
+            "459163070364282880": { next: "459163407372414976" },
+                // Come back when you’re ready. I’ll be waiting.
+                "459163407372414976": { next: null },   // TODO: specify expression
+
+            // TODO: there's also a "When you’re ready, we can try this again. I believe in you.\r".
+            // Where does it belong?
         }
     },
     "gigihologram_x1076_y907": {

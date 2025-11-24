@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { icon_opacity, icon_template, gigi_hologram_ls_key } from "../globals";
 import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
@@ -80,31 +80,35 @@ export function GigiHologramIcon({
     const markerRefKey = `gigihologram_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
     return (
-            <MarkerAndPopupTemplate
-                markerRefKey={markerRefKey}
-                position={[gigi_hologram.position.x, gigi_hologram.position.y]}
-                icon={icon}
-                popupCheckedState={checked}
-                onPopupCheckChange={() => handleChecked(gigi_hologram_ls_key, keyName, checked, setChecked)}
-                headerRowChildren={
-                    <h1 className="ml-2 text-xl font-medium">{gigi_hologram.name}</h1>
-                }
-            >
-                <div>
-                    <span className="text-md font-bold">Description: </span>
-                    <span>{gigi_hologram.description}</span>
-                </div>
+        <MarkerAndPopupTemplate
+            markerRefKey={markerRefKey}
+            position={[gigi_hologram.position.x, gigi_hologram.position.y]}
+            icon={icon}
+            popupCheckedState={checked}
+            onPopupCheckChange={() => handleChecked(gigi_hologram_ls_key, keyName, checked, setChecked)}
+            headerRowChildren={
+                <h1 className="ml-2 text-xl font-medium">{gigi_hologram.name}</h1>
+            }
+        >
+            <div>
+                <span className="text-md font-bold">Description: </span>
+                <span>{gigi_hologram.description}</span>
+            </div>
 
-                <button
-                    className="border w-[9rem] mt-2 p-1 self-end"
-                    onClick={() => {
-                        setShowConvo(true);
-                        setCurrentConvo(<GigiConvo key={`convodialog_${keyName}`} gigi_hologram={gigi_hologram} setShowConvo={setShowConvo} />);
-                    }}
-                >
-                    Access Conversation
-                </button>
-            </MarkerAndPopupTemplate>
+            <button
+                className="border w-[9rem] mt-2 p-1 self-end"
+                onClick={() => {
+                    setShowConvo(true);
+                    setCurrentConvo(<GigiConvo
+                        key={`convodialog_${keyName}`}
+                        gigi_hologram={gigi_hologram}
+                        setShowConvo={setShowConvo}
+                    />);
+                }}
+            >
+                Access Conversation
+            </button>
+        </MarkerAndPopupTemplate>
     );
 }
 
@@ -151,22 +155,32 @@ export function GigiConvo({
         else return null as unknown as _ConvoLogEntry;
     };
 
-    const [convoLog, setConvoLog] = useState(() => {
+    
+    const [startEntryId, setStartEntryId] = useState<string | undefined>(gigi_hologram.dialogue?.firstVisitStartEntryId);
+
+    const initConvoLog = useCallback(() => {
         let init = [];
         if(gigi_hologram.dialogue) {
-            init.push(nextEntryAsConvoLogEntry({ nextTextId: gigi_hologram.dialogue.firstVisitStartEntryId })); // TODO subsequent start entry ID too!
+            init.push(nextEntryAsConvoLogEntry({ nextTextId: startEntryId! }));
         }
         return init;
-    });
+    }, [gigi_hologram, startEntryId]);
 
-    const convoLogRef = useRef<HTMLDivElement>(null);
+    const [convoLog, setConvoLog] = useState(initConvoLog);
+
+    useEffect(() => {
+        console.debug('reset convo log to start with startEntryId:', startEntryId);
+        setConvoLog(initConvoLog());
+    }, [startEntryId, setConvoLog, initConvoLog]);
+
+    const convoLogElemRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
         // Anytime convo log changes, scoll the log to the bottom.
         // Note: chose useLayoutEffect because reading DOM layout-dependent property .scrollHeight.
         //   (According to useLayoutEffect docs: "Use this to read layout from the DOM ...")
-        if(convoLogRef.current) {
-            convoLogRef.current.scrollTop = convoLogRef.current.scrollHeight;
+        if(convoLogElemRef.current) {
+            convoLogElemRef.current.scrollTop = convoLogElemRef.current.scrollHeight;
         }
     }, [convoLog]);
 
@@ -185,7 +199,24 @@ export function GigiConvo({
                         className="log-close"
                     />
                 </div>
-                <div ref={convoLogRef} className="flex flex-col flex-grow gap-2 overflow-y-auto pt-2 *:ml-7">
+                {
+                    gigi_hologram.dialogue?.labeledAltEntrypoints
+                    && <div className="flex flex-wrap justify-center items-center mb-4 ml-7 gap-2">
+                        {Object.entries({
+                            "Initial Visit": gigi_hologram.dialogue.firstVisitStartEntryId,
+                            ...gigi_hologram.dialogue.labeledAltEntrypoints
+                        }).map(([label, entryId]) => {
+                            return <button
+                                key={label}
+                                className={`flex-grow-0 text-center p-2 px-4 rounded-full drop-shadow-md text-md font-normal ${startEntryId === entryId ? "bg-green-400" : "bg-gray-100"} hover:bg-green-200 focus:bg-green-200 text-slate-950`}
+                                onClick={() => setStartEntryId(entryId)}
+                            >
+                                {label}
+                            </button>;
+                        })}
+                    </div>
+                }
+                <div ref={convoLogElemRef} className="flex flex-col flex-grow gap-2 overflow-y-auto pt-2 *:ml-7">
                     { dialogueEntries && <div className="gigi-convo-top-spacer flex-grow overflow-x-hidden"></div> }
                     {
                         !dialogueEntries
