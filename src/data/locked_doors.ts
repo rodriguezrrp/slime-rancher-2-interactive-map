@@ -153,7 +153,7 @@ export const locked_doors: { [key: string]: LockedDoor } = {
     "lockeddoor_zoneconservatoryarboretum_puzzlelock0438051759": {
         internalId: "puzzlelock0438051759",
         name: "Locked Door (Tabby)",
-        pos: { x: -348.299988, y: 338.3699927 },
+        pos: { x: -345.299988, y: 333.8699927 },
         image: "../iconMapPlortDoor.png",
         unlocks: "Todo: specify puzzle door unlocks",
         description: "Todo: insert a description for this puzzle door puzzlelock0438051759",
@@ -165,7 +165,7 @@ export const locked_doors: { [key: string]: LockedDoor } = {
     "locked_rainbowfields_1": {
         internalId: "puz1310514358",
         name: "Tabby Plort Receptacle",
-        pos: { x: -351.52099599999997, y: 343.3739905 },
+        pos: { x: -348.52099599999997, y: 338.8739905 },
         image: "iconPlortTabby.png",
         unlocks: "A path to a Treasure Pod.",
         description: "Underground inside a cave behind the Phosphor Gordo.",

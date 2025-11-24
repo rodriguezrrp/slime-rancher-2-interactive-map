@@ -4,7 +4,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_conservatory_1": {
         internalId: "pod0863429762",
         internalName: "treasurePod Rank1 Flag Meat",
-        pos: { x: -502.256012, y: 511.2649939 },
+        pos: { x: -499.256012, y: 506.7649939 },
         contents: [ "Blueprint: Meat Flag" ],
         description: "On a small ledge up a cliff.",
         dimension: MapType.overworld
@@ -12,7 +12,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_conservatory_2": {
         internalId: "pod1535081404",
         internalName: "treasurePod Rank1 Flag Fruit",
-        pos: { x: -288.502, y: 836.473 },
+        pos: { x: -285.502, y: 831.973 },
         contents: [ "Blueprint: Fruit Flag" ],
         description: "On top of a large pile of rocks overlooking a small island.",
         dimension: MapType.overworld
@@ -20,7 +20,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_conservatory_3": {
         internalId: "pod1808307071",
         internalName: "treasurePod Rank1 Flag Veggie",
-        pos: { x: -50.443355999999994, y: 685.572666 },
+        pos: { x: -47.443355999999994, y: 681.072666 },
         contents: [ "Blueprint: Veggie Flag" ],
         description: "On a rock on top of a ledge on a cliff over the water.",
         dimension: MapType.overworld
@@ -492,7 +492,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_1": {
         internalId: "pod1181610117",
         internalName: "treasurePod Rank1 TankGuardComponent",
-        pos: { x: -345.459, y: 314.98299 },
+        pos: { x: -342.459, y: 310.48299 },
         contents: [ "Tank Liner" ],
         description: "Underground past the Tabby Plort Door.",
         dimension: MapType.overworld
@@ -500,7 +500,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_2": {
         internalId: "pod0341863532",
         internalName: "treasurePod Rank1 hydroturret",
-        pos: { x: -473.994995, y: 273.029156 },
+        pos: { x: -470.994995, y: 268.529156 },
         contents: [ "Blueprint: Hydro Turret" ],
         description: "At the bottom of the canyon next to the ledge that has a tunnel entrance.",
         dimension: MapType.overworld
@@ -508,7 +508,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_3": {
         internalId: "pod1801289208",
         internalName: "treasurePod Rank2 largepinkbonsai",
-        pos: { x: -286.84999300000004, y: 209.6199876 },
+        pos: { x: -283.84999300000004, y: 205.1199876 },
         contents: [ "Blueprint: Large Pink Bonsai" ],
         description: "Jetpack into the cave, go through to the end, treasure pod is on a ledge to the left.",
         dimension: MapType.overworld
@@ -516,7 +516,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_4": {
         internalId: "pod0104193918",
         internalName: "treasurePod Rank1 HeartModuleComponent",
-        pos: { x: -398.03700000000003, y: 267.966988 },
+        pos: { x: -395.03700000000003, y: 263.466988 },
         contents: [ "Heart Cell" ],
         description: "In a small alcove in a cliff.",
         dimension: MapType.overworld
@@ -524,7 +524,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_5": {
         internalId: "pod1516882419",
         internalName: "treasurePod Rank2 smallboulder",
-        pos: { x: -415.139988, y: 224.14 },
+        pos: { x: -412.139988, y: 219.64 },
         contents: [ "Blueprint: Small Boulder" ],
         description: "Wedged in-between two rocks near the top of a cliff.",
         dimension: MapType.overworld
@@ -532,7 +532,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_6": {
         internalId: "pod0118409926",
         internalName: "treasurePod Rank2 umbrella (beach)",
-        pos: { x: -106.37700000000001, y: 347.562012 },
+        pos: { x: -103.37700000000001, y: 343.062012 },
         contents: [ "Blueprint: Beach Umbrella" ],
         description: "On a ledge on an island near the teleporter area.",
         dimension: MapType.overworld
@@ -540,7 +540,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_7": {
         internalId: "pod1765949255",
         internalName: "treasurePod Rank3 slimestage",
-        pos: { x: -278.66098999999997, y: 212.77299399999998 },
+        pos: { x: -275.66098999999997, y: 208.27299399999998 },
         contents: [ "Blueprint: #1 Slime Stage" ],
         description: "On a ledge up a mountain.",
         dimension: MapType.overworld
@@ -548,7 +548,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_8": {
         internalId: "pod0093663621",
         internalName: "treasurePod Rank1 swing",
-        pos: { x: -157.68, y: 41.81000399999999 },
+        pos: { x: -154.68, y: 37.31000399999999 },
         contents: [ "Blueprint: Swing" ],
         description: "In a crevice in a cliff near a rock arch.",
         dimension: MapType.overworld
@@ -556,7 +556,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_9": {
         internalId: "pod1635512559",
         internalName: "treasurePod Rank1 pinkwarpdepot",
-        pos: { x: -151.961, y: 349.596012 },
+        pos: { x: -148.961, y: 345.096012 },
         contents: [ "Blueprint: Pink Warp Depot" ],
         description: "Found underground by accessing a crack in the wall near the ocean level.",
         dimension: MapType.overworld
@@ -564,7 +564,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_10": {
         internalId: "pod1196684808",
         internalName: "treasurePod Rank2 PowerCoreComponent",
-        pos: { x: -218.556992, y: 140.824005 },
+        pos: { x: -215.556992, y: 136.324005 },
         contents: [ "Power Chip" ],
         description: "Found underground by accessing a crack in the wall near the ocean level.",
         dimension: MapType.overworld
@@ -572,7 +572,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_11": {
         internalId: "pod0982210366",
         internalName: "treasurePod Rank2 simplebench",
-        pos: { x: -540.55798, y: 249.511993 },
+        pos: { x: -537.55798, y: 245.011993 },
         contents: [ "Blueprint: Conservatory Bench" ],
         description: "On a ledge next to a tunnel entrance.",
         dimension: MapType.overworld
@@ -580,7 +580,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_12": {
         internalId: "pod0168252584",
         internalName: "treasurePod Rank2 emeraldcypress",
-        pos: { x: -294.03700000000003, y: 88.482 },
+        pos: { x: -291.03700000000003, y: 83.982 },
         contents: [ "Blueprint: Emerald Cypress" ],
         description: "In a small cave underneath a rock arch near a teleporter.",
         dimension: MapType.overworld
@@ -588,7 +588,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_13": {
         internalId: "pod0760050663",
         internalName: "treasurePod Rank3 overjoyedstatue",
-        pos: { x: -335.932, y: 144.591 },
+        pos: { x: -332.932, y: 140.091 },
         contents: [ "Blueprint: Overjoyed Statue" ],
         description: "On a cliff surrounded by bushes and a tree.",
         dimension: MapType.overworld
@@ -596,7 +596,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_14": {
         internalId: "pod0075771003",
         internalName: "treasurePod Rank1 emeraldcypresscluster",
-        pos: { x: -409.140988, y: -8.786000000000001 },
+        pos: { x: -406.140988, y: -13.286000000000001 },
         contents: [ "Blueprint: Emerald Cypress Cluster" ],
         description: "On a ledge over the water past the path down from the teleporter.",
         dimension: MapType.overworld
@@ -604,7 +604,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_15": {
         internalId: "pod2081158867",
         internalName: "treasurePod Rank1 boombox",
-        pos: { x: -626.61, y: 274.55 },
+        pos: { x: -623.61, y: 270.05 },
         contents: [ "Blueprint: Boombox" ],
         description: "On top of a cliff next to a slime statue.",
         dimension: MapType.overworld
@@ -612,7 +612,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_16": {
         internalId: "pod1545015581",
         internalName: "treasurePod Rank1 Coastal Rock",
-        pos: { x: -323.39, y: 343.32899 },
+        pos: { x: -320.39, y: 338.82899 },
         contents: [ "Blueprint: Coastal Rock" ],
         description: "Inside a cave behind the Phosphor Gordo.",
         dimension: MapType.overworld
@@ -620,7 +620,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_pod1210187464": {
         internalId: "pod1210187464",
         internalName: "treasurePod Rank2 Strange Diamond",
-        pos: { x: -512.345, y: 278.961 },
+        pos: { x: -509.345, y: 274.461 },
         contents: [ "Todo: Specify contents of this pod" ],
         description: "Todo: insert a description for this pod",
         dimension: MapType.overworld
@@ -628,7 +628,7 @@ export const treasure_pods: { [key: string]: TreasurePod } = {
     "treasure_rainbowfields_pod1958610754": {
         internalId: "pod1958610754",
         internalName: "treasurePod Rank2 Strange Diamond",
-        pos: { x: -163.78799999999998, y: 332.940012 },
+        pos: { x: -160.78799999999998, y: 328.440012 },
         contents: [ "Todo: Specify contents of this pod" ],
         description: "Todo: insert a description for this pod",
         dimension: MapType.overworld

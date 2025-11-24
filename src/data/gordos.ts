@@ -93,7 +93,7 @@ export const gordos: { [key: string]: Gordo } = {
     "cottongordo_rainbowfields_1": {
         name: "Cotton Gordo",
         food: "x30 Veggie; or x15 Lettuce",
-        pos: { x: -185.500003, y: 216.860013 },
+        pos: { x: -182.500003, y: 212.360013 },
         image: "iconGordoCotton.png",
         drops: [ "x12 Cotton Slimes", "x1 Jar" ],
         unlocks: [ "The path to the Teleporter Activator" ],
@@ -104,7 +104,7 @@ export const gordos: { [key: string]: Gordo } = {
     "phosphorgordo_rainbowfields_1": {
         name: "Phosphor Gordo",
         food: "x30 Fruit; or x15 Cuberry",
-        pos: { x: -315.27, y: 360.31998999999996 },
+        pos: { x: -312.27, y: 355.81998999999996 },
         image: "iconGordoPhosphor.png",
         drops: [ "x12 Phosphor Slimes", "x1 Jar" ],
         unlocks: [ "The path to the Tabby Plort Door" ],
@@ -115,7 +115,7 @@ export const gordos: { [key: string]: Gordo } = {
     "pinkgordo_rainbowfields_1": {
         name: "Pink Gordo",
         food: "x30 Fruit, Veggie, or Meat",
-        pos: { x: -397.070019, y: 160.8800124 },
+        pos: { x: -394.070019, y: 156.3800124 },
         image: "iconGordoPink.png",
         drops: [ "x12 Pink Slimes", "x1 Jar" ],
         unlocks: [ "A geyser, allowing a launch up to the cliff containing the Teleporter Activator" ],

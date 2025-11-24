@@ -10,7 +10,6 @@ export interface Gordo {
     internalId: string;
     name: string;
     food: string;
-    favoriteFood: string;
     pos: Vec2;
     image: string;
     drops: string[];

@@ -6,7 +6,7 @@ export const teleport_lines: { [key: string]: TeleportLine } = {
         name: "Todo: insert a name for this teleporter line line_Conservatory_Arboretum_Gorge",
         dimension: MapType.overworld,
         positions: [
-            { x: -394.32, y: 33.490009999999984 },
+            { x: -391.32, y: 28.990009999999984 },
             { x: -463.6939042629503, y: -205.30958241841563 }
         ],
         midpoint: { x: -450, y: -88 }
@@ -34,7 +34,7 @@ export const teleport_lines: { [key: string]: TeleportLine } = {
         dimension: MapType.overworld,
         positions: [
             { x: -884.0700671476657, y: -581.5115297610962 },
-            { x: -529.8301539258165, y: 274.19751675386937 }
+            { x: -526.8301539258165, y: 269.69751675386937 }
         ],
         midpoint: { x: -805, y: -142 }
     },
@@ -62,7 +62,7 @@ export const teleport_lines: { [key: string]: TeleportLine } = {
         dimension: MapType.overworld,
         positions: [
             { x: 529.4325760462142, y: 336.66512683503964 },
-            { x: -147.28200645349517, y: 335.8684569836389 }
+            { x: -144.28200645349517, y: 331.3684569836389 }
         ],
         midpoint: { x: 170, y: 425 }
     },
@@ -71,7 +71,7 @@ export const teleport_lines: { [key: string]: TeleportLine } = {
         dimension: MapType.overworld,
         positions: [
             { x: 120.56663535451779, y: -6.602006493686105 },
-            { x: -162.20999999999998, y: 50.17000999999999 }
+            { x: -159.20999999999998, y: 45.67000999999999 }
         ],
         midpoint: { x: -48, y: 1 }
     }

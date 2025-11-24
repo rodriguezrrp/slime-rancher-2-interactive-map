@@ -24,6 +24,8 @@ import { _schema_MapType, _schema_Vec2, matchAgainstSchema, schemautils } from "
 /** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
 /** @typedef {{ useCache?: boolean, exportToCache?: "sync" | "async" | boolean }} CacheOpts */
 
+/** @typedef {{ __noModify?: string[][] }} ExportFilterMetaPropertiesType */
+
 /** @typedef {("assetsmapping" | "pods" | "researchdrones" | "shadowplortdepos" | "gigiholograms" | "nullifierdoors" | "stabilizinggates" | "projectorpuzzles" | "gordos" | "puzzledoors" | "mapnodes" | "teleporters")} ExtractionTypesType */
 /** @type {ExtractionTypesType[]} */
 const SpecialExtractionTypes = [
@@ -3018,7 +3020,6 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
         if(sourceTeleporterAssetInfo) {
             teleporterGUIDsToAssetJSONsMapReconstructed[sourceGUID] = {
                 dimension: /^(?:core|scene|environment)?lab/i.test(basename(sourceTeleporterAssetInfo.assetJSON.fileKey)) ? MapType.labyrinth : MapType.overworld,
-                // dimension: MapType.overworld,
                 ...teleporterGUIDsToAssetJSONsMapReconstructed[sourceGUID],
                 ...sourceTeleporterAssetInfo,
             };
@@ -3028,7 +3029,6 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
                 ...teleporterGUIDsToAssetJSONsMapReconstructed[destGUID],
                 ...destTeleporterAssetInfo,
                 dimension: destDimension,
-                // dimension: MapType.overworld,
             };
         }
 
@@ -3095,14 +3095,39 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
         const pos1 = transformIngameToMapPosition(teleporterAsset1Info.pos);
         const pos2 = transformIngameToMapPosition(teleporterAsset2Info.pos);
 
+        /** @type {ExportFilterMetaPropertiesType["__noModify"]} */
+        let __noModify = [];
+
+        const extractedPositions = [ pos1, pos2 ];
+
+        let positions;
+        if(existingData?.positions) {
+            positions = existingData.positions;
+            // __noModify.push(...positions.filter(({ x, y }, i) =>
+            //     // if the existing position at index i is not found in the extracted positions, mark it as __noModify
+            //     existingData.positions.length !== extractedPositions.length
+            //     || !extractedPositions.some((extractedPos) => extractedPos.x === x && extractedPos.y === y)
+            // ).map((_, i) =>
+            //     ["positions", i]
+            // ));
+        } else {
+            positions = extractedPositions;
+        }
+        let midpoint;
+        if(existingData?.positions && existingData.positions.length > 2) {
+            midpoint = undefined;
+            // __noModify.push(["midpoint"]);
+        } else {
+            midpoint = existingData?.midpoint ?? { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 };
+        }
+
         /** @type {ExistingTeleportLineDataType} */
         const _mergedDataObj = { ...existingData,
             name: existingData?.name ?? "Todo: insert a name for this teleporter line " + tsDataKey,
             dimension: existingData?.dimension ?? teleporterAsset1Info.dimension ?? teleporterAsset2Info.dimension ?? MapType.overworld,
-            positions: existingData?.positions ?? [ pos1, pos2 ],
-            midpoint: (existingData?.positions && existingData.positions.length > 2)
-                ? undefined
-                : existingData?.midpoint ?? { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 },
+            positions: positions,
+            midpoint: midpoint,
+            __noModify: __noModify.length > 0 ? __noModify : undefined,
         };
         // clear out all entries with undefined values
         Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);

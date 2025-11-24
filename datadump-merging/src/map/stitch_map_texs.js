@@ -12,9 +12,6 @@ export async function stitchMapTextures(
     partPositionsRI,
     /** @type {{ [shortName: string]: { sizeInUnits: Vec2, offsetMin: Vec2, offsetMax: Vec2 } }} */
     partPositionsLabyrinth,
-    // unitToTexPixelScale,
-    // gameMapWidthUnits,
-    // gameMapHeightUnits
 ) {
 
     const unitToPxScale = 4;
@@ -83,9 +80,6 @@ export async function stitchMapTextures(
     const mapLabyrinthOffsetMin = { x: -Math.floor(widthLabyrinth/2), y: -Math.floor(heightLabyrinth/2) };
     const mapLabyrinthOffsetMax = { x: Math.ceil(widthLabyrinth/2), y: Math.ceil(heightLabyrinth/2) };
 
-    // const widthRI = overallRIOffsetMax.x - overallRIOffsetMin.x;
-    // const heightRI = overallRIOffsetMax.y - overallRIOffsetMin.y;
-
     
     const _forloopIterationArgs = [
         [unitToPxScaleRI, widthRI, heightRI, mapRIOffsetMin, mapRIOffsetMax, partPositionsRI, "./data_out/stitchedMapRainbowIsland.png"],
@@ -135,7 +129,6 @@ export async function stitchMapTextures(
             return i1 - i2;
         }
 
-        // const pipeline = 
         sharp({ create: {
             width: Math.floor( unitToPxScale * mapWidthUnits ),
             height: Math.floor( unitToPxScale * mapHeightUnits ),
@@ -148,7 +141,6 @@ export async function stitchMapTextures(
             .map(([shortName, offsets]) => {
                 console.log(shortName, offsets);
                 const upsideDownTop = offsets.offsetMin.y;
-                // const rightSideUpBottom = ;
                 const selfHeight = offsets.offsetMax.y - offsets.offsetMin.y;
                 const distFromUpsideDownOverallTopToCorrectOverallTop = mapOffsetMax.y - (-mapOffsetMin.y);
                 const rightSideUpTop = - (upsideDownTop - distFromUpsideDownOverallTopToCorrectOverallTop) - selfHeight;
@@ -157,21 +149,11 @@ export async function stitchMapTextures(
                     input: shortNamesToFilepaths[shortName],
                     top: Math.floor( unitToPxScale * (rightSideUpTop - mapOffsetMin.y) ),
                     left: Math.floor( unitToPxScale * (offsets.offsetMin.x - mapOffsetMin.x) ),
-                    // top: mapScaleFactorRI * gameMapHeightUnits,
-                    // left: mapScaleFactorRI * gameMapWidthUnits,
                 };
             })
-        ) //;
-        // pipeline.clone()
+        )
         .png({ compressionLevel: 9 })
         .toFile(outPath);
-        
-        // sharp("./data_out/stitchedMapRainbowIsland.png", { failOn: "error", limitInputPixels: false })
-        // // pipeline
-        // .resize({ fit: sharp.fit.inside, width: Math.round(mapScaleFactorRI * widthRI / 2), height: Math.round(mapScaleFactorRI * heightRI / 2) })
-        // .png({ compressionLevel: 9 })
-        // // .toBuffer()
-        // .toFile("./data_out/resizedByHalfForDiscord.png");
 
     }
 

@@ -5,8 +5,6 @@ import { TeleportLine } from "../types";
 import { default as bezierSpline } from "@turf/bezier-spline";
 import { teleport_lines } from "../data/teleport_lines";
 import { MapType } from "../CurrentMapContext";
-import { latToY, lonToX, mapSizePxForMercatorZoom, scaleLinear } from "../util";
-import { mapCRSsettings } from "../data/map_crs_settings";
 
 export function TeleportLineIcon({ teleport_line, dimension }: { teleport_line: TeleportLine, dimension: MapType }) {
     const path_options: L.PathOptions = {
@@ -34,53 +32,10 @@ export function TeleportLineIcon({ teleport_line, dimension }: { teleport_line: 
                     lat: pos[0],
                     lng: pos[1]
                 };
-                // const [lat, lng] = pos;
-                // const { y, x } = transformTurfPointToMapCRS(lat, lng, dimension);
-                // return {
-                //     lat: y,
-                //     lng: x
-                // };
             })}
         ></Polyline>
     );
 }
-
-// const _mapProjectionSettings = {
-//     [MapType.overworld]: {
-//     },
-// }
-const _zoom = 1;
-const [ _zoomMapPxW, _zoomMapPxH ] = mapSizePxForMercatorZoom(_zoom);
-function transformTurfPointToMapCRS(lat: number, lng: number, dimension: MapType): { y: number, x: number } {
-    
-    const crsSettings = mapCRSsettings[dimension];
-    if(crsSettings.CRS === null) {
-        // using default crs, don't transform
-        return { y: lat, x: lng };
-    }
-
-    // pxY and pxX will be within [0, _zoomPxH] and [0, _zoomPxW], respectively. (assuming abs(y) <= 85.051129 and abs(x) <= 180)
-    const pxY = latToY(lat, _zoom);
-    const pxX = lonToX(lng, _zoom);
-
-    // now, affine-transform to match scale of map
-    const { x: [ mapXmin, mapXmax ], y: [ mapYmin, mapYmax ] } = crsSettings.mapCoordsBounds;
-    return {
-        y: scaleLinear(pxY, 0, _zoomMapPxH, mapYmin, mapYmax),
-        x: scaleLinear(pxX, 0, _zoomMapPxW, mapXmin, mapXmax)
-    };
-}
-// function transformMapCRSToTurfPoint(y: number, x: number, dimension: MapType): { lat: number, lng: number } {
-//     return {
-//         lat: ,
-//         lng: 
-//     };
-// }
-
-
-// export const TeleportLineIcons = Object.values(teleport_lines).map((teleport_line: TeleportLine) => {
-//     return <TeleportLineIcon key={teleport_line.name} teleport_line={teleport_line} dimension={teleport_line.dimension} />;
-// });
 
 export function TeleportLineIcons(current_map: MapType) {
     return Object.keys(teleport_lines).filter((keyName) => {

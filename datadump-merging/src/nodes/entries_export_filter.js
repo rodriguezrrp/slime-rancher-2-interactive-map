@@ -35,13 +35,15 @@ const keyDisallowedSubstringRegex = new RegExp(`(${keyCannotIncludeAsSubstring.j
 
 /**
  * In the case that some specific entries get extracted that should not be exported, catch them (or modify them) with this function.
- * @template {Record<string, any>} T
+ * @template {(Record<string, any> & import("./process_node_locs.js").ExportFilterMetaPropertiesType)} T
  * @param {string} targetFileName 
  * @param {string} key 
- * @param {T} obj 
+ * @param {T} originalObj 
  * @returns {boolean | T}
 */
-export function entryExportFilter(targetFileName, key, obj) {
+export function entryExportFilter(targetFileName, key, originalObj) {
+    let obj = deepCopy(originalObj);
+    Object.freeze(originalObj);
 
     // if(keyCannotIncludeAsSubstring.some(substr => key.includes(substr))) {
     if(keyDisallowedSubstringRegex.test(key)) {
@@ -76,13 +78,10 @@ export function entryExportFilter(targetFileName, key, obj) {
         : MapType.overworld;
 
     // shift position(s) if applicable
-    if(posKeys !== null) {
-        // console.log(targetFileName, key);
-        // console.log(obj);
+    if(posKeys !== null && key !== "teleporter_Conservatory_Garden_x-284_y52" /* except for this one in fields, seems to be correctly placed */) {
         obj = { ...obj };
         let posAltered = false;
         const alterPos = (oldPos) => {
-            // const newPos = shiftMapPosIfInsideRealCoreArea(oldPos);
             const newPos = applyHighestPriorityRegionPosShift(oldPos, dimension);
             if(newPos && (newPos !== oldPos || newPos.x !== oldPos.x || newPos.y !== oldPos.y)) {
                 posAltered = true;
@@ -98,8 +97,6 @@ export function entryExportFilter(targetFileName, key, obj) {
                 obj[posKey] = alterPos(obj[posKey]);
             }
         }
-        // console.log(obj);
-        // throw new Error();
 
         // because teleport lines, update midpoint in case positions changed
         if(posAltered && /(teleport(er)?_?line)/i.test(targetFileName) && obj.midpoint) {
@@ -115,6 +112,98 @@ export function entryExportFilter(targetFileName, key, obj) {
     }
 
     // export the entry
-    return obj;
+    let finalObj = obj;
+    // remove the __noModify property if it exists
+    if(finalObj.__noModify) {
+        delete finalObj.__noModify;
+    }
+    // respect the __noModify property for specific sub-properties
+    // by resetting them to their original values from originalObj
+    if(originalObj.__noModify && Array.isArray(originalObj.__noModify)) {
+        for(const propPath of originalObj.__noModify) {
+            let currObj = finalObj;
+            let originalCurrObj = originalObj;
+            for(let i = 0; i < propPath.length; i++) {
+                const prop = propPath[i];
+                // console.debug(key, propPath, prop, i);
+                if(i === propPath.length - 1) {
+                    // last property in the path - set it to the original value
+                    let _valueBefore = currObj[prop];
+                    currObj[prop] = originalCurrObj[prop];
+                    console.log(`  Preserved property ${propPath.join(".")} for entry ${key}`);
+                    console.log(`    value before resetting:`, _valueBefore);
+                    console.log(`    value after resetting:`, currObj[prop]);
+                    // console.debug(prop);
+                    // console.debug(currObj);
+                    // console.debug(originalCurrObj);
+                }
+                else {
+                    // console.debug(`traversing deeper: ${prop}`);
+                    // traverse deeper
+                    currObj = currObj[prop];
+                    originalCurrObj = originalCurrObj[prop];
+                    if(typeof currObj !== "object" || currObj === null) {
+                        // cannot traverse deeper
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return finalObj;
+}
 
+function deepCopy(value, _seen = new WeakMap()) {
+    if (value === null || typeof value !== "object") return value;
+
+    // Handle circular references
+    if (_seen.has(value)) return _seen.get(value);
+
+    // Built-in types
+    if (value instanceof Date) return new Date(value.getTime());
+    if (value instanceof RegExp) return new RegExp(value.source, value.flags);
+    if (value instanceof Map) {
+        const m = new Map();
+        _seen.set(value, m);
+        for (const [k, v] of value) m.set(deepCopy(k, _seen), deepCopy(v, _seen));
+        return m;
+    }
+    if (value instanceof Set) {
+        const s = new Set();
+        _seen.set(value, s);
+        for (const v of value) s.add(deepCopy(v, _seen));
+        return s;
+    }
+    if (ArrayBuffer.isView(value)) {
+        // TypedArray or DataView
+        const ctor = value.constructor;
+        const copy = new ctor(value.buffer ? value.buffer.slice(0) : value);
+        _seen.set(value, copy);
+        return copy;
+    }
+    if (value instanceof ArrayBuffer) return value.slice(0);
+
+    // Arrays
+    if (Array.isArray(value)) {
+        const arr = [];
+        _seen.set(value, arr);
+        for (let i = 0; i < value.length; i++) arr[i] = deepCopy(value[i], _seen);
+        return arr;
+    }
+
+    // Generic objects (preserve prototype and property descriptors)
+    const proto = Object.getPrototypeOf(value);
+    const out = Object.create(proto);
+    _seen.set(value, out);
+    for (const key of Reflect.ownKeys(value)) {
+        const desc = Object.getOwnPropertyDescriptor(value, key);
+        if (!desc) continue;
+        if (desc.get || desc.set) {
+            Object.defineProperty(out, key, desc);
+        } else {
+            desc.value = deepCopy(desc.value, _seen);
+            Object.defineProperty(out, key, desc);
+        }
+    }
+    return out;
 }

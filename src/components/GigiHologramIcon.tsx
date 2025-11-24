@@ -281,12 +281,15 @@ function GigiConvoOptionButton<type_nextEntryAsConvoLogEntry extends (o: any) =>
             if(typeof thisOptionEntry.nextTextById === "undefined")
                 return;
             setConvoLog([
-                ...convoLog.slice(0, entryIndex),  // discard convo logs past this option, and this option itself
+                // discard convo logs past this option, and this option itself
+                ...convoLog.slice(0, entryIndex),
                 {
+                    // add this entry back
                     ...convoEntry,
-                    // set which one we selected
+                    // and set which option we selected
                     optionSelectedIndex: optionIndex
                 },
+                // and add the next entry
                 nextEntryAsConvoLogEntry({ nextTextId: thisOptionEntry.nextTextById })
             ]);
         }}

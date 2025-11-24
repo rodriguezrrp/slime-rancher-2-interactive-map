@@ -65,11 +65,6 @@ export function TeleportPadIcon({
     );
 }
 
-// export const TeleportPadIcons = Object.keys(teleport_pads).map(key => {
-//     const pad = teleport_pads[key];
-//     return <TeleportPadIcon key={key} keyName={key} teleport_pad={pad} />;
-// });
-
 export function TeleportPadIcons(current_map: MapType) {
     return Object.keys(teleport_pads).filter((keyName) => {
         return teleport_pads[keyName].dimension === current_map;

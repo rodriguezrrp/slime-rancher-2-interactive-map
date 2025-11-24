@@ -25,10 +25,7 @@ import { MapMarkersContextProvider } from "./components/popupUtils";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
-    // [MapType.overworld]: [30, 30],
-    // [MapType.overworld]: [0, 0],
     [MapType.overworld]: [-320, 525],
-    // [MapType.labyrinth]: [-16, -60],
     [MapType.labyrinth]: [1154, 1350],
     [MapType.sr1]: [70, -80]
 };
@@ -153,7 +150,6 @@ function MapUpdater({
         // https://github.com/Leaflet/Leaflet/issues/2553#issuecomment-762271734
         const bounds = map.getBounds();
         map.options.crs = crs;
-        // map.options.crs = crs ?? L.CRS.EPSG3857;
         // Ensure zoom is not affected by differing CRS scales
         const zoomSnap = map.options.zoomSnap;
         map.options.zoomSnap = 0;
@@ -198,7 +194,6 @@ function useWatchForHoverCapability() {
 
     // lastTouchTime is used for ignoring emulated mousemove events
     let lastTouchTime = 0
-    // let lastTouchTime = new Date(0);
 
     function enableHover() {
         if ((new Date()).getTime() - lastTouchTime < 500) return;
@@ -283,101 +278,6 @@ function useImagePreloader(imageList: string[]) {
 
     return { imagesPreloaded }
 }
-
-// function MapEventsHandler({
-//     markerRefs,
-//     mapMarkerSwitchingPropsRef
-// }: {
-//     markerRefs: React.MutableRefObject<{ [markerRefKey: string]: L.Marker | null }>,
-//     mapMarkerSwitchingPropsRef: React.MutableRefObject<MapMarkerSwitchingProps>
-// }) {
-    
-//     const setMarkerRef = (markerRefKey: string, markerRef: L.Marker | null) => {
-//         markerRefs.current = {
-//             ...markerRefs.current,
-//             [markerRefKey]: markerRef
-//         };
-//     }
-
-//     const onZoomChange = (map: L.Map) => {
-//         console.debug('in MapEventsHandler onZoomChange - map zoom ', map.getZoom());
-
-//         const maxNgbrScreenDistancePx = Math.min(...(
-//             Array.isArray(icon_template.iconSize) ? icon_template.iconSize
-//             : icon_template.iconSize instanceof L.Point ? [icon_template.iconSize.x, icon_template.iconSize.y]
-//             : [32]
-//         )) / 2;
-
-//         console.debug('maxNgbrScreenDistancePx: ', maxNgbrScreenDistancePx)
-
-//         const getNearbyMarkers = (markerRefKey: string, marker: L.Marker) => {
-//             const targetScreenPos = map.latLngToContainerPoint(marker.getLatLng());
-//             if(!markerRefs.current)
-//                 return [];
-//             const neighbors = Object.entries(markerRefs.current)
-//                 .filter((entry): entry is [string, L.Marker] => {
-//                     const [otherRefKey, otherMarker] = entry;
-//                     if(otherRefKey === otherRefKey) return false;
-//                     if(otherMarker === null) return false;
-//                     const otherLatLng = otherMarker.getLatLng();
-//                     const otherScreenPos = map.latLngToContainerPoint(otherLatLng);
-//                     return otherScreenPos.distanceTo(targetScreenPos) <= maxNgbrScreenDistancePx;
-//                 })
-//                 .sort((e1, e2) => {
-//                     const m1 = e1[1];
-//                     const m2 = e2[1];
-//                     // sort by their longitude value, from left to right, then by latitude
-//                     const lngDiff = m1!.getLatLng().lng - m2!.getLatLng().lng;
-//                     return lngDiff !== 0 ? lngDiff : m1!.getLatLng().lat - m2!.getLatLng().lat;
-//                 });
-//             return neighbors;
-//         }
-
-//         const getNearestMarkerInDirection = (markerRefKey: string, marker: L.Marker, previous: boolean): [string, L.Marker] | null => {
-//             const neighbors = getNearbyMarkers(markerRefKey, marker);
-//             const selfInd = neighbors.findIndex(entry => entry[0] === markerRefKey);
-//             if(selfInd < 0) return null;
-//             if(previous) {
-//                 if(selfInd <= 0) return null;
-//                 return neighbors[selfInd - 1];
-//             }
-//             else {
-//                 if(selfInd >= neighbors.length - 1) return null;
-//                 return neighbors[selfInd + 1];
-//             }
-//         };
-
-//         const changeToNearbyPopup = (markerRefKey: string, marker: L.Marker, previous: boolean): L.Marker | null => {
-//             const neighborResult = getNearestMarkerInDirection(markerRefKey, marker, previous);
-//             if(neighborResult === null) return null;
-//             neighborResult[1].openPopup();
-//             return neighborResult[1];
-//         }
-
-//         const hasNearbyMarker = (markerRefKey: string, marker: L.Marker, previous: boolean): boolean => {
-//             const neighborResult = getNearestMarkerInDirection(markerRefKey, marker, previous);
-//             return neighborResult === null ? false : !!neighborResult[1];
-//         }
-
-//         mapMarkerSwitchingPropsRef.current = {
-//             setMarkerRef,
-//             changeToNearbyPopup,
-//             hasNearbyMarker
-//         };
-//     }
-
-//     const prevZoomRef = useRef<number | null>(null);
-
-//     const map = useMapEvent('zoomend', () => {
-//         if(map.getZoom() !== prevZoomRef.current) {
-//             prevZoomRef.current = map.getZoom();
-//             onZoomChange(map);
-//         }
-//     });
-
-//     // initial call to initialize refs
-//     // onZoomChange(map);
-// }
 
 function App() {
     const [show_log, setShowLog] = useState(false);
@@ -571,14 +471,6 @@ function App() {
                             <LayerGroup>{user_pin_list}</LayerGroup>
                         </LayersControl.Overlay>
                     </LayersControl>
-                    {/* {tileLayer} */}
-                    {/* <TileLayer
-                        url={`${current_map}/{z}/{x}/{y}.png`}
-                        noWrap={true}
-                        maxZoom={map_maxNativeZoom[current_map] + 1}
-                        maxNativeZoom={map_maxNativeZoom[current_map]}
-                        minZoom={3}
-                    /> */}
                 </MapMarkersContextProvider>
             </MapContainer>
         </div >
