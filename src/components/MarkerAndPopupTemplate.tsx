@@ -1,6 +1,8 @@
-import { Marker, Popup } from "react-leaflet";
+import { Popup } from "react-leaflet";
 import { PopupSwitchButtonsWrapper, useMapMarkersContextSetMarkerRef } from "./popupUtils";
 import { useRef } from "react";
+import { Marker as ComponentMarker } from "@adamscybot/react-leaflet-component-marker";
+import L from "leaflet";
 
 export default function MarkerAndPopupTemplate({
     children,
@@ -52,10 +54,26 @@ export default function MarkerAndPopupTemplate({
         'remove': hoverOff
     }
 
+    let componentCapableIcon: Parameters<typeof ComponentMarker>[0]["icon"] = icon;
+
+    const iconSize: number[] = (
+        icon && Array.isArray(icon.options.iconSize) ? icon.options.iconSize
+        : icon && icon.options.iconSize instanceof L.Point ? [icon.options.iconSize.x, icon.options.iconSize.y]
+        : [32, 32]
+    );
+    console.debug(iconSize);
+    const iconWidth = iconSize[0] ?? 32;
+    const iconHeight = iconSize[1] ?? 32;
+
+    if(icon instanceof L.Icon && icon.options.iconUrl && /\/icons\/.+\.[a-z]+$/i.test(icon.options.iconUrl)) {
+        componentCapableIcon = <MarkerIconWithPictureSourceFallbacks src={icon.options.iconUrl} width={`${iconWidth}px`} height={`${iconHeight}px`} />;
+    }
+
     return (
-        <Marker
+        <ComponentMarker
             ref={(instance) => { localMarkerRef.current = instance; setMarkerRef(markerRefKey, instance); }}
-            key={markerRefKey} position={position} icon={icon}
+            key={markerRefKey} position={position}
+            icon={componentCapableIcon}
             riseOnHover={true}
         >
             <Popup eventHandlers={popupEventHandlers}>
@@ -85,6 +103,17 @@ export default function MarkerAndPopupTemplate({
                     {children}
                 </div>
             </Popup>
-        </Marker>
+        </ComponentMarker>
+    );
+}
+
+export function MarkerIconWithPictureSourceFallbacks({ src, width, height, style, ...props }: { src: string, width?: string, height?: string } & React.ImgHTMLAttributes<HTMLImageElement>) {
+    const strippedExt = src.split('.').slice(0, -1).join('.').replace("/icons/", "/compressed/icons/");
+    return (
+        <picture>
+            <source srcSet={`${strippedExt}_96.webp`} type="image/webp" />
+            <source srcSet={`${strippedExt}_96.png`} type="image/png" />
+            <img src={src} style={{ ...style, width: width, height: height }} {...props} />
+        </picture>
     );
 }
