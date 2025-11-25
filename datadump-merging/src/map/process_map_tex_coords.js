@@ -34,7 +34,6 @@ export async function extractCoordsOfMapTextures() {
             }
             const spriteAssetJSON = Object.values(spriteAssetsMapping)[0];
 
-            // return [ guid, { filenameNoExt, spriteAssetJSON } ];
             mapSpriteShortNameToGUIDs[filenameNoExt] = guid;
             mapSpriteGUIDtoAssetJSONs[guid] = spriteAssetJSON;
         }
@@ -129,8 +128,6 @@ export async function extractCoordsOfMapTextures() {
         };
 
         const spriteAssetJSON = mapSpriteGUIDtoAssetJSONs[guid];
-        // console.log(spriteAssetJSON);
-        // console.log(shortName, guid, position);
         console.log(shortName, guid, offsetMin, offsetMax);
 
         targetPartPositionsObj[shortName] = { sizeInUnits: size, offsetMin, offsetMax };

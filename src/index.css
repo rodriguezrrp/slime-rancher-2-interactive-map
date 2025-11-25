@@ -37,16 +37,13 @@
   @apply drop-shadow-lg border-8 border-[#691640] bg-slate-300
     flex flex-col justify-between
     min-w-1/3 min-h-1/2 h-min pointer-events-auto;
-    /* py-7 px-0;
-  & > * {
-    @apply mx-7;
-  } */
 
-  /* background-image: url('/scanlines.png'); */
-  width: 80%;
-  /* min-height: 60%;
-  max-height: 95%; */
-  height: 80%;
+  width: 95%;
+  height: 90%;
+  @screen sm {
+    width: 80%;
+    height: 80%;
+  }
 
   --gigi-portrait-max-h: 20vh;
   --gigi-portrait-max-w: 15%;
@@ -56,13 +53,16 @@
   @apply p-4 px-5 m-1 rounded-xl bg-white text-slate-950 font-medium text-xl drop-shadow-md relative z-20;
 }
 
-body.hasHover .gigi-convo {
-  /* show gigi portrait of hovered text entry, or the last text entry if none are hovered */
-  /* note: uses selector list argument "of" in :nth-last-child, which is relatively newly-available Baseline 2023 (see https://caniuse.com/css-nth-child-of) */
-  & .gigi-text-entry:hover .gigi-portrait,
-  &:not(:has(.gigi-text-entry:hover)) .gigi-text-entry:nth-last-child(1 of .gigi-text-entry) .gigi-portrait
-  {
-    @apply opacity-90;
+@screen sm {
+  /* if sm breakpoint, screen is big enough to show gigi portrait */
+  body.hasHover .gigi-convo {
+    /* show gigi portrait of hovered text entry, or the last text entry if none are hovered */
+    /* note: uses selector list argument "of" in :nth-last-child, which is relatively newly-available Baseline 2023 (see https://caniuse.com/css-nth-child-of) */
+    & .gigi-text-entry:hover .gigi-portrait,
+    &:not(:has(.gigi-text-entry:hover)) .gigi-text-entry:nth-last-child(1 of .gigi-text-entry) .gigi-portrait
+    {
+      @apply opacity-90;
+    }
   }
 }
 
@@ -73,7 +73,6 @@ body.hasHover .gigi-convo {
 .gigi-portrait {
   @apply pointer-events-none;
   transition: all 0.5s;
-  /* display: none; */
   @apply opacity-0;
   @apply absolute bottom-full -left-4 max-w-[--gigi-portrait-max-w] max-h-[--gigi-portrait-max-h] aspect-auto;
 }
@@ -83,10 +82,8 @@ body.hasHover .gigi-convo {
 }
 
 .gigi-option-button {
-  @apply p-2 px-7 m-1 rounded-full border-[6px] border-white bg-white text-slate-950 font-medium text-xl w-2/3 drop-shadow-md;
-  /* transition: all 0.2s; */
+  @apply p-2 px-7 m-1 rounded-full border-[6px] border-white bg-white text-slate-950 font-medium text-xl w-auto drop-shadow-md;
   
-  /* &.selected:not(:has(+ .gigi-option-button:hover, + .gigi-option-button:focus)) */
   &:hover,
   &:focus,
   &.selected
@@ -162,12 +159,4 @@ hr {
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
-}
-
-.testing-class-on-leaflet-icons {
-  /* border: 10px solid red; */
-  &:hover {
-    /* border: 10px solid red; */
-    /* left: 20px; */
-  }
 }

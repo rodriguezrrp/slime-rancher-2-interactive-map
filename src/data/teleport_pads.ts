@@ -19,35 +19,35 @@ export const teleport_pads: { [key: string]: TeleportPad } = {
     "teleporter_ConservatoryFields_x-236_y525": {
         internalId: "x-236_y525",
         name: "ConservatoryFields Ancient Teleporter",
-        position: { x: -236.806195, y: 525.761556 },
+        position: { x: -233.806195, y: 521.261556 },
         description: "Todo: insert a description for this teleporter x-236_y525",
         dimension: MapType.overworld
     },
     "teleporter_Conservatory_Arboretum_x-162_y50": {
         internalId: "x-162_y50",
         name: "Conservatory_Arboretum Ancient Teleporter",
-        position: { x: -162.20999999999998, y: 50.17000999999999 },
+        position: { x: -159.20999999999998, y: 45.67000999999999 },
         description: "Todo: insert a description for this teleporter x-162_y50",
         dimension: MapType.overworld
     },
     "teleporter_Conservatory_Arboretum_x-394_y33": {
         internalId: "x-394_y33",
         name: "Conservatory_Arboretum Ancient Teleporter",
-        position: { x: -394.32, y: 33.490009999999984 },
+        position: { x: -391.32, y: 28.990009999999984 },
         description: "Todo: insert a description for this teleporter x-394_y33",
         dimension: MapType.overworld
     },
     "teleporter_Conservatory_Digsite_x-147_y335": {
         internalId: "x-147_y335",
         name: "Conservatory_Digsite Ancient Teleporter",
-        position: { x: -147.28200645349517, y: 335.8684569836389 },
+        position: { x: -144.28200645349517, y: 331.3684569836389 },
         description: "Todo: insert a description for this teleporter x-147_y335",
         dimension: MapType.overworld
     },
     "teleporter_Conservatory_Digsite_x-529_y274": {
         internalId: "x-529_y274",
         name: "Conservatory_Digsite Ancient Teleporter",
-        position: { x: -529.8301539258165, y: 274.19751675386937 },
+        position: { x: -526.8301539258165, y: 269.69751675386937 },
         description: "Todo: insert a description for this teleporter x-529_y274",
         dimension: MapType.overworld
     },
@@ -119,13 +119,6 @@ export const teleport_pads: { [key: string]: TeleportPad } = {
         name: "LabyrinthHub_B Ancient Teleporter",
         position: { x: 949.4231078431476, y: 1449.9618890375643 },
         description: "Todo: insert a description for this teleporter x950_y1449",
-        dimension: MapType.labyrinth
-    },
-    "teleporter_LabyrinthHub_B_x1103_y1506": {
-        internalId: "x1103_y1506",
-        name: "LabyrinthHub_B Ancient Teleporter",
-        position: { x: 1102.379905143021, y: 1506.2438956240258 },
-        description: "Todo: insert a description for this teleporter x1103_y1506",
         dimension: MapType.labyrinth
     },
     "teleporter_LabyrinthHub_C_x160_y2247": {

@@ -1,11 +1,15 @@
 import { CurrentMapContext, MapType } from "../CurrentMapContext";
-import { FoundContext } from "../FoundContext";
+import { Found, FoundContext } from "../FoundContext";
+import { gigi_holograms } from "../data/gigi_holograms";
 import { gordos } from "../data/gordos";
 import { locked_doors } from "../data/locked_doors";
 import { map_nodes } from "../data/map_nodes";
+import { nullifier_doors } from "../data/nullifier_doors";
+import { projector_puzzles } from "../data/projector_puzzles";
 import { research_drones } from "../data/research_drones";
 import { shadow_doors } from "../data/shadow_doors";
 import { stabilizing_gates } from "../data/stabilizing_gates";
+import { teleport_pads } from "../data/teleport_pads";
 import { treasure_pods } from "../data/treasure_pods";
 import { useContext } from "react";
 
@@ -29,70 +33,80 @@ export default function CollectablesTracker() {
             </div>
             <div className="flex flex-col pb-4">
                 <h2 className="text-md font-bold">Locations</h2>
-                <span>
-                    Gordo Slimes {
-                        found.gordos.filter(key =>
-                            gordos[key]?.dimension === current_map ||
-                            // This is required to maintain backwards compatibility
-                            (gordos[key]?.dimension === undefined && current_map === MapType.overworld)
-                        ).length
-                    } / {
-                        Object.values(gordos).filter(gordo => gordo.dimension === current_map).length
-                    }
-                </span>
-                <span>
-                    Locked Doors {
-                        found.locked_doors.filter(key =>
-                            locked_doors[key]?.dimension === current_map ||
-                            // This is required to maintain backwards compatibility
-                            (locked_doors[key]?.dimension === undefined && current_map === MapType.overworld)
-                        ).length
-                    } / {
-                        Object.values(locked_doors).filter(locked_door => locked_door.dimension === current_map).length
-                    }
-                </span>
-                {current_map === MapType.labyrinth && <span>
-                    Shadow Doors {found.shadow_doors.length} / {Object.values(shadow_doors).length}
-                </span>}
-                {current_map === MapType.labyrinth && <span>
-                    Stabilizing Gates {found.stabilizing_gates.length} / {Object.values(stabilizing_gates).length}
-                </span>}
+                <CollectablesTrackerItem
+                    name="Gordo Slimes"
+                    current_map={current_map}
+                    foundList={found.gordos}
+                    dataList={gordos}
+                />
+                <CollectablesTrackerItem
+                    name="Locked Doors"
+                    current_map={current_map}
+                    foundList={found.locked_doors}
+                    dataList={locked_doors}
+                />
+                {current_map === MapType.labyrinth && <CollectablesTrackerItem
+                    skipDimensionFilter
+                    name="Projector Puzzles"
+                    current_map={current_map}
+                    foundList={found.projector_puzzles}
+                    dataList={projector_puzzles}
+                />}
+                <CollectablesTrackerItem
+                    name="Ancient Teleporters"
+                    current_map={current_map}
+                    foundList={found.teleport_pads}
+                    dataList={teleport_pads}
+                />
+                {current_map === MapType.labyrinth && <CollectablesTrackerItem
+                    skipDimensionFilter
+                    name="Shadow Doors"
+                    current_map={current_map}
+                    foundList={found.shadow_doors}
+                    dataList={shadow_doors}
+                />}
+                {current_map === MapType.labyrinth && <CollectablesTrackerItem
+                    skipDimensionFilter
+                    name="Stabilizing Gates"
+                    current_map={current_map}
+                    foundList={found.stabilizing_gates}
+                    dataList={stabilizing_gates}
+                />}
+                {current_map === MapType.labyrinth && <CollectablesTrackerItem
+                    skipDimensionFilter
+                    name="Nullifier Doors"
+                    current_map={current_map}
+                    foundList={found.nullifier_doors}
+                    dataList={nullifier_doors}
+                />}
             </div>
             <div className="flex flex-col pb-4">
                 <h2 className="text-md font-bold">Collectables</h2>
-                <span>
-                    Map Nodes {
-                        found.map_nodes.filter(key =>
-                            map_nodes[key]?.dimension === current_map ||
-                            // This is required to maintain backwards compatibility
-                            (map_nodes[key]?.dimension === undefined && current_map === MapType.overworld)
-                        ).length
-                    } / {
-                        Object.values(map_nodes).filter(map_node => map_node.dimension === current_map).length
-                    }
-                </span>
-                <span>
-                    Treasure Pods {
-                        found.treasure_pods.filter(key =>
-                            treasure_pods[key]?.dimension === current_map ||
-                            // This is required to maintain backwards compatibility
-                            (treasure_pods[key]?.dimension === undefined && current_map === MapType.overworld)
-                        ).length
-                    } / {
-                        Object.values(treasure_pods).filter(treasure_pod => treasure_pod.dimension === current_map).length
-                    }
-                </span>
-                <span>
-                    Research Drones {
-                        found.research_drones.filter(key =>
-                            research_drones[key]?.dimension === current_map ||
-                            // This is required to maintain backwards compatibility
-                            (research_drones[key]?.dimension === undefined && current_map === MapType.overworld)
-                        ).length
-                    } / {
-                        Object.values(research_drones).filter(research_drone => research_drone.dimension === current_map).length
-                    }
-                </span>
+                <CollectablesTrackerItem
+                    name="Map Nodes"
+                    current_map={current_map}
+                    foundList={found.map_nodes}
+                    dataList={map_nodes}
+                />
+                <CollectablesTrackerItem
+                    name="Treasure Pods"
+                    current_map={current_map}
+                    foundList={found.treasure_pods}
+                    dataList={treasure_pods}
+                />
+                <CollectablesTrackerItem
+                    name="Research Drones"
+                    current_map={current_map}
+                    foundList={found.research_drones}
+                    dataList={research_drones}
+                />
+                {current_map === MapType.labyrinth && <CollectablesTrackerItem
+                    skipDimensionFilter
+                    name="Gigi Holograms"
+                    current_map={current_map}
+                    foundList={found.gigi_holograms}
+                    dataList={gigi_holograms}
+                />}
             </div>
 
             <button
@@ -123,4 +137,41 @@ export default function CollectablesTracker() {
 
         </div>
     );
+}
+
+function CollectablesTrackerItem({ current_map, name, foundList, dataList, skipDimensionFilter }: {
+    current_map: MapType,
+    name: string,
+    foundList: Found[keyof Found],
+    dataList: { [key: string]: { [x: string]: any, dimension?: MapType } },
+    skipDimensionFilter?: boolean
+}) {
+    let filteredFoundList = foundList.filter(key =>
+        // This is required to maintain backwards compatibility - ignore found data's keys when they have changed/disappeared
+        dataList[key]
+        && (
+            skipDimensionFilter ||
+            dataList[key].dimension === current_map ||
+            // This is required to maintain backwards compatibility
+            (dataList[key].dimension === undefined && current_map === MapType.overworld)
+        )
+    );
+    let filteredDataList = (
+        skipDimensionFilter
+        ? Object.values(dataList)
+        : Object.values(dataList).filter(research_drone => research_drone.dimension === current_map)
+    );
+
+    if(filteredFoundList.length === 0 && filteredDataList.length === 0) {
+        return null;
+    }
+
+    return (<span>
+        {name} {
+            // De-duplicate filteredFoundList in case; for example, it seems to have duplicates with radiant projector puzzles.
+            new Set(filteredFoundList).size
+        } / {
+            filteredDataList.length
+        }
+    </span>);
 }

@@ -18,17 +18,14 @@ import { TreasurePodIcons } from "./components/TreasurePodIcon";
 import { icon_template } from "./globals";
 import { mapCRSsettings } from "./data/map_crs_settings";
 import { NullifierDoorIcons } from "./components/NullifierDoorIcon";
-import { GigiHologramIcons } from "./components/GigiHologramIcon";
-import { gigiExpressionImageUrls } from "./util";
+import { gigiExpressionImageUrls, GigiHologramIcons } from "./components/GigiHologramIcon";
 import { ProjectorPuzzleIcons } from "./components/ProjectorPuzzleIcon";
 import { TeleportPadIcons } from "./components/TeleportPadIcon";
+import { MapMarkersContextProvider } from "./components/popupUtils";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
-    // [MapType.overworld]: [30, 30],
-    // [MapType.overworld]: [0, 0],
     [MapType.overworld]: [-320, 525],
-    // [MapType.labyrinth]: [-16, -60],
     [MapType.labyrinth]: [1154, 1350],
     [MapType.sr1]: [70, -80]
 };
@@ -153,7 +150,6 @@ function MapUpdater({
         // https://github.com/Leaflet/Leaflet/issues/2553#issuecomment-762271734
         const bounds = map.getBounds();
         map.options.crs = crs;
-        // map.options.crs = crs ?? L.CRS.EPSG3857;
         // Ensure zoom is not affected by differing CRS scales
         const zoomSnap = map.options.zoomSnap;
         map.options.zoomSnap = 0;
@@ -198,7 +194,6 @@ function useWatchForHoverCapability() {
 
     // lastTouchTime is used for ignoring emulated mousemove events
     let lastTouchTime = 0
-    // let lastTouchTime = new Date(0);
 
     function enableHover() {
         if ((new Date()).getTime() - lastTouchTime < 500) return;
@@ -341,6 +336,7 @@ function App() {
                 key={key}
                 position={[pin.pos.x, pin.pos.y]}
                 icon={pinIcon}
+                riseOnHover={true}
             >
                 <Popup>
                     <button className="border w-[5rem] mt-2 self-end" onClick={handleClick}>Remove</button>
@@ -365,6 +361,8 @@ function App() {
             document.head.removeChild(styleSheet);
         };
     }, [current_map]);
+
+    console.debug('in App function');
 
     return (
         <div className="relative">
@@ -403,6 +401,10 @@ function App() {
             >
                 <ConfigureMapOptions />
                 {advanced_infos && <CursorCoordinates />}
+                {/* <MapEventsHandler
+                    markerRefs={markerRefs}
+                    mapMarkerSwitchingPropsRef={mapMarkerSwitchingPropsRef}
+                /> */}
                 <MapUpdater
                     center={map_center[current_map]}
                     maxBounds={map_bounds[current_map]}
@@ -416,66 +418,60 @@ function App() {
                     crs={mapCRSsettings[current_map].CRS ?? L.CRS.EPSG3857}
                 />
 
-                {selected_pin &&
-                    <MapUserPins
-                        selected_pin={selected_pin!}
-                        user_pins={user_pins}
-                        setUserPins={setUserPins}
-                    />
-                }
+                <MapMarkersContextProvider>
+                    {selected_pin &&
+                        <MapUserPins
+                            selected_pin={selected_pin!}
+                            user_pins={user_pins}
+                            setUserPins={setUserPins}
+                        />
+                    }
 
-                <LayersControl position="topright" collapsed={false}>
-                    <LayersControl.Overlay checked name="Slime Gordos">
-                        <LayerGroup>{GordoIcons(current_map)}</LayerGroup>
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Map Nodes">
-                        <LayerGroup>{MapNodeIcons(current_map)}</LayerGroup>
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Locked Doors">
-                        <LayerGroup>{LockedDoorIcons(current_map)}</LayerGroup>
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="7-Zee Reward Pods">
-                        <LayerGroup>{TreasurePodIcons(current_map)}</LayerGroup>
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Research Drones">
-                        <LayerGroup>{ResearchDroneIcons(setShowLog, setCurrentLog, current_map)}</LayerGroup>
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Teleport Lines">
-                        <LayerGroup>{TeleportLineIcons(current_map)}</LayerGroup>
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Ancient Teleporters">
-                        <LayerGroup>{TeleportPadIcons(current_map)}</LayerGroup>
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Plot Planner">
-                        {current_map === MapType.overworld && <LayerGroup>{PlotPlanners}</LayerGroup>}
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Stabilizing Gates">
-                        {current_map === MapType.labyrinth && <LayerGroup>{StabilizingGateIcons}</LayerGroup>}
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Shadow Doors">
-                        {current_map === MapType.labyrinth && <LayerGroup>{ShadowDoorIcons}</LayerGroup>}
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Nullifier Doors">
-                        {current_map === MapType.labyrinth && <LayerGroup>{NullifierDoorIcons}</LayerGroup>}
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Radiant Projector Puzzles">
-                        {current_map === MapType.labyrinth && <LayerGroup>{ProjectorPuzzleIcons}</LayerGroup>}
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="Gigi Holograms">
-                        {current_map === MapType.labyrinth && <LayerGroup>{GigiHologramIcons(setShowLog, setCurrentLog)}</LayerGroup>}
-                    </LayersControl.Overlay>
-                    <LayersControl.Overlay checked name="User Pins">
-                        <LayerGroup>{user_pin_list}</LayerGroup>
-                    </LayersControl.Overlay>
-                </LayersControl>
-                {/* {tileLayer} */}
-                {/* <TileLayer
-                    url={`${current_map}/{z}/{x}/{y}.png`}
-                    noWrap={true}
-                    maxZoom={map_maxNativeZoom[current_map] + 1}
-                    maxNativeZoom={map_maxNativeZoom[current_map]}
-                    minZoom={3}
-                /> */}
+                    <LayersControl position="topright" collapsed={false}>
+                        <LayersControl.Overlay checked name="Slime Gordos">
+                            <LayerGroup>{GordoIcons(current_map)}</LayerGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Map Nodes">
+                            <LayerGroup>{MapNodeIcons(current_map)}</LayerGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Locked Doors">
+                            <LayerGroup>{LockedDoorIcons(current_map)}</LayerGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="7-Zee Reward Pods">
+                            <LayerGroup>{TreasurePodIcons(current_map)}</LayerGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Research Drones">
+                            <LayerGroup>{ResearchDroneIcons(setShowLog, setCurrentLog, current_map)}</LayerGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Teleport Lines">
+                            <LayerGroup>{TeleportLineIcons(current_map)}</LayerGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Ancient Teleporters">
+                            <LayerGroup>{TeleportPadIcons(current_map)}</LayerGroup>
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Plot Planner">
+                            {current_map === MapType.overworld && <LayerGroup>{PlotPlanners}</LayerGroup>}
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Stabilizing Gates">
+                            {current_map === MapType.labyrinth && <LayerGroup>{StabilizingGateIcons}</LayerGroup>}
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Shadow Doors">
+                            {current_map === MapType.labyrinth && <LayerGroup>{ShadowDoorIcons}</LayerGroup>}
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Nullifier Doors">
+                            {current_map === MapType.labyrinth && <LayerGroup>{NullifierDoorIcons}</LayerGroup>}
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Radiant Projector Puzzles">
+                            {current_map === MapType.labyrinth && <LayerGroup>{ProjectorPuzzleIcons}</LayerGroup>}
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="Gigi Holograms">
+                            {current_map === MapType.labyrinth && <LayerGroup>{GigiHologramIcons(setShowLog, setCurrentLog)}</LayerGroup>}
+                        </LayersControl.Overlay>
+                        <LayersControl.Overlay checked name="User Pins">
+                            <LayerGroup>{user_pin_list}</LayerGroup>
+                        </LayersControl.Overlay>
+                    </LayersControl>
+                </MapMarkersContextProvider>
             </MapContainer>
         </div >
     );

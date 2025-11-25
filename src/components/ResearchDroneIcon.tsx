@@ -1,4 +1,3 @@
-import { Marker, Popup } from "react-leaflet";
 import React, { useContext, useEffect, useState } from "react";
 import { icon_opacity, icon_template, research_drone_ls_key } from "../globals";
 import { AiOutlineClose } from "react-icons/ai";
@@ -8,8 +7,9 @@ import { MapType } from "../CurrentMapContext";
 import { ResearchDrone, TranslatedDronePage } from "../types";
 import { handleChecked } from "../util";
 import { research_drones } from "../data/research_drones";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
-// TODO: move this to a configuration or settings area?
+// TODO: refactor the language to a configuration or settings area?
 const curLanguage = "en";
 
 export function ResearchDroneIcon({
@@ -53,47 +53,34 @@ export function ResearchDroneIcon({
         className: `${checked && icon_opacity}`
     });
 
-    return (
-        <Marker key={keyName} position={[research_drone.pos.x, research_drone.pos.y]} icon={icon}>
-            <Popup>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center gap-5">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked, deprecatedKey)}
-                                className="w-4 h-4"
-                            />
-                            <h1 className="ml-2 text-xl font-medium">{research_drone.name}</h1>
-                        </div>
-                    </div>
-                    <hr />
-                    <div>
-                        <span className="text-md font-bold">Description: </span>
-                        <span>{research_drone.description}</span>
-                    </div>
-                    {/* <div>
-                        <span className="text-md font-bold">internalId: </span>
-                        <span>{research_drone.internalId}</span>
-                    </div>
-                    <div>
-                        <span className="text-md font-bold">keyName: </span>
-                        <span>{keyName}</span>
-                    </div> */}
+    const markerRefKey = `researchdrone_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
-                    <button
-                        className="border w-[5rem] mt-2 p-1 self-end"
-                        onClick={() => {
-                            setShowLog(true);
-                            setCurrentLog(<Log research_drone={research_drone} setShowLog={setShowLog} />);
-                        }}
-                    >
-                        Access Log
-                    </button>
-                </div>
-            </Popup>
-        </Marker>
+    return (
+        <MarkerAndPopupTemplate
+            markerRefKey={markerRefKey}
+            position={[research_drone.pos.x, research_drone.pos.y]}
+            icon={icon}
+            popupCheckedState={checked}
+            onPopupCheckChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked, deprecatedKey)}
+            headerRowChildren={
+                <h1 className="ml-2 text-xl font-medium">{research_drone.name}</h1>
+            }
+        >
+            <div>
+                <span className="text-md font-bold">Description: </span>
+                <span>{research_drone.description}</span>
+            </div>
+
+            <button
+                className="border w-[5rem] mt-2 p-1 self-end"
+                onClick={() => {
+                    setShowLog(true);
+                    setCurrentLog(<Log research_drone={research_drone} setShowLog={setShowLog} />);
+                }}
+            >
+                Access Log
+            </button>
+        </MarkerAndPopupTemplate>
     );
 }
 

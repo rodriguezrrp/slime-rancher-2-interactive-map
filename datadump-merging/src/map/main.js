@@ -8,19 +8,11 @@ import { cp, cpSync, existsSync, rm, rmSync } from "node:fs";
 // eslint-disable-next-line no-undef
 const args = minimist(process.argv.slice(2));
 
-// const useCache = args["usecache"] ?? undefined;
-// const exportToCache = args["exporttocache"] ?? undefined;
 const pythonCLIname = args["pycli"] ?? undefined;
 const dontCopyTilemap = args["nocopytilemap"] ?? undefined;
 
-// console.log("parsed param --usecache: ", useCache);
-// console.log("parsed param --exporttocache: ", exportToCache);
 console.log("parsed param --pycli: ", pythonCLIname);
 console.log("parsed param --nocopytilemap: ", dontCopyTilemap);
-
-// const cacheOpts = { };
-// if(typeof useCache !== "undefined") cacheOpts.useCache = useCache;
-// if(typeof exportToCache !== "undefined") cacheOpts.exportToCache = exportToCache;
 
 const { mapSpriteGUIDtoAssetJSONs, mapSpriteShortNameToGUIDs, partPositionsRI, partPositionsLabyrinth } = await extractCoordsOfMapTextures();
 

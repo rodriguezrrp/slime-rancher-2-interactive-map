@@ -51,7 +51,13 @@ const regionDefinitions = [
             {
                 name: "mapVoronoiRainbowIslandFields",
                 centerpoint: { y: 265, x: -298 },
-                priority: 1
+                priority: 1,
+                mapPosTransform: originalMapPos => ({
+                    // Shift the fields region slightly southwest to better align with the ingame map
+                    // (Uncertain why most - but not all - in Rainbow Fields are misaligned like this. But a little manual adjustment seems okay.)
+                    x: originalMapPos.x - -3,
+                    y: originalMapPos.y - 4.5
+                })
             },
             {
                 name: "mapVoronoiRainbowIslandBluffs",

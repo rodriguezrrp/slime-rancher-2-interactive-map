@@ -1,15 +1,41 @@
-import { Marker, Popup } from "react-leaflet";
-import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { icon_opacity, icon_template, research_drone_ls_key } from "../globals";
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { icon_opacity, icon_template, gigi_hologram_ls_key } from "../globals";
 import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
-import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiHologram } from "../types";
-import { compressedWebpIconUrl, gigiExpressionImageUrls, handleChecked } from "../util";
+import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiExpression, GigiHologram } from "../types";
+import { compressedWebpIconUrl, handleChecked } from "../util";
 import { gigi_holograms } from "../data/gigi_holograms";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
-// TODO: move this to a configuration or settings area?
+// TODO: refactor the language to a configuration or settings area?
 const curLanguage = "en";
+
+import happy1 from "/gigi/happy1.png";
+import thinking1 from "/gigi/thinking1.png";
+import pointing1 from "/gigi/pointing1.png";
+import surprised1 from "/gigi/surprised1.png";
+import cheery1 from "/gigi/cheery1.png";
+import sad1 from "/gigi/sad1.png";
+import sad2 from "/gigi/sad2.png";
+import sad3 from "/gigi/sad3.png";
+import pensive1 from "/gigi/pensive1.png";
+import pensive2 from "/gigi/pensive2.png";
+
+export const gigiExpressionImageUrls: { [expression in GigiExpression]: string } = {
+    happy1: happy1,
+    surprised1: surprised1,
+    thinking1: thinking1,
+    pointing1: pointing1,
+    cheery1: cheery1,
+    sad1: sad1,
+    sad2: sad2,
+    sad3: sad3,
+    pensive1: pensive1,
+    pensive2: pensive2,
+}
+
+// export const _pensiveImageUnderlapHeight = 117 / 568;  // position image so that it cuts off at 117 image pixels up from the bottom of the image (image height is 568 pixels)
 
 export function GigiHologramIcon({
     gigi_hologram,
@@ -22,7 +48,6 @@ export function GigiHologramIcon({
     setCurrentConvo: React.Dispatch<React.SetStateAction<JSX.Element>>
     keyName: string,
 }) {
-    const deprecatedKey = null;
     const { found, setFound } = useContext(FoundContext);
     const [checked, setChecked] = useState(
         found.gigi_holograms ? found.gigi_holograms.some((k: string) => k === keyName) : false
@@ -52,39 +77,38 @@ export function GigiHologramIcon({
         className: `${checked && icon_opacity}`
     });
 
-    return (
-        <Marker key={keyName} position={[gigi_hologram.position.x, gigi_hologram.position.y]} icon={icon}>
-            <Popup>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center gap-5">
-                        <div className="flex items-center">
-                            <input
-                                type="checkbox"
-                                checked={checked}
-                                onChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked, deprecatedKey)}
-                                className="w-4 h-4"
-                            />
-                            <h1 className="ml-2 text-xl font-medium">{gigi_hologram.name}</h1>
-                        </div>
-                    </div>
-                    <hr />
-                    <div>
-                        <span className="text-md font-bold">Description: </span>
-                        <span>{gigi_hologram.description}</span>
-                    </div>
+    const markerRefKey = `gigihologram_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
-                    <button
-                        className="border w-[9rem] mt-2 p-1 self-end"
-                        onClick={() => {
-                            setShowConvo(true);
-                            setCurrentConvo(<GigiConvo gigi_hologram={gigi_hologram} setShowConvo={setShowConvo} />);
-                        }}
-                    >
-                        Access Conversation
-                    </button>
-                </div>
-            </Popup>
-        </Marker>
+    return (
+        <MarkerAndPopupTemplate
+            markerRefKey={markerRefKey}
+            position={[gigi_hologram.position.x, gigi_hologram.position.y]}
+            icon={icon}
+            popupCheckedState={checked}
+            onPopupCheckChange={() => handleChecked(gigi_hologram_ls_key, keyName, checked, setChecked)}
+            headerRowChildren={
+                <h1 className="ml-2 text-xl font-medium">{gigi_hologram.name}</h1>
+            }
+        >
+            <div>
+                <span className="text-md font-bold">Description: </span>
+                <span>{gigi_hologram.description}</span>
+            </div>
+
+            <button
+                className="border w-[9rem] mt-2 p-1 self-end"
+                onClick={() => {
+                    setShowConvo(true);
+                    setCurrentConvo(<GigiConvo
+                        key={`convodialog_${keyName}`}
+                        gigi_hologram={gigi_hologram}
+                        setShowConvo={setShowConvo}
+                    />);
+                }}
+            >
+                Access Conversation
+            </button>
+        </MarkerAndPopupTemplate>
     );
 }
 
@@ -92,6 +116,7 @@ type _EntryId = keyof NonNullable<GigiHologram["dialogue"]>["entries"];
 type _ConvoLogEntry = {
     text: string,
     entryId: _EntryId,
+    italics?: boolean,
     nextTextId?: _EntryId,
     nextOptionsIds?: GigiDialogueToOptionsEntry["nextOptionsById"],
 } | {
@@ -122,34 +147,45 @@ export function GigiConvo({
             return {
                 entryId: sourceEntry.nextTextId,
                 nextTextId: "nextTextById" in entry ? entry.nextTextById : undefined,
-                text: entry.text[curLanguage],
+                text: entry.text[curLanguage] ?? entry.text.en ?? Object.values(entry.text)[0],
+                italics: entry.italics,
                 nextOptionsIds: "nextOptionsById" in entry ? entry.nextOptionsById : undefined,
             };
         }
         else return null as unknown as _ConvoLogEntry;
     };
 
-    const [convoLog, setConvoLog] = useState(() => {
+    
+    const [startEntryId, setStartEntryId] = useState<string | undefined>(gigi_hologram.dialogue?.firstVisitStartEntryId);
+
+    const initConvoLog = useCallback(() => {
         let init = [];
         if(gigi_hologram.dialogue) {
-            init.push(nextEntryAsConvoLogEntry({ nextTextId: gigi_hologram.dialogue.firstVisitStartEntryId })); // TODO subsequent start entry ID too!
+            init.push(nextEntryAsConvoLogEntry({ nextTextId: startEntryId! }));
         }
         return init;
-    });
+    }, [gigi_hologram, startEntryId]);
 
-    const convoLogRef = useRef<HTMLDivElement>(null);
+    const [convoLog, setConvoLog] = useState(initConvoLog);
+
+    useEffect(() => {
+        console.debug('reset convo log to start with startEntryId:', startEntryId);
+        setConvoLog(initConvoLog());
+    }, [startEntryId, setConvoLog, initConvoLog]);
+
+    const convoLogElemRef = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
         // Anytime convo log changes, scoll the log to the bottom.
         // Note: chose useLayoutEffect because reading DOM layout-dependent property .scrollHeight.
         //   (According to useLayoutEffect docs: "Use this to read layout from the DOM ...")
-        if(convoLogRef.current) {
-            convoLogRef.current.scrollTop = convoLogRef.current.scrollHeight;
+        if(convoLogElemRef.current) {
+            convoLogElemRef.current.scrollTop = convoLogElemRef.current.scrollHeight;
         }
     }, [convoLog]);
 
 
-    let latestExpression: NonNullable<GigiDialogueToTextEntry["expression"]> = "happy1";
+    let latestExpression: GigiExpression = "happy1";
 
 
     return (
@@ -163,7 +199,24 @@ export function GigiConvo({
                         className="log-close"
                     />
                 </div>
-                <div ref={convoLogRef} className="flex flex-col flex-grow gap-2 overflow-y-auto pt-2 *:ml-7">
+                {
+                    gigi_hologram.dialogue?.labeledAltEntrypoints
+                    && <div className="flex flex-wrap justify-center items-center mb-4 ml-7 gap-2">
+                        {Object.entries({
+                            "Initial Visit": gigi_hologram.dialogue.firstVisitStartEntryId,
+                            ...gigi_hologram.dialogue.labeledAltEntrypoints
+                        }).map(([label, entryId]) => {
+                            return <button
+                                key={label}
+                                className={`flex-grow-0 text-center p-2 px-4 rounded-full drop-shadow-md text-md font-normal ${startEntryId === entryId ? "bg-green-400" : "bg-gray-100"} hover:bg-green-200 focus:bg-green-200 text-slate-950`}
+                                onClick={() => setStartEntryId(entryId)}
+                            >
+                                {label}
+                            </button>;
+                        })}
+                    </div>
+                }
+                <div ref={convoLogElemRef} className="flex flex-col flex-grow gap-2 overflow-y-auto pt-2 *:ml-7">
                     { dialogueEntries && <div className="gigi-convo-top-spacer flex-grow overflow-x-hidden"></div> }
                     {
                         !dialogueEntries
@@ -176,12 +229,12 @@ export function GigiConvo({
                             const isLastEntry = entryIndex === convoLog.length - 1;
                             if("optionsIds" in convoEntry) {
                                 return (
-                                    <div key={`${convoEntry.sourceEntryId}_options`}
-                                        className="gigi-option-group-entry flex flex-row justify-end"
+                                    <div key={`${entryIndex}_${convoEntry.sourceEntryId}_options`}
+                                        className="gigi-option-group-entry flex flex-col justify-end"
                                     >
                                         {convoEntry.optionsIds.map((optionId, optionIndex) => {
                                             const thisOptionEntry = (dialogueEntries[optionId] as GigiDialogueToTextEntry);
-                                            const optionText = thisOptionEntry.text[curLanguage];
+                                            const optionText = thisOptionEntry.text[curLanguage] ?? thisOptionEntry.text.en ?? Object.values(thisOptionEntry.text)[0];
                                             return <GigiConvoOptionButton
                                                 key={`${optionId}`}
                                                 entryIndex={entryIndex}
@@ -198,19 +251,19 @@ export function GigiConvo({
                                 )
                             }
                             else {
-                                const thisExpression = dialogueEntries[convoEntry.entryId].expression;
+                                const thisExpression = dialogueEntries[convoEntry.entryId]?.expression;
                                 latestExpression = thisExpression ?? latestExpression;
 
-                                return <div key={convoEntry.entryId}
+                                return <div key={`${entryIndex}_${convoEntry.entryId}`}
                                     className="gigi-text-entry"
                                 >
                                     <img
                                         src={gigiExpressionImageUrls[latestExpression]}
-                                        alt={`Portrait of Gigi with a ${latestExpression.replace(/\d+$/ig,"").toLowerCase()} expression as shown in game.`}
+                                        alt={`Portrait of Gigi with a ${latestExpression.replace(/[^a-z\-]+/ig,"").toLowerCase()} expression as shown in game.`}
                                         aria-hidden
                                         className="gigi-portrait"
                                     />
-                                    <p>{convoEntry.text}</p>
+                                    <p>{convoEntry.italics ? <i>{convoEntry.text}</i> : convoEntry.text}</p>
                                     {isLastEntry && <GigiConvoTextNextButton
                                         hasMoreConvo={!!(convoEntry.nextTextId || convoEntry.nextOptionsIds)}
                                         convoEntry={convoEntry}
@@ -247,7 +300,6 @@ function GigiConvoOptionButton<type_nextEntryAsConvoLogEntry extends (o: any) =>
     const isFirst = optionIndex === 0;
 
     useEffect(() => {
-        console.log(btnRef.current, selected, someOptionIsSelected, isFirst);
         if(btnRef.current && (selected || (!someOptionIsSelected && isFirst))) {
             btnRef.current.focus();
         }
@@ -260,12 +312,15 @@ function GigiConvoOptionButton<type_nextEntryAsConvoLogEntry extends (o: any) =>
             if(typeof thisOptionEntry.nextTextById === "undefined")
                 return;
             setConvoLog([
-                ...convoLog.slice(0, entryIndex),  // discard convo logs past this option, and this option itself
+                // discard convo logs past this option, and this option itself
+                ...convoLog.slice(0, entryIndex),
                 {
+                    // add this entry back
                     ...convoEntry,
-                    // set which one we selected
+                    // and set which option we selected
                     optionSelectedIndex: optionIndex
                 },
+                // and add the next entry
                 nextEntryAsConvoLogEntry({ nextTextId: thisOptionEntry.nextTextById })
             ]);
         }}

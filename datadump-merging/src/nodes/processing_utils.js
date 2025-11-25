@@ -573,7 +573,7 @@ export function looseJsonStringify(
 
     // try to treat obj as a js type that is not a generic object
     
-    if(typeof retypedObj === "string" || typeof retypedObj === "number") {
+    if(typeof retypedObj === "string" || typeof retypedObj === "number" || typeof retypedObj === "boolean") {
         return JSON.stringify(retypedObj);
     }
     
@@ -642,7 +642,7 @@ export function looseJsonStringify(
             _shouldQuote !== false
             && (
                 _shouldQuote === true
-                || !/[a-z_][a-z0-9_]*/i.test(k)
+                || !/^[a-z_][a-z0-9_]*$/i.test(k)
             )
         ) ? `"${k}": ` : `${k}: `;
         str += newlineIndent + _keyStr + looseJsonStringify(retypedObj[k], indent, transformingFns, _curIndent, _curIndent + indent, updatedKeysChain) + comma;
@@ -701,11 +701,11 @@ export function extractL10nTablesToCache(cacheOpts, globsKey) {
 
     if(cacheOpts.exportToCache) {
         const _export = () => {
-            writeFileSync(`./data_cache/${globsKey}L10nData.json`, JSON.stringify(l10nData));
-            console.log("Exported drone localization tables to cache.");
+            writeFileSync(`./data_cache/${globsKey}L10nData.json`, JSON.stringify(l10nData, undefined, 4), { encoding: "utf-8" });
+            console.log(`Exported ${globsKey} localization tables to cache.`);
         };
         if(cacheOpts.exportToCache === "sync") {
-            console.log("Exporting drone localization tables to cache...");
+            console.log(`Exporting ${globsKey} localization tables to cache...`);
             _export();
         }
         else (async () => { _export(); })();

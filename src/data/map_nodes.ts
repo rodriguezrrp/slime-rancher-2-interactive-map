@@ -89,14 +89,14 @@ export const map_nodes: { [key: string]: MapNode } = {
     "rainbowfields_1": {
         internalId: "idk_todo",
         name: "Southern Node",
-        pos: { x: -216.3259983, y: 187.817991 },
+        pos: { x: -213.3259983, y: 183.317991 },
         description: "Next to a big rock near the edge of a ledge over the water.",
         dimension: MapType.overworld
     },
     "rainbowfields_2": {
         internalId: "idk_todo",
         name: "Western Node",
-        pos: { x: -289.993927, y: 103.15115399999999 },
+        pos: { x: -286.993927, y: 98.65115399999999 },
         description: "Near the edge of the top of a cliff.",
         dimension: MapType.overworld
     },

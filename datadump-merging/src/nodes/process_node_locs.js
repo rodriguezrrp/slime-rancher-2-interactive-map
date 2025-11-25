@@ -24,10 +24,17 @@ import { _schema_MapType, _schema_Vec2, matchAgainstSchema, schemautils } from "
 /** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
 /** @typedef {{ useCache?: boolean, exportToCache?: "sync" | "async" | boolean }} CacheOpts */
 
+/** @typedef {{ __noModify?: string[][] }} ExportFilterMetaPropertiesType */
+
 /** @typedef {("assetsmapping" | "pods" | "researchdrones" | "shadowplortdepos" | "gigiholograms" | "nullifierdoors" | "stabilizinggates" | "projectorpuzzles" | "gordos" | "puzzledoors" | "mapnodes" | "teleporters")} ExtractionTypesType */
 /** @type {ExtractionTypesType[]} */
-export const ExtractionTypes = [
+const SpecialExtractionTypes = [
     "assetsmapping",
+    "translationtables"
+];
+/** @type {ExtractionTypesType[]} */
+export const ExtractionTypes = [
+    ...SpecialExtractionTypes,
     "pods",
     "researchdrones",
     "shadowplortdepos",
@@ -55,9 +62,17 @@ export async function exportAllNodeCoordsFromScenesJSON(
     
     const onlySet = Array.isArray(only) && only.length > 0 ? new Set(only.map(s => s.toLowerCase())) : null;
 
-    if(onlySet?.size === 1 && onlySet.has("assetsmapping")) {
-        // only get (and presumably cache) assets mapping.
-        await getOrExtractScenesAssetsMapping(cacheOpts);
+    const onlySpecialExtractionTypes = onlySet !== null && Array.from(onlySet).every(s => SpecialExtractionTypes.includes(s));
+
+    if(onlySpecialExtractionTypes) {
+        if(onlySet.has("assetsmapping")) {
+            // only get (and presumably cache) assets mapping.
+            await getOrExtractScenesAssetsMapping(cacheOpts);
+        }
+        if(onlySet.has("translationtables")) {
+            // only get (and presumably cache) translation tables.
+            await justExtractL10nTables(cacheOpts);
+        }
         return;
     }
     
@@ -157,7 +172,7 @@ const _jsonStringifyTransformerFns = {
         if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
         if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
     },
-    shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
+    shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : (keysChain.length >= 2 && keysChain[keysChain.length - 2] === "entries") ? true : null,
     shouldInlineObj: (key, depth, keysChain, obj) => {
         // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
         // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
@@ -2091,7 +2106,6 @@ async function exportGigiHologramsFromAssetsMapping(/** @type {AssetsMappingType
     const mergedGigiTSData = { ...existingGigiHologramTSDataByGigiHologramKey };
     
     const processedDialogues = processManualGigiConversations(cacheOpts);
-    // console.log(dialogues);
 
     console.log("Merging existing and extracted Gigi hologram data");
     
@@ -3006,7 +3020,6 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
         if(sourceTeleporterAssetInfo) {
             teleporterGUIDsToAssetJSONsMapReconstructed[sourceGUID] = {
                 dimension: /^(?:core|scene|environment)?lab/i.test(basename(sourceTeleporterAssetInfo.assetJSON.fileKey)) ? MapType.labyrinth : MapType.overworld,
-                // dimension: MapType.overworld,
                 ...teleporterGUIDsToAssetJSONsMapReconstructed[sourceGUID],
                 ...sourceTeleporterAssetInfo,
             };
@@ -3016,7 +3029,6 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
                 ...teleporterGUIDsToAssetJSONsMapReconstructed[destGUID],
                 ...destTeleporterAssetInfo,
                 dimension: destDimension,
-                // dimension: MapType.overworld,
             };
         }
 
@@ -3083,14 +3095,39 @@ async function exportTeleportersFromAssetsMapping(/** @type {AssetsMappingType |
         const pos1 = transformIngameToMapPosition(teleporterAsset1Info.pos);
         const pos2 = transformIngameToMapPosition(teleporterAsset2Info.pos);
 
+        /** @type {ExportFilterMetaPropertiesType["__noModify"]} */
+        let __noModify = [];
+
+        const extractedPositions = [ pos1, pos2 ];
+
+        let positions;
+        if(existingData?.positions) {
+            positions = existingData.positions;
+            // __noModify.push(...positions.filter(({ x, y }, i) =>
+            //     // if the existing position at index i is not found in the extracted positions, mark it as __noModify
+            //     existingData.positions.length !== extractedPositions.length
+            //     || !extractedPositions.some((extractedPos) => extractedPos.x === x && extractedPos.y === y)
+            // ).map((_, i) =>
+            //     ["positions", i]
+            // ));
+        } else {
+            positions = extractedPositions;
+        }
+        let midpoint;
+        if(existingData?.positions && existingData.positions.length > 2) {
+            midpoint = undefined;
+            // __noModify.push(["midpoint"]);
+        } else {
+            midpoint = existingData?.midpoint ?? { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 };
+        }
+
         /** @type {ExistingTeleportLineDataType} */
         const _mergedDataObj = { ...existingData,
             name: existingData?.name ?? "Todo: insert a name for this teleporter line " + tsDataKey,
             dimension: existingData?.dimension ?? teleporterAsset1Info.dimension ?? teleporterAsset2Info.dimension ?? MapType.overworld,
-            positions: existingData?.positions ?? [ pos1, pos2 ],
-            midpoint: (existingData?.positions && existingData.positions.length > 2)
-                ? undefined
-                : existingData?.midpoint ?? { x: (pos1.x + pos2.x) / 2, y: (pos1.y + pos2.y) / 2 },
+            positions: positions,
+            midpoint: midpoint,
+            __noModify: __noModify.length > 0 ? __noModify : undefined,
         };
         // clear out all entries with undefined values
         Object.keys(_mergedDataObj).forEach(key => typeof _mergedDataObj[key] === "undefined" && delete _mergedDataObj[key]);
@@ -4075,44 +4112,31 @@ function readExistingGigiHologramsTSData(/** @type {CacheOpts} */ cacheOpts) {
         throw new Error("unexpected loose json parse result, did not match expected schema");
     }
 
-    // const _jsonStringifyTransformerFns = {
-    //     transformer: (obj, key, keys) => {
-    //         if(obj === MapType.overworld) return { raw: true, val: "MapType.overworld" };
-    //         if(obj === MapType.labyrinth) return { raw: true, val: "MapType.labyrinth" };
-    //         if(obj === MapType.sr1) return { raw: true, val: "MapType.sr1" };
-    //     },
-    //     shouldQuoteKey: (key, depth, keysChain) => depth === 0 ? true : null,
-    //     shouldInlineObj: (key, depth, keysChain, obj) => {
-    //         // if(depth === 1) return true;// return (Array.isArray(obj) && obj.length <= 1) || key === "pos";
-    //         // if(key === "pos" || (Array.isArray(obj) && obj.length <= 1)) return false;
-    //         // return null;
-    //         return (
-    //             (typeof obj === "object" && arraysEqual(Object.keys(obj).sort(), ["x", "y"]))
-    //             || (Array.isArray(obj) && obj.length <= 1)
-    //         ) ? false : null;
-    //     },
-    //     shouldSortKeys: (key, depth, keysChain, obj) => {
-    //         if(depth === 0) return sortStringsWithNumbers;
-    //         if(depth === 1) {
-    //             const _lookup = Object.fromEntries(["internalId", "name", "log", "archive", "pos", "position", "description", "dimension"].map((v, i) => [v, i]));
-    //             const _default = Object.keys(_lookup).length;
-    //             return (a, b) => ((_lookup[a] ?? _default) - (_lookup[b] ?? _default));
-    //         }
-    //         if(keysChain.length >= 2 && (keysChain[keysChain.length - 2] === "log" || keysChain[keysChain.length - 2] === "archive")) {
-    //             // put "en" lang as first item, order all other lang keys lexographically
-    //             return (a, b) => {
-    //                 a = a.toLowerCase(); b = b.toLowerCase();
-    //                 return a === b ? 0 : a === "en" ? -1 : b === "en" ? 1 : a < b ? -1 : a > b ? 1 : 0;
-    //             };
-    //         }
-    //     }
-    // };
-
     const fnWriteGigiHologramsBackToFile = (/** @type {{ [tsDataGigiHologramKey: string]: ExistingGigiHologramDataType }} */ mergedGigiHologramTSData) => {
         const dataObjAsJsCode = looseJsonStringify(
             filterDataObjBeforeExport(PATH_TO_GIGI_HOLOGRAMS_DATA_FILE, mergedGigiHologramTSData),
             "    ",
-            _jsonStringifyTransformerFns
+            { ..._jsonStringifyTransformerFns,
+                shouldSortKeys: (key, depth, keys, obj) => {
+                    if (key === "dialogue") {
+                        // put "entries" as the last item
+                        return (a, b) => {
+                            a = a.toLowerCase(); b = b.toLowerCase();
+                            if(a === b) return 0;
+                            if(a === "entries") return 1;
+                            if(b === "entries") return -1;
+                            let defaultResult = _jsonStringifyTransformerFns.shouldSortKeys(key, depth, keys, obj);
+                            if(typeof defaultResult === "function") {
+                                return defaultResult(a, b);
+                            }
+                            else if(defaultResult === true) {
+                                return sortStringsWithNumbers(a, b);
+                            }
+                            else return 0;
+                        };
+                    }
+                }
+            }
         );
         
         const newFileText = fileTextPrefix + dataObjAsJsCode + fileTextPostfix;
@@ -5073,10 +5097,6 @@ function manufactureTeleporterPadIdFromAssets(/** @type {AssetJSONType} */ asset
     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
 }
-// function manufacturePlotPlannerIdFromAssets(/** @type {AssetJSONType} */ assetJSON, /** @type {AssetJSONType} */ gameObjJSON, /** @type {{ x: number, y: number, z: number }} */ ingamePos) {
-//     // prefer using position, probably the most likely attribute(s) to persist across updates. file names and fileIds are probably volatile.
-//     return `x${-Math.floor(ingamePos.z)}_y${Math.floor(ingamePos.x)}`;
-// }
 
 function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
     cacheOpts = { ...defaultCacheSettings, ...cacheOpts };
@@ -5084,22 +5104,60 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
     /** @type {{ [hologramId: string]: import("../../../src/types.js").GigiHologram["dialogue"] }} */
     const processedDialogues = {};
 
-    for (const hologramId of Object.keys(gigi_manually_noted_conversations)) {
-        const hologramConvo = gigi_manually_noted_conversations[hologramId];
+    const keysToProcessQueue = Object.keys(gigi_manually_noted_conversations);
+    let prevKeysToProcessCt = -1;
 
-        processedDialogues[hologramId] = {
+    // while still processing keys from the queue
+    keyProcessingLoop:
+    while (prevKeysToProcessCt !== keysToProcessQueue.length) {
+        prevKeysToProcessCt = keysToProcessQueue.length;
+        if(keysToProcessQueue.length <= 0) break;
+
+        /** @type {string} */
+        const originalHologramId = keysToProcessQueue.pop();
+        /** @type {string} */
+        let hologramId = originalHologramId;
+        
+        let hologramConvo = gigi_manually_noted_conversations[hologramId];
+        
+        if("convoReference" in hologramConvo) {
+            // try to resolve convoReference chain if possible
+
+            while("convoReference" in hologramConvo) {
+                hologramId = hologramConvo.convoReference;
+                hologramConvo = gigi_manually_noted_conversations[hologramId];
+                // console.debug(hologramId, hologramConvo);
+            }
+
+            // encountered the end of the convo reference chain. time to process it, unless it has already been processed.
+            if(processedDialogues[hologramId]) {
+                // it was already processed
+                processedDialogues[originalHologramId] = processedDialogues[hologramId];
+                continue keyProcessingLoop;
+            }
+        }
+
+        // hologramId and hologramConvo both point to an un-processed manually noted conversation.
+
+        processedDialogues[originalHologramId] = {
             firstVisitStartEntryId: hologramConvo.firstVisitStartEntryId,
             entries: Object.fromEntries(Object.entries(hologramConvo.entries).filter(e => e[0] !== "")
                 .map(([translationId, info]) => {
+                    const _translationIdExtraction = /^[a-zA-Z_\-]*([0-9]{18})[a-zA-Z_\-]*$/.exec(translationId);
+                    const translationIdCleaned = _translationIdExtraction ? _translationIdExtraction[1] : translationId;
 
                     /** @type {NonNullable<import("../../../src/types.js").GigiHologram["dialogue"]>["entries"][string]} */
                     const dialogueEntry = {
-                        internalTranslationId: translationId,
-                        text: l10nTranslationsFor("CommStation", translationId, cacheOpts),
+                        internalTranslationId: translationIdCleaned,
+                        text: l10nTranslationsFor("CommStation", translationIdCleaned, cacheOpts),
                     };
 
                     if(info.changeExpression) {
                         dialogueEntry.expression = info.changeExpression;
+                    }
+
+                    if(info.italics) {
+                        dialogueEntry.italics = info.italics;
                     }
 
                     if(info.nextOptions) {
@@ -5114,12 +5172,19 @@ function processManualGigiConversations(/** @type {CacheOpts} */ cacheOpts) {
             )
         };
 
-        if(typeof hologramConvo.subsequentStartEntryId !== "undefined") {
-            processedDialogues[hologramId].subsequentStartEntryId = hologramConvo.subsequentStartEntryId;
+        // check to add in the optional alternate entrypoints property
+        if(typeof hologramConvo.labeledAltEntrypoints !== "undefined") {
+            processedDialogues[originalHologramId].labeledAltEntrypoints = hologramConvo.labeledAltEntrypoints;
         }
     }
 
     return processedDialogues;
+}
+
+export function justExtractL10nTables(/** @type {CacheOpts} */ cacheOpts) {
+    for(const l10nGlobsKey of Object.keys(L10N_TABLES_GLOBS)) {
+        extractL10nTablesToCache(cacheOpts, l10nGlobsKey);
+    }
 }
 
 // extractScenesToCacheJSON();

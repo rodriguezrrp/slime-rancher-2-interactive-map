@@ -4,9 +4,7 @@ export const icon_opacity = "opacity-50";
 
 export const icon_template: L.IconOptions = {
     iconUrl: "",
-    // iconAnchor: [10, 20],
     iconAnchor: [16, 16],
-    // popupAnchor: [5, -15],
     popupAnchor: [0, -11],
     shadowUrl: undefined,
     shadowSize: undefined,
