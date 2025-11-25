@@ -1,4 +1,4 @@
-import { GigiDialogueToTextEntry, GigiExpression, LocalStoragePlotPlan, LocalStorageSitePlan, Vec2 } from "./types";
+import { LocalStoragePlotPlan, LocalStorageSitePlan, Vec2 } from "./types";
 import L from "leaflet";
 
 export function handleChecked(
@@ -72,11 +72,11 @@ export function vecToLatLng(coord: Vec2): L.LatLngExpression {
  * @returns The scaled value.
  */
 export function scaleLinear(x: number, min1: number, max1: number, min2: number, max2: number): number {
-  if (max1 === min1) {
-    throw new Error("Input range cannot have zero length (min1 must not equal max1).");
-  }
+    if (max1 === min1) {
+        throw new Error("Input range cannot have zero length (min1 must not equal max1).");
+    }
 
-  return ((x - min1) / (max1 - min1)) * (max2 - min2) + min2;
+    return ((x - min1) / (max1 - min1)) * (max2 - min2) + min2;
 }
 
 
@@ -135,25 +135,9 @@ export function mapSizePxForMercatorZoom(zoom: number, tileSizePx: number = 256)
 */
 export function xToLon(x: number, zoom: number, tileSizePx: number = 256): number {
     const offset = tileSizePx << (zoom - 1);  // this can be rewritten if desired to allow for non-integer zoom values
-    return (x - offset) * 180 / offset
+    return (x - offset) * 180 / offset;
 }
 
-/*
- * solving for the inverse equation of latToY:
- * y == (offset - offset / Math.PI * Math.log((1 + Math.sin(lat * Math.PI / 180)) / (1 - Math.sin(lat * Math.PI / 180))) / 2)
- * offset - y == offset / Math.PI * Math.log((1 + Math.sin(lat * Math.PI / 180)) / (1 - Math.sin(lat * Math.PI / 180))) / 2
- * (offset - y) * Math.PI / offset * 2 == Math.log((1 + Math.sin(lat * Math.PI / 180)) / (1 - Math.sin(lat * Math.PI / 180)))
- * Math.exp((offset - y) * Math.PI / offset * 2) == (1 + Math.sin(lat * Math.PI / 180)) / (1 - Math.sin(lat * Math.PI / 180))
- * let n = Math.exp((offset - y) * Math.PI / offset * 2)
- * n == (1 + Math.sin(lat * Math.PI / 180)) / (1 - Math.sin(lat * Math.PI / 180))
- * n * (1 - Math.sin(lat * Math.PI / 180)) == (1 + Math.sin(lat * Math.PI / 180))
- * n - n * Math.sin(lat * Math.PI / 180) == 1 + Math.sin(lat * Math.PI / 180)
- * n - 1 == Math.sin(lat * Math.PI / 180) + n * Math.sin(lat * Math.PI / 180)
- * n - 1 == (n + 1) * Math.sin(lat * Math.PI / 180)
- * (n - 1) / (n + 1) == Math.sin(lat * Math.PI / 180)
- * lat * Math.PI / 180 == Math.asin((n - 1) / (n + 1))
- * lat == 180 / Math.PI * Math.asin((n - 1) / (n + 1))
-*/
 /**
  * Intakes map pixel y in [0, `tileSizePx << zoom`], and outputs degrees latitude in [-85.051129°, 85.051129°].
  * 
@@ -169,14 +153,14 @@ export function yToLat(y: number, zoom: number, tileSizePx: number = 256): numbe
 
 
 function compareArraysOneLevelDeep<T>(a: T[], b: T[]) {
-  if (a === b) return true;
-  if (a == null || b == null || a.length !== b.length) return false;
+    if (a === b) return true;
+    if (a == null || b == null || a.length !== b.length) return false;
 
-  for (let i = 0; i < a.length; i++) {
-    if (a[i] !== b[i]) return false;
-  }
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
 
-  return true;
+    return true;
 }
 
 function insertIntoSortedList<T>(arr: T[], element: T, cmp: ((a: T, b: T) => number) | (T extends number | bigint | string ? undefined : never)): T[] {
