@@ -1,12 +1,13 @@
-import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { icon_opacity, icon_template, gigi_hologram_ls_key } from "../globals";
+/* eslint-disable sort-imports */
 import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
+import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiExpression, GigiHologram } from "../types";
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { gigi_hologram_ls_key, icon_opacity, icon_template } from "../globals";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
-import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiExpression, GigiHologram } from "../types";
-import { handleChecked } from "../util";
-import { gigi_holograms } from "../data/gigi_holograms";
 import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
+import { gigi_holograms } from "../data/gigi_holograms";
+import { handleChecked } from "../util";
 
 // TODO: refactor the language to a configuration or settings area?
 const curLanguage = "en";
@@ -33,7 +34,7 @@ export const gigiExpressionImageUrls: { [expression in GigiExpression]: string }
     sad3: sad3,
     pensive1: pensive1,
     pensive2: pensive2,
-}
+};
 
 // export const _pensiveImageUnderlapHeight = 117 / 568;  // position image so that it cuts off at 117 image pixels up from the bottom of the image (image height is 568 pixels)
 
@@ -135,7 +136,7 @@ export function GigiConvo({
 
     const dialogueEntries = gigi_hologram.dialogue?.entries;
 
-    const nextEntryAsConvoLogEntry = (sourceEntry: Exclude<_ConvoLogEntry, { optionsIds: any }> | { nextTextId: _EntryId }): _ConvoLogEntry => {
+    const nextEntryAsConvoLogEntry = (sourceEntry: Exclude<_ConvoLogEntry, { optionsIds: unknown }> | { nextTextId: _EntryId }): _ConvoLogEntry => {
         if("nextOptionsIds" in sourceEntry && sourceEntry.nextOptionsIds) {
             return {
                 sourceEntryId: sourceEntry.entryId,
@@ -159,7 +160,7 @@ export function GigiConvo({
     const [startEntryId, setStartEntryId] = useState<string | undefined>(gigi_hologram.dialogue?.firstVisitStartEntryId);
 
     const initConvoLog = useCallback(() => {
-        let init = [];
+        const init = [];
         if(gigi_hologram.dialogue) {
             init.push(nextEntryAsConvoLogEntry({ nextTextId: startEntryId! }));
         }
@@ -169,7 +170,7 @@ export function GigiConvo({
     const [convoLog, setConvoLog] = useState(initConvoLog);
 
     useEffect(() => {
-        console.debug('reset convo log to start with startEntryId:', startEntryId);
+        console.debug("reset convo log to start with startEntryId:", startEntryId);
         setConvoLog(initConvoLog());
     }, [startEntryId, setConvoLog, initConvoLog]);
 
@@ -189,7 +190,7 @@ export function GigiConvo({
 
 
     return (
-        <div className={`max-w-fit gigi-convo p-7 pl-0`}>
+        <div className={"max-w-fit gigi-convo p-7 pl-0"}>
             <div className="flex-grow flex flex-col justify-between overflow-y-hidden">
                 <div className="flex justify-between items-center mb-5 ml-7">
                     <span className="font-medium text-2xl">{gigi_hologram.name}</span>
@@ -220,60 +221,60 @@ export function GigiConvo({
                     { dialogueEntries && <div className="gigi-convo-top-spacer flex-grow overflow-x-hidden"></div> }
                     {
                         !dialogueEntries
-                        ? (<div className="gigi-text-entry">
-                            <p>No dialogue for this Gigi Hologram.</p>
-                            <p>Todo: enter the dialogue that this Gigi Hologram provides.</p>
-                        </div>)
-                        : (convoLog.map((convoEntry, entryIndex) => {
-                            if(convoEntry === null) return null;
-                            const isLastEntry = entryIndex === convoLog.length - 1;
-                            if("optionsIds" in convoEntry) {
-                                return (
-                                    <div key={`${entryIndex}_${convoEntry.sourceEntryId}_options`}
-                                        className="gigi-option-group-entry flex flex-col justify-end"
-                                    >
-                                        {convoEntry.optionsIds.map((optionId, optionIndex) => {
-                                            const thisOptionEntry = (dialogueEntries[optionId] as GigiDialogueToTextEntry);
-                                            const optionText = thisOptionEntry.text[curLanguage] ?? thisOptionEntry.text.en ?? Object.values(thisOptionEntry.text)[0];
-                                            return <GigiConvoOptionButton
-                                                key={`${optionId}`}
-                                                entryIndex={entryIndex}
-                                                optionIndex={optionIndex}
-                                                optionText={optionText}
-                                                thisOptionEntry={thisOptionEntry}
-                                                convoEntry={convoEntry}
-                                                convoLog={convoLog}
-                                                setConvoLog={setConvoLog}
-                                                nextEntryAsConvoLogEntry={nextEntryAsConvoLogEntry}
-                                            />;
-                                        })}
-                                    </div>
-                                )
-                            }
-                            else {
-                                const thisExpression = dialogueEntries[convoEntry.entryId]?.expression;
-                                latestExpression = thisExpression ?? latestExpression;
+                            ? (<div className="gigi-text-entry">
+                                <p>No dialogue for this Gigi Hologram.</p>
+                                <p>Todo: enter the dialogue that this Gigi Hologram provides.</p>
+                            </div>)
+                            : (convoLog.map((convoEntry, entryIndex) => {
+                                if(convoEntry === null) return null;
+                                const isLastEntry = entryIndex === convoLog.length - 1;
+                                if("optionsIds" in convoEntry) {
+                                    return (
+                                        <div key={`${entryIndex}_${convoEntry.sourceEntryId}_options`}
+                                            className="gigi-option-group-entry flex flex-col justify-end"
+                                        >
+                                            {convoEntry.optionsIds.map((optionId, optionIndex) => {
+                                                const thisOptionEntry = (dialogueEntries[optionId] as GigiDialogueToTextEntry);
+                                                const optionText = thisOptionEntry.text[curLanguage] ?? thisOptionEntry.text.en ?? Object.values(thisOptionEntry.text)[0];
+                                                return <GigiConvoOptionButton
+                                                    key={`${optionId}`}
+                                                    entryIndex={entryIndex}
+                                                    optionIndex={optionIndex}
+                                                    optionText={optionText}
+                                                    thisOptionEntry={thisOptionEntry}
+                                                    convoEntry={convoEntry}
+                                                    convoLog={convoLog}
+                                                    setConvoLog={setConvoLog}
+                                                    nextEntryAsConvoLogEntry={nextEntryAsConvoLogEntry as (o: unknown) => _ConvoLogEntry}
+                                                />;
+                                            })}
+                                        </div>
+                                    );
+                                }
+                                else {
+                                    const thisExpression = dialogueEntries[convoEntry.entryId]?.expression;
+                                    latestExpression = thisExpression ?? latestExpression;
 
-                                return <div key={`${entryIndex}_${convoEntry.entryId}`}
-                                    className="gigi-text-entry"
-                                >
-                                    <img
-                                        src={gigiExpressionImageUrls[latestExpression]}
-                                        alt={`Portrait of Gigi with a ${latestExpression.replace(/[^a-z\-]+/ig,"").toLowerCase()} expression as shown in game.`}
-                                        aria-hidden
-                                        className="gigi-portrait"
-                                    />
-                                    <p>{convoEntry.italics ? <i>{convoEntry.text}</i> : convoEntry.text}</p>
-                                    {isLastEntry && <GigiConvoTextNextButton
-                                        hasMoreConvo={!!(convoEntry.nextTextId || convoEntry.nextOptionsIds)}
-                                        convoEntry={convoEntry}
-                                        convoLog={convoLog}
-                                        setConvoLog={setConvoLog}
-                                        nextEntryAsConvoLogEntry={nextEntryAsConvoLogEntry}
-                                    />}
-                                </div>;
-                            }
-                        }))
+                                    return <div key={`${entryIndex}_${convoEntry.entryId}`}
+                                        className="gigi-text-entry"
+                                    >
+                                        <img
+                                            src={gigiExpressionImageUrls[latestExpression]}
+                                            alt={`Portrait of Gigi with a ${latestExpression.replace(/[^a-z-]+/ig,"").toLowerCase()} expression as shown in game.`}
+                                            aria-hidden
+                                            className="gigi-portrait"
+                                        />
+                                        <p>{convoEntry.italics ? <i>{convoEntry.text}</i> : convoEntry.text}</p>
+                                        {isLastEntry && <GigiConvoTextNextButton
+                                            hasMoreConvo={!!(convoEntry.nextTextId || convoEntry.nextOptionsIds)}
+                                            convoEntry={convoEntry}
+                                            convoLog={convoLog}
+                                            setConvoLog={setConvoLog}
+                                            nextEntryAsConvoLogEntry={nextEntryAsConvoLogEntry as (o: unknown) => _ConvoLogEntry}
+                                        />}
+                                    </div>;
+                                }
+                            }))
                     }
                 </div>
             </div>
@@ -281,7 +282,7 @@ export function GigiConvo({
     );
 }
 
-function GigiConvoOptionButton<type_nextEntryAsConvoLogEntry extends (o: any) => _ConvoLogEntry>({
+function GigiConvoOptionButton<type_nextEntryAsConvoLogEntry extends (o: unknown) => _ConvoLogEntry>({
     entryIndex, optionIndex, optionText, thisOptionEntry, convoEntry, convoLog, setConvoLog, nextEntryAsConvoLogEntry
 }: {
     entryIndex: number;
@@ -329,7 +330,7 @@ function GigiConvoOptionButton<type_nextEntryAsConvoLogEntry extends (o: any) =>
     </button>;
 }
 
-function GigiConvoTextNextButton<type_nextEntryAsConvoLogEntry extends (o: any) => _ConvoLogEntry>({ hasMoreConvo, convoEntry, convoLog, setConvoLog, nextEntryAsConvoLogEntry }: {
+function GigiConvoTextNextButton<type_nextEntryAsConvoLogEntry extends (o: unknown) => _ConvoLogEntry>({ hasMoreConvo, convoEntry, convoLog, setConvoLog, nextEntryAsConvoLogEntry }: {
     hasMoreConvo?: boolean;
     convoEntry: _ConvoLogEntry;
     convoLog: _ConvoLogEntry[];
@@ -365,7 +366,7 @@ function GigiConvoTextNextButton<type_nextEntryAsConvoLogEntry extends (o: any) 
                 setConvoLog([
                     ...convoLog,
                     nextEntryAsConvoLogEntry(convoEntry)
-                ])
+                ]);
             }}
         >
             <AiFillCaretDown className="inline-block"/> Next

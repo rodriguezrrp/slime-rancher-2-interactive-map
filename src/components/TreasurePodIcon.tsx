@@ -3,10 +3,10 @@ import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { MapType } from "../CurrentMapContext";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { TreasurePod } from "../types";
 import { handleChecked } from "../util";
 import { treasure_pods } from "../data/treasure_pods";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function TreasurePodIcon({ treasure_pod, keyName }: { treasure_pod: TreasurePod, keyName: string }) {
     const deprecatedKey = `treasurepod${treasure_pod.pos.x}${treasure_pod.pos.y}`;

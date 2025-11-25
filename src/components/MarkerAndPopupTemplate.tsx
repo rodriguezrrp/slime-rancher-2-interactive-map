@@ -24,9 +24,7 @@ export default function MarkerAndPopupTemplate({
     // bring marker to front (like riseOnHover) when popup is opened as well
     const localMarkerRef = useRef<L.Marker | null>(null);
     const nonHoveredZIndexRef = useRef<string | null>(null);
-    type HandlerFnType = NonNullable<L.LeafletEventHandlerFnMap[keyof L.LeafletEventHandlerFnMap]>;
-    type HandlerFnEvtParamType = Parameters<HandlerFnType>[0];
-    const hoverOn = (e: HandlerFnEvtParamType) => {
+    const hoverOn = () => {
         // console.debug('hoverOn ', e.type);
         const style = localMarkerRef.current?.getElement()?.style;
         if(typeof style !== "undefined" && nonHoveredZIndexRef.current === null) {
@@ -35,7 +33,7 @@ export default function MarkerAndPopupTemplate({
             style.zIndex = "99999";// + nonHoveredZIndex.current;
         }
     };
-    const hoverOff = (e: HandlerFnEvtParamType) => {
+    const hoverOff = () => {
         // console.debug('hoverOff ', e.type);
         const style = localMarkerRef.current?.getElement()?.style;
         if(typeof style !== "undefined" && nonHoveredZIndexRef.current !== null) {
@@ -44,13 +42,13 @@ export default function MarkerAndPopupTemplate({
         }
     };
     const popupEventHandlers: L.LeafletEventHandlerFnMap = {
-        'popupopen': hoverOn,
-        'mouseover': hoverOn,
-        'add': hoverOn,
-        'popupclose': hoverOff,
-        'mouseout': hoverOff, 
-        'remove': hoverOff
-    }
+        "popupopen": hoverOn,
+        "mouseover": hoverOn,
+        "add": hoverOn,
+        "popupclose": hoverOff,
+        "mouseout": hoverOff, 
+        "remove": hoverOff
+    };
 
     return (
         <Marker

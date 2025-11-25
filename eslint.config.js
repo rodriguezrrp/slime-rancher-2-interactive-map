@@ -22,7 +22,7 @@ export default [
             "react/react-in-jsx-scope": "off",
             "sort-imports": "error",
             "semi": ["error", "always"],
-            "indent": ["error", 4, { "SwitchCase": 1 }],
+            "indent": ["error", 4, { "SwitchCase": 1, "offsetTernaryExpressions": false, "flatTernaryExpressions": true }],
             "quotes": [2, "double"],
         },
     },

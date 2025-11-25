@@ -146,7 +146,7 @@ function CollectablesTrackerItem({ current_map, name, foundList, dataList, skipD
     dataList: { [key: string]: { [x: string]: any, dimension?: MapType } },
     skipDimensionFilter?: boolean
 }) {
-    let filteredFoundList = foundList.filter(key =>
+    const filteredFoundList = foundList.filter(key =>
         // This is required to maintain backwards compatibility - ignore found data's keys when they have changed/disappeared
         dataList[key]
         && (
@@ -156,10 +156,10 @@ function CollectablesTrackerItem({ current_map, name, foundList, dataList, skipD
             (dataList[key].dimension === undefined && current_map === MapType.overworld)
         )
     );
-    let filteredDataList = (
+    const filteredDataList = (
         skipDimensionFilter
-        ? Object.values(dataList)
-        : Object.values(dataList).filter(research_drone => research_drone.dimension === current_map)
+            ? Object.values(dataList)
+            : Object.values(dataList).filter(research_drone => research_drone.dimension === current_map)
     );
 
     if(filteredFoundList.length === 0 && filteredDataList.length === 0) {

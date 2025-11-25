@@ -4,9 +4,9 @@ import { FoundContext } from "../FoundContext";
 import { Gordo } from "../types";
 import L from "leaflet";
 import { MapType } from "../CurrentMapContext";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { gordos } from "../data/gordos";
 import { handleChecked } from "../util";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function GordoIcon({ gordo, keyName }: { gordo: Gordo, keyName: string }) {
     const deprecatedKey = `${gordo.name.toLowerCase().replace(" ", "")}${gordo.pos.x}${gordo.pos.y}`;

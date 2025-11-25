@@ -2,10 +2,10 @@ import { icon_opacity, icon_template, shadow_door_ls_key } from "../globals";
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { ShadowDoor } from "../types";
 import { handleChecked } from "../util";
 import { shadow_doors } from "../data/shadow_doors";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function ShadowDoorIcon({
     shadow_door,

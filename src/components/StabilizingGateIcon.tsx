@@ -2,10 +2,10 @@ import { icon_opacity, icon_template, stabilizing_gate_ls_key } from "../globals
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { StabilizingGate } from "../types";
 import { handleChecked } from "../util";
 import { stabilizing_gates } from "../data/stabilizing_gates";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function StabilizingGateIcon({
     stabilizing_gate,

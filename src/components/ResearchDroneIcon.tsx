@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
+import { ResearchDrone, TranslatedDronePage } from "../types";
 import { icon_opacity, icon_template, research_drone_ls_key } from "../globals";
 import { AiOutlineClose } from "react-icons/ai";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { MapType } from "../CurrentMapContext";
-import { ResearchDrone, TranslatedDronePage } from "../types";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { handleChecked } from "../util";
 import { research_drones } from "../data/research_drones";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 // TODO: refactor the language to a configuration or settings area?
 const curLanguage = "en";

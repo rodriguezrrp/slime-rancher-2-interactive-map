@@ -2,11 +2,11 @@ import { icon_opacity, icon_template, teleport_pad_ls_key } from "../globals";
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
+import { MapType } from "../CurrentMapContext";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { TeleportPad } from "../types";
 import { handleChecked } from "../util";
 import { teleport_pads } from "../data/teleport_pads";
-import { MapType } from "../CurrentMapContext";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function TeleportPadIcon({
     teleport_pad,

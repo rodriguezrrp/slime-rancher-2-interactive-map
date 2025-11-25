@@ -152,6 +152,7 @@ export function yToLat(y: number, zoom: number, tileSizePx: number = 256): numbe
 }
 
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function compareArraysOneLevelDeep<T>(a: T[], b: T[]) {
     if (a === b) return true;
     if (a == null || b == null || a.length !== b.length) return false;
@@ -163,6 +164,7 @@ function compareArraysOneLevelDeep<T>(a: T[], b: T[]) {
     return true;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function insertIntoSortedList<T>(arr: T[], element: T, cmp: ((a: T, b: T) => number) | (T extends number | bigint | string ? undefined : never)): T[] {
     if(!cmp) {
         if(typeof element === "number" || typeof element === "bigint")
