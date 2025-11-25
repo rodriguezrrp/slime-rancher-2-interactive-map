@@ -160,3 +160,7 @@ hr {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+div.leaflet-marker-icon:has(.bigzindex) {
+  z-index: 9000 !important;
+}
