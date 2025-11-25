@@ -232,7 +232,17 @@ export default function MarkerAndPopupTemplate({
     
 
     const markerId = markerRefKey.split("_").slice(1).join("_");
-    const markerNum = googleSheetIdMap[markerId as keyof typeof googleSheetIdMap];
+    let markerNum = googleSheetIdMap[markerId as keyof typeof googleSheetIdMap];
+    
+    if(markerId.includes("projectorpuzzle_")) {
+        markerNum = googleSheetIdMap[markerId.replace(/_(start|end)/ig, "") as keyof typeof googleSheetIdMap];
+    }
+    
+    const beampointtypeExec = /(start|end)/i.exec(markerId);
+    const beampointtype = beampointtypeExec ? beampointtypeExec[1] : null;
+    if(beampointtype) {
+        markerNum = markerNum + " " + (beampointtype === "start" ? "S" : "E");
+    }
 
     const rotate: React.MouseEventHandler = (e) => { e.stopPropagation(); setLabelDir(labelDir === "up" ? "left" : labelDir === "left" ? "down" : labelDir === "down" ? "right" : "up"); };
 
