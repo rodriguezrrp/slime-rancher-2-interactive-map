@@ -1,11 +1,13 @@
 import { CurrentMapContext, MapType } from "./CurrentMapContext";
 import { GigiHologramIcons, gigiExpressionImageUrls } from "./components/GigiHologramIcon";
 import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, MapOptions, icon } from "leaflet";
-import { LayerGroup, LayersControl, MapContainer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
+import { LayerGroup, LayersControl, MapContainer, Popup, useMap, useMapEvents } from "react-leaflet";
 import { LocalStoragePin, Pin } from "./types";
 import { useContext, useEffect, useRef, useState } from "react";
+import { Marker as ComponentMarker } from "@adamscybot/react-leaflet-component-marker";
 import { FaCode } from "react-icons/fa6";
 import { GordoIcons } from "./components/GordoIcon";
+import IconWithFallbacks from "./components/IconWithFallbacks";
 import { LockedDoorIcons } from "./components/LockedDoorIcon";
 import { MapMarkersContextProvider } from "./components/popupUtils";
 import { MapNodeIcons } from "./components/MapNodeIcon";
@@ -313,10 +315,10 @@ function App() {
             (pin.dimension === undefined && current_map === MapType.overworld);
     }).map((pin: LocalStoragePin) => {
         const key = `${pin.pos.x}${pin.pos.y}`;
-        const pinIcon = icon({
+        const pinIconOptions: L.IconOptions = {
             ...icon_template,
             iconUrl: `icons/${pin.icon}`,
-        });
+        };
 
         const handleClick = () => {
             const new_pins = user_pins.filter(
@@ -330,16 +332,16 @@ function App() {
         };
 
         return (
-            <Marker
+            <ComponentMarker
                 key={key}
                 position={[pin.pos.x, pin.pos.y]}
-                icon={pinIcon}
+                icon={<IconWithFallbacks iconOptions={pinIconOptions}/>}
                 riseOnHover={true}
             >
                 <Popup>
                     <button className="border w-[5rem] mt-2 self-end" onClick={handleClick}>Remove</button>
                 </Popup>
-            </Marker>
+            </ComponentMarker>
         );
     });
 

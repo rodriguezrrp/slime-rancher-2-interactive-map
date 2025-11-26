@@ -6,10 +6,12 @@ import {
     PlannerPosition,
     PlotOptions,
 } from "../../types";
-import { Marker, Popup } from "react-leaflet";
 import { getStoredPlotPlans, handlePlotPlanned } from "../../util";
+import { Marker as ComponentMarker } from "@adamscybot/react-leaflet-component-marker";
+import IconWithFallbacks from "../IconWithFallbacks";
 import L from "leaflet";
 import Planner from "./Planner";
+import { Popup } from "react-leaflet";
 import { icon_template } from "../../globals";
 import { planner_positions } from "../../data/plot_planner_positions";
 import { plotTypes } from "../../data/pins";
@@ -93,7 +95,7 @@ export function PlotPlanner({
     const [plotType, setplotType] = useState<PlotOptions | undefined>(getSelectedPlotTypeFromRetrievedPlotPlan);
     const [icons, setIcons] = useState<PlannerIcons>(getIconsFromRetrievedPlan);
 
-    const doubleIconYOffset = 0.35;
+    const doubleIconYOffset = 3.25;
 
     function handlePlotPlanChange(newPlotPlan: LocalStoragePlotPlan) {
         setPlotPlan(newPlotPlan);
@@ -107,30 +109,30 @@ export function PlotPlanner({
         <div>
             {icons.left && icons.right ? (
                 <div>
-                    <Marker
+                    <ComponentMarker
                         position={vecToLatLng({
                             x: positions.position.x,
                             y: positions.position.y - doubleIconYOffset,
                         })}
-                        icon={icons.left.icon}
+                        icon={<IconWithFallbacks iconOptions={icons.left.icon.options} style={{ height: "auto", aspectRatio: "auto" }} />}
                     />
-                    <Marker
+                    <ComponentMarker
                         position={vecToLatLng({
                             x: positions.position.x,
                             y: positions.position.y + doubleIconYOffset,
                         })}
-                        icon={icons.right.icon}
+                        icon={<IconWithFallbacks iconOptions={icons.right.icon.options} style={{ height: "auto", aspectRatio: "auto" }} />}
                     />
                 </div>
             ) : icons.left ? (
-                <Marker position={vecToLatLng(positions.position)} icon={icons.left.icon} />
+                <ComponentMarker position={vecToLatLng(positions.position)} icon={<IconWithFallbacks iconOptions={icons.left.icon.options} style={{ height: "auto", aspectRatio: "auto" }} />} />
             ) : icons.right ? (
-                <Marker position={vecToLatLng(positions.position)} icon={icons.right.icon} />
+                <ComponentMarker position={vecToLatLng(positions.position)} icon={<IconWithFallbacks iconOptions={icons.right.icon.options} style={{ height: "auto", aspectRatio: "auto" }} />} />
             ) : (
                 <></>
             )}
 
-            <Marker
+            <ComponentMarker
                 position={vecToLatLng(positions.position)}
                 icon={invisible_icon.icon}
                 opacity={0}
@@ -189,7 +191,7 @@ export function PlotPlanner({
                         />
                     </div>
                 </Popup>
-            </Marker>
+            </ComponentMarker>
         </div>
     );
 }

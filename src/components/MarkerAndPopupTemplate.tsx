@@ -1,5 +1,6 @@
 import { PopupSwitchButtonsWrapper, useMapMarkersContextSetMarkerRef } from "./popupUtils";
 import { Marker as ComponentMarker } from "@adamscybot/react-leaflet-component-marker";
+import IconWithFallbacks from "./IconWithFallbacks";
 import L from "leaflet";
 import { Popup } from "react-leaflet";
 import { useRef } from "react";
@@ -64,7 +65,7 @@ export default function MarkerAndPopupTemplate({
         const iconWidth = iconSize[0] ?? 32;
         const iconHeight = iconSize[1] ?? 32;
 
-        componentCapableIcon = <MarkerIconWithPictureSourceFallbacks src={iconOptions.iconUrl} width={`${iconWidth}px`} height={`${iconHeight}px`} />;
+        componentCapableIcon = <IconWithFallbacks src={iconOptions.iconUrl} expectedSize={[iconWidth, iconHeight]} />;
         madeDefaultIcon = false;
     }
     else {
@@ -117,13 +118,3 @@ export default function MarkerAndPopupTemplate({
     );
 }
 
-export function MarkerIconWithPictureSourceFallbacks({ src, width, height, style, ...props }: { src: string, width?: string, height?: string } & React.ImgHTMLAttributes<HTMLImageElement>) {
-    const strippedExt = src.split(".").slice(0, -1).join(".").replace("/icons/", "/compressed/icons/");
-    return (
-        <picture>
-            <source srcSet={`${strippedExt}_96.webp`} type="image/webp" />
-            <source srcSet={`${strippedExt}_96.png`} type="image/png" />
-            <img src={src} style={{ ...style, width: width, height: height }} {...props} />
-        </picture>
-    );
-}

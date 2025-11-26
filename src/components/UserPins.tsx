@@ -2,6 +2,7 @@ import { LocalStoragePin, Pin, PinTitle } from "../types";
 import React, { useContext, useEffect, useState } from "react";
 import { CurrentMapContext } from "../CurrentMapContext";
 import { FaQuestionCircle } from "react-icons/fa";
+import IconWithFallbacks from "./IconWithFallbacks";
 import { pins } from "../data/pins";
 import { useMapEvents } from "react-leaflet";
 
@@ -44,8 +45,13 @@ export function SidebarPins({
 
                 {
                     selected_pin ?
-                        <img
+                        <IconWithFallbacks
                             src={`icons/${selected_pin.icon}`}
+                            // query for the compressed image like it's going to be 40 px wide/high,
+                            // but override the fixed size CSS that would be applied normally,
+                            // to make it resize itself responsively in the text flex container
+                            expectedSize={40}
+                            style={{ width: undefined, height: undefined }}
                             alt={`${selected_pin.icon} pin icon`}
                             className="w-7 mr-2"
                         /> :
@@ -86,11 +92,11 @@ function PinIcon({
             key={key}
             onClick={() => setSelectedPin(pin)}
         >
-            <img
-                title={pin.type}
+            <IconWithFallbacks
                 src={`icons/${pin.icon}`}
+                expectedSize={[40, 40]}
+                title={pin.type}
                 alt={`${pin.icon} pin icon`}
-                style={{ width: 40 }}
             />
         </div>
     );
