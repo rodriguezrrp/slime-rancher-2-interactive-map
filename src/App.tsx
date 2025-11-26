@@ -24,6 +24,7 @@ import { TeleportPadIcons } from "./components/TeleportPadIcon";
 import { TreasurePodIcons } from "./components/TreasurePodIcon";
 import { icon_template } from "./globals";
 import { mapCRSsettings } from "./data/map_crs_settings";
+import { UserPinsList, useUserPins } from "./components/UserPinsContext";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
@@ -294,56 +295,12 @@ function App() {
     }, []);
 
     // Todo: are any of these "global" react hooks causing <App> to re-render unnecessarily?
-    useWatchForHoverCapability();
-    useImagePreloader(Object.values(gigiExpressionImageUrls));
-
-    let parsed_user_pins = [];
-    try {
-        parsed_user_pins = JSON.parse(localStorage.getItem("user_pins") ?? "[]") ?? [];
-    } catch {
-        window.alert("Failed to read user pins.");
-        parsed_user_pins = [];
-    }
-
-    const [user_pins, setUserPins] = useState<LocalStoragePin[]>(parsed_user_pins);
-    const { current_map } = useContext(CurrentMapContext);
-
-    // TODO: Move to its own file.
-    const user_pin_list = user_pins.filter((pin: LocalStoragePin) => {
-        return pin.dimension === current_map ||
-            // This is required to maintain backwards compatibility
-            (pin.dimension === undefined && current_map === MapType.overworld);
-    }).map((pin: LocalStoragePin) => {
-        const key = `${pin.pos.x}${pin.pos.y}`;
-        const pinIconOptions: L.IconOptions = {
-            ...icon_template,
-            iconUrl: `icons/${pin.icon}`,
-        };
-
-        const handleClick = () => {
-            const new_pins = user_pins.filter(
-                (currentMarker) => currentMarker.pos !== pin.pos
-            );
-            // TODO: If the pin isn't reset, a new pin will be placed when 
-            // pressing "Remove".
-            setSelectedPin(undefined);
-            setUserPins(new_pins);
-            localStorage.setItem("user_pins", JSON.stringify(new_pins));
-        };
-
-        return (
-            <ComponentMarker
-                key={key}
-                position={[pin.pos.x, pin.pos.y]}
-                icon={<IconWithFallbacks iconOptions={pinIconOptions}/>}
-                riseOnHover={true}
-            >
-                <Popup>
-                    <button className="border w-[5rem] mt-2 self-end" onClick={handleClick}>Remove</button>
-                </Popup>
-            </ComponentMarker>
-        );
+    useEffect(() => {
     });
+    useImagePreloader(Object.values(gigiExpressionImageUrls));
+    useWatchForHoverCapability();
+    
+    const { current_map } = useContext(CurrentMapContext);
 
     /// TODO(24-12-24): I dislike having to inject the background image but I'm
     // unsure how to work around this.
@@ -381,8 +338,6 @@ function App() {
             <Sidebar
                 selected_pin={selected_pin}
                 setSelectedPin={setSelectedPin}
-                user_pins={user_pins}
-                setUserPins={setUserPins}
             />
 
             <MapContainer
@@ -419,9 +374,7 @@ function App() {
                 <MapMarkersContextProvider>
                     {selected_pin &&
                         <MapUserPins
-                            selected_pin={selected_pin!}
-                            user_pins={user_pins}
-                            setUserPins={setUserPins}
+                            selected_pin={selected_pin}
                         />
                     }
 
@@ -466,7 +419,7 @@ function App() {
                             {current_map === MapType.labyrinth && <LayerGroup>{GigiHologramIcons(setShowLog, setCurrentLog)}</LayerGroup>}
                         </LayersControl.Overlay>
                         <LayersControl.Overlay checked name="User Pins">
-                            <LayerGroup>{user_pin_list}</LayerGroup>
+                            <LayerGroup>{UserPinsList({ setSelectedPin })}</LayerGroup>
                         </LayersControl.Overlay>
                     </LayersControl>
                 </MapMarkersContextProvider>

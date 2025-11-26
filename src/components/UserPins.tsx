@@ -5,6 +5,7 @@ import { FaQuestionCircle } from "react-icons/fa";
 import IconWithFallbacks from "./IconWithFallbacks";
 import { pins } from "../data/pins";
 import { useMapEvents } from "react-leaflet";
+import { useUserPins } from "./UserPinsContext";
 
 export function SidebarPins({
     selected_pin,
@@ -105,13 +106,10 @@ function PinIcon({
 
 export function MapUserPins({
     selected_pin,
-    user_pins,
-    setUserPins,
 }: {
     selected_pin: Pin,
-    user_pins: LocalStoragePin[],
-    setUserPins: React.Dispatch<React.SetStateAction<LocalStoragePin[]>>,
 }) {
+    const { user_pins, setUserPins } = useUserPins();
     const { current_map } = useContext(CurrentMapContext);
     const debug = process.env.NODE_ENV !== "production";
 
