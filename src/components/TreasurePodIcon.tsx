@@ -33,11 +33,11 @@ export function TreasurePodIcon({ treasure_pod, keyName }: { treasure_pod: Treas
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconTreasurePod.png",
         className: `${checked && icon_opacity}`,
-    });
+    };
 
     const markerRefKey = `treasurepod_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -45,7 +45,7 @@ export function TreasurePodIcon({ treasure_pod, keyName }: { treasure_pod: Treas
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[treasure_pod.pos.x, treasure_pod.pos.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(treasure_pod_ls_key, keyName, checked, setChecked, deprecatedKey)}
             headerRowChildren={

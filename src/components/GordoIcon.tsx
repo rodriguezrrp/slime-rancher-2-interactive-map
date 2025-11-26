@@ -33,11 +33,11 @@ export function GordoIcon({ gordo, keyName }: { gordo: Gordo, keyName: string })
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: `/icons/gordos/${gordo.image}`,
         className: `${checked && icon_opacity}`
-    });
+    };
 
     const markerRefKey = `gordo_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -45,7 +45,7 @@ export function GordoIcon({ gordo, keyName }: { gordo: Gordo, keyName: string })
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[gordo.pos.x, gordo.pos.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(gordo_ls_key, keyName, checked, setChecked, deprecatedKey)}
             headerRowChildren={

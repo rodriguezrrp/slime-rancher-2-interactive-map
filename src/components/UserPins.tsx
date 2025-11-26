@@ -2,16 +2,14 @@ import { LocalStoragePin, Pin, PinTitle } from "../types";
 import React, { useContext, useEffect, useState } from "react";
 import { CurrentMapContext } from "../CurrentMapContext";
 import { FaQuestionCircle } from "react-icons/fa";
+import IconWithFallbacks from "./IconWithFallbacks";
 import { pins } from "../data/pins";
 import { useMapEvents } from "react-leaflet";
+import { useUserPins } from "./UserPinsContext";
+import { useUserSelectedPin } from "./UserSelectedPinContext";
 
-export function SidebarPins({
-    selected_pin,
-    setSelectedPin,
-}: {
-    selected_pin: Pin | undefined,
-    setSelectedPin: React.Dispatch<React.SetStateAction<Pin | undefined>>
-}) {
+export function SidebarPins() {
+    const { selectedPin: selected_pin } = useUserSelectedPin();
     const [selected_type, setSelectedType] = useState<PinTitle>("Food");
 
     const types: PinTitle[] = [
@@ -44,8 +42,13 @@ export function SidebarPins({
 
                 {
                     selected_pin ?
-                        <img
+                        <IconWithFallbacks
                             src={`icons/${selected_pin.icon}`}
+                            // query for the compressed image like it's going to be 40 px wide/high,
+                            // but override the fixed size CSS that would be applied normally,
+                            // to make it resize itself responsively in the text flex container
+                            expectedSize={40}
+                            style={{ width: undefined, height: undefined }}
                             alt={`${selected_pin.icon} pin icon`}
                             className="w-7 mr-2"
                         /> :
@@ -63,7 +66,6 @@ export function SidebarPins({
                         <PinIcon
                             key={key.name}
                             pin={key}
-                            setSelectedPin={setSelectedPin}
                         />
                     )
                 }
@@ -74,43 +76,39 @@ export function SidebarPins({
 
 function PinIcon({
     pin,
-    setSelectedPin,
 }: {
     pin: Pin,
-    setSelectedPin: React.Dispatch<React.SetStateAction<Pin | undefined>>,
 }) {
     const key = pin.name.toLowerCase().replace(" ", "");
+    const { setSelectedPin } = useUserSelectedPin();
 
     return (
         <div
             key={key}
             onClick={() => setSelectedPin(pin)}
         >
-            <img
-                title={pin.type}
+            <IconWithFallbacks
                 src={`icons/${pin.icon}`}
+                expectedSize={[40, 40]}
+                title={pin.type}
                 alt={`${pin.icon} pin icon`}
-                style={{ width: 40 }}
             />
         </div>
     );
 }
 
 
-export function MapUserPins({
-    selected_pin,
-    user_pins,
-    setUserPins,
-}: {
-    selected_pin: Pin,
-    user_pins: LocalStoragePin[],
-    setUserPins: React.Dispatch<React.SetStateAction<LocalStoragePin[]>>,
-}) {
+export function MapUserPins() {
+    const { selectedPin: selected_pin } = useUserSelectedPin();
+    const { user_pins, setUserPins } = useUserPins();
     const { current_map } = useContext(CurrentMapContext);
     const debug = process.env.NODE_ENV !== "production";
 
     useMapEvents({
         click(e) {
+            if (!selected_pin)
+                return;
+
             if (debug) {
                 console.log(e.latlng.lat, e.latlng.lng);
             }
@@ -127,7 +125,7 @@ export function MapUserPins({
             localStorage.setItem("user_pins", JSON.stringify(new_pins));
         },
     });
-
+    
     return null;
 }
 

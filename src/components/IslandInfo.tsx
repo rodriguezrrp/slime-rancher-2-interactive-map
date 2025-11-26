@@ -1,6 +1,7 @@
 import { CurrentMapContext, MapType } from "../CurrentMapContext";
 import { islands_sr1, islands_sr2, sr1_common_resources } from "../data/islands";
 import { useContext, useEffect, useState } from "react";
+import IconWithFallbacks from "./IconWithFallbacks";
 
 const imgStyle = {
     width: 40,
@@ -63,9 +64,10 @@ export default function IslandInfo() {
                     {
                         current_island[selected_island]?.slimes?.map(slime => {
                             const key = `${slime} pin icon`;
-                            return <img
+                            return <IconWithFallbacks
                                 key={key}
                                 src={`/${current_map === MapType.sr1 ? "icons_sr1" : "icons"}/slimes/${slime}`}
+                                expectedSize={[40,40]}
                                 alt={key}
                                 style={imgStyle}
                             />;
@@ -80,9 +82,10 @@ export default function IslandInfo() {
                     {
                         current_island[selected_island]?.resources?.concat(current_map === MapType.sr1 ? sr1_common_resources : []).map(resource => {
                             const key = `${resource} pin icon`;
-                            return <img
+                            return <IconWithFallbacks
                                 key={key}
                                 src={`/${current_map === MapType.sr1 ? "icons_sr1" : "icons"}/resources/${resource}`}
+                                expectedSize={[40,40]}
                                 alt={key}
                                 style={imgStyle}
                             />;
@@ -96,9 +99,10 @@ export default function IslandInfo() {
                     {
                         current_island[selected_island]?.food?.map(food => {
                             const key = `${food} pin icon`;
-                            return <img
+                            return <IconWithFallbacks
                                 key={key}
                                 src={`/${current_map === MapType.sr1 ? "icons_sr1" : "icons"}/foods/${food}`}
+                                expectedSize={[40,40]}
                                 alt={key}
                                 style={imgStyle}
                             />;

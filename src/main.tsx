@@ -4,13 +4,19 @@ import { CurrentMapProvider } from "./CurrentMapContext.tsx";
 import { FoundProvider } from "./FoundContext.tsx";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { UserPinsProvider } from "./components/UserPinsContext.tsx";
+import { UserSelectedPinProvider } from "./components/UserSelectedPinContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
         <FoundProvider>
-            <CurrentMapProvider>
-                <App />
-            </CurrentMapProvider>
+            <UserPinsProvider>
+                <UserSelectedPinProvider>
+                    <CurrentMapProvider>
+                        <App />
+                    </CurrentMapProvider>
+                </UserSelectedPinProvider>
+            </UserPinsProvider>
         </FoundProvider>
     </React.StrictMode>,
 );

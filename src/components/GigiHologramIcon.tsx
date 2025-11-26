@@ -1,4 +1,3 @@
-/* eslint-disable sort-imports */
 import { AiFillCaretDown, AiOutlineClose } from "react-icons/ai";
 import { GigiDialogueToOptionsEntry, GigiDialogueToTextEntry, GigiExpression, GigiHologram } from "../types";
 import React, { useCallback, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
@@ -12,6 +11,7 @@ import { handleChecked } from "../util";
 // TODO: refactor the language to a configuration or settings area?
 const curLanguage = "en";
 
+/* eslint-disable sort-imports */
 import happy1 from "/gigi/happy1.png";
 import thinking1 from "/gigi/thinking1.png";
 import pointing1 from "/gigi/pointing1.png";
@@ -35,8 +35,6 @@ export const gigiExpressionImageUrls: { [expression in GigiExpression]: string }
     pensive1: pensive1,
     pensive2: pensive2,
 };
-
-// export const _pensiveImageUnderlapHeight = 117 / 568;  // position image so that it cuts off at 117 image pixels up from the bottom of the image (image height is 568 pixels)
 
 export function GigiHologramIcon({
     gigi_hologram,
@@ -72,11 +70,11 @@ export function GigiHologramIcon({
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconRancherGigi.png",
         className: `${checked && icon_opacity}`
-    });
+    };
 
     const markerRefKey = `gigihologram_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -84,7 +82,7 @@ export function GigiHologramIcon({
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[gigi_hologram.position.x, gigi_hologram.position.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(gigi_hologram_ls_key, keyName, checked, setChecked)}
             headerRowChildren={

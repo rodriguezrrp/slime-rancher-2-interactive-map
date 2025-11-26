@@ -160,3 +160,31 @@ hr {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+/* div.leaflet-container * :has(.abcdefg),
+.abcdefg {
+  visibility: visible !important;
+  overflow: visible !important;
+  height: 200px !important;
+  width: 200px !important;
+  transform: translate(0,0) !important;
+  background: white !important;
+  color: gray !important;
+  filter: none !important;
+  z-index: 199997 !important;
+}
+.abcdefg {
+  z-index: 199998 !important;
+}
+.abcdefg * {
+  visibility: visible !important;
+  overflow: visible !important;
+  height: 40px !important;
+  width: 40px !important;
+  transform: translate(0,0) !important;
+  background: goldenrod !important;
+  color: gray !important;
+  filter: none !important;
+  border: 1px solid red !important;
+  z-index: 199999 !important;
+} */

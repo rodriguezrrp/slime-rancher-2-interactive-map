@@ -47,11 +47,11 @@ export function ResearchDroneIcon({
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/researchDroneFaceIcon.png",
         className: `${checked && icon_opacity}`
-    });
+    };
 
     const markerRefKey = `researchdrone_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -59,7 +59,7 @@ export function ResearchDroneIcon({
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[research_drone.pos.x, research_drone.pos.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(research_drone_ls_key, keyName, checked, setChecked, deprecatedKey)}
             headerRowChildren={

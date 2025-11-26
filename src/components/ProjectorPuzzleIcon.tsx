@@ -42,11 +42,11 @@ export function ProjectorPuzzleIcon({
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconGadgetRadiantProjector.png",
         className: `${checked && icon_opacity} testing-class-on-leaflet-icons`
-    });
+    };
 
     const markerRefKey = `projector_${keyName}_${beampoint_type}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -54,7 +54,7 @@ export function ProjectorPuzzleIcon({
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[projector_puzzle_beampoint.position.x, projector_puzzle_beampoint.position.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(projector_puzzle_ls_key, keyName, checked, setChecked)}
             headerRowChildren={

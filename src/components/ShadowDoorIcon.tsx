@@ -37,11 +37,11 @@ export function ShadowDoorIcon({
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconMapShadowPlortDoor.png",
         className: `${checked && icon_opacity}`
-    });
+    };
 
     const markerRefKey = `shadowdoor_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -49,7 +49,7 @@ export function ShadowDoorIcon({
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[shadow_door.position.x, shadow_door.position.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(shadow_door_ls_key, keyName, checked, setChecked)}
             headerRowChildren={

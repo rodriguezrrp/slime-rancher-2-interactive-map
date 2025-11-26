@@ -1,8 +1,8 @@
 import { CurrentMapContext, MapType } from "./CurrentMapContext";
 import { GigiHologramIcons, gigiExpressionImageUrls } from "./components/GigiHologramIcon";
-import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, MapOptions, icon } from "leaflet";
-import { LayerGroup, LayersControl, MapContainer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
-import { LocalStoragePin, Pin } from "./types";
+import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, MapOptions } from "leaflet";
+import { LayerGroup, LayersControl, MapContainer, useMap, useMapEvents } from "react-leaflet";
+
 import { useContext, useEffect, useRef, useState } from "react";
 import { FaCode } from "react-icons/fa6";
 import { GordoIcons } from "./components/GordoIcon";
@@ -20,7 +20,7 @@ import { StabilizingGateIcons } from "./components/StabilizingGateIcon";
 import { TeleportLineIcons } from "./components/TeleportLineIcon";
 import { TeleportPadIcons } from "./components/TeleportPadIcon";
 import { TreasurePodIcons } from "./components/TreasurePodIcon";
-import { icon_template } from "./globals";
+import { UserPinsList } from "./components/UserPinsContext";
 import { mapCRSsettings } from "./data/map_crs_settings";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
@@ -281,68 +281,24 @@ function useImagePreloader(imageList: string[]) {
 function App() {
     const [show_log, setShowLog] = useState(false);
     const [current_log, setCurrentLog] = useState(<></>);
-    const [selected_pin, setSelectedPin] = useState<Pin | undefined>(undefined);
     const [advanced_infos, setAdvancedInfos] = useState(false);
 
-    useEffect(() => {
-        if (selected_pin)
-            document.body.classList.add("cursor-cell");
-        else
-            document.body.classList.remove("cursor-cell");
-    }, []);
+    console.debug("in App function");
+
+    // const { selectedPin: selected_pin, setSelectedPin } = useUserSelectedPin();
+
+    // useEffect(() => {
+    //     if (selected_pin)
+    //         document.body.classList.add("cursor-cell");
+    //     else
+    //         document.body.classList.remove("cursor-cell");
+    // }, []);
 
     // Todo: are any of these "global" react hooks causing <App> to re-render unnecessarily?
+    useImagePreloader(Object.values(gigiExpressionImageUrls));
     useWatchForHoverCapability();
-    const { imagesPreloaded: gigiImagesPreloaded } = useImagePreloader(Object.values(gigiExpressionImageUrls));
-    console.debug("gigiImagesPreloaded variable:", gigiImagesPreloaded);
-
-    let parsed_user_pins = [];
-    try {
-        parsed_user_pins = JSON.parse(localStorage.getItem("user_pins") ?? "[]") ?? [];
-    } catch {
-        window.alert("Failed to read user pins.");
-        parsed_user_pins = [];
-    }
-
-    const [user_pins, setUserPins] = useState<LocalStoragePin[]>(parsed_user_pins);
+    
     const { current_map } = useContext(CurrentMapContext);
-
-    // TODO: Move to its own file.
-    const user_pin_list = user_pins.filter((pin: LocalStoragePin) => {
-        return pin.dimension === current_map ||
-            // This is required to maintain backwards compatibility
-            (pin.dimension === undefined && current_map === MapType.overworld);
-    }).map((pin: LocalStoragePin) => {
-        const key = `${pin.pos.x}${pin.pos.y}`;
-        const pinIcon = icon({
-            ...icon_template,
-            iconUrl: `icons/${pin.icon}`,
-        });
-
-        const handleClick = () => {
-            const new_pins = user_pins.filter(
-                (currentMarker) => currentMarker.pos !== pin.pos
-            );
-            // TODO: If the pin isn't reset, a new pin will be placed when 
-            // pressing "Remove".
-            setSelectedPin(undefined);
-            setUserPins(new_pins);
-            localStorage.setItem("user_pins", JSON.stringify(new_pins));
-        };
-
-        return (
-            <Marker
-                key={key}
-                position={[pin.pos.x, pin.pos.y]}
-                icon={pinIcon}
-                riseOnHover={true}
-            >
-                <Popup>
-                    <button className="border w-[5rem] mt-2 self-end" onClick={handleClick}>Remove</button>
-                </Popup>
-            </Marker>
-        );
-    });
 
     /// TODO(24-12-24): I dislike having to inject the background image but I'm
     // unsure how to work around this.
@@ -361,8 +317,6 @@ function App() {
         };
     }, [current_map]);
 
-    console.debug("in App function");
-
     return (
         <div className="relative">
             <div
@@ -379,12 +333,7 @@ function App() {
                 title="Toggle developer infos"
             />
 
-            <Sidebar
-                selected_pin={selected_pin}
-                setSelectedPin={setSelectedPin}
-                user_pins={user_pins}
-                setUserPins={setUserPins}
-            />
+            <Sidebar />
 
             <MapContainer
                 center={map_center[current_map]}
@@ -400,10 +349,6 @@ function App() {
             >
                 <ConfigureMapOptions />
                 {advanced_infos && <CursorCoordinates />}
-                {/* <MapEventsHandler
-                    markerRefs={markerRefs}
-                    mapMarkerSwitchingPropsRef={mapMarkerSwitchingPropsRef}
-                /> */}
                 <MapUpdater
                     center={map_center[current_map]}
                     maxBounds={map_bounds[current_map]}
@@ -418,13 +363,7 @@ function App() {
                 />
 
                 <MapMarkersContextProvider>
-                    {selected_pin &&
-                        <MapUserPins
-                            selected_pin={selected_pin!}
-                            user_pins={user_pins}
-                            setUserPins={setUserPins}
-                        />
-                    }
+                    <MapUserPins />
 
                     <LayersControl position="topright" collapsed={false}>
                         <LayersControl.Overlay checked name="Slime Gordos">
@@ -467,7 +406,7 @@ function App() {
                             {current_map === MapType.labyrinth && <LayerGroup>{GigiHologramIcons(setShowLog, setCurrentLog)}</LayerGroup>}
                         </LayersControl.Overlay>
                         <LayersControl.Overlay checked name="User Pins">
-                            <LayerGroup>{user_pin_list}</LayerGroup>
+                            <LayerGroup><UserPinsList /></LayerGroup>
                         </LayersControl.Overlay>
                     </LayersControl>
                 </MapMarkersContextProvider>

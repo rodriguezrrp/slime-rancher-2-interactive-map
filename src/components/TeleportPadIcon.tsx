@@ -38,11 +38,11 @@ export function TeleportPadIcon({
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: `/icons/teleporters/${teleport_pad.image || "iconMapLabyrinth.png"}`,
         className: `${checked && icon_opacity} testing-class-on-leaflet-icons`
-    });
+    };
 
     const markerRefKey = `teleportpad_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -50,7 +50,7 @@ export function TeleportPadIcon({
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[teleport_pad.position.x, teleport_pad.position.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(teleport_pad_ls_key, keyName, checked, setChecked)}
             headerRowChildren={

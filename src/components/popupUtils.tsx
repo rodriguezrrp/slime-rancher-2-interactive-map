@@ -141,7 +141,6 @@ export function MapMarkersContextProvider({ children }: { children: React.ReactN
     const map = useMapEvents({
         "zoomend": () => {
             if(map.getZoom() !== mapZoom) {
-                console.debug("in useMapEvent zoomend handler - map zoom ", map.getZoom());
                 setMapZoom(map.getZoom());
             }
         },
