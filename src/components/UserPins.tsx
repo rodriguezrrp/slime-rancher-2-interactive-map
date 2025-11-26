@@ -6,14 +6,10 @@ import IconWithFallbacks from "./IconWithFallbacks";
 import { pins } from "../data/pins";
 import { useMapEvents } from "react-leaflet";
 import { useUserPins } from "./UserPinsContext";
+import { useUserSelectedPin } from "./UserSelectedPinContext";
 
-export function SidebarPins({
-    selected_pin,
-    setSelectedPin,
-}: {
-    selected_pin: Pin | undefined,
-    setSelectedPin: React.Dispatch<React.SetStateAction<Pin | undefined>>
-}) {
+export function SidebarPins() {
+    const { selectedPin: selected_pin } = useUserSelectedPin();
     const [selected_type, setSelectedType] = useState<PinTitle>("Food");
 
     const types: PinTitle[] = [
@@ -70,7 +66,6 @@ export function SidebarPins({
                         <PinIcon
                             key={key.name}
                             pin={key}
-                            setSelectedPin={setSelectedPin}
                         />
                     )
                 }
@@ -81,12 +76,11 @@ export function SidebarPins({
 
 function PinIcon({
     pin,
-    setSelectedPin,
 }: {
     pin: Pin,
-    setSelectedPin: React.Dispatch<React.SetStateAction<Pin | undefined>>,
 }) {
     const key = pin.name.toLowerCase().replace(" ", "");
+    const { setSelectedPin } = useUserSelectedPin();
 
     return (
         <div
@@ -104,17 +98,17 @@ function PinIcon({
 }
 
 
-export function MapUserPins({
-    selected_pin,
-}: {
-    selected_pin: Pin,
-}) {
+export function MapUserPins() {
+    const { selectedPin: selected_pin } = useUserSelectedPin();
     const { user_pins, setUserPins } = useUserPins();
     const { current_map } = useContext(CurrentMapContext);
     const debug = process.env.NODE_ENV !== "production";
 
     useMapEvents({
         click(e) {
+            if (!selected_pin)
+                return;
+
             if (debug) {
                 console.log(e.latlng.lat, e.latlng.lng);
             }
@@ -131,7 +125,7 @@ export function MapUserPins({
             localStorage.setItem("user_pins", JSON.stringify(new_pins));
         },
     });
-
+    
     return null;
 }
 

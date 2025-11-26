@@ -1,11 +1,12 @@
 import { CurrentMapContext, MapType } from "../CurrentMapContext";
-import { LocalStoragePin, Pin } from "../types";
 import { createContext, useContext, useEffect, useState } from "react";
 import { Marker as ComponentMarker } from "@adamscybot/react-leaflet-component-marker";
 import IconWithFallbacks from "./IconWithFallbacks";
 import L from "leaflet";
+import { LocalStoragePin } from "../types";
 import { Popup } from "react-leaflet";
 import { icon_template } from "../globals";
+import { useUserSelectedPin } from "./UserSelectedPinContext";
 
 export const UserPinsContext = createContext<{
     user_pins: LocalStoragePin[];
@@ -41,10 +42,9 @@ export function useUserPins() {
     return ctx;
 }
 
-export function UserPinsList({ setSelectedPin }: {
-    setSelectedPin: React.Dispatch<React.SetStateAction<Pin | undefined>>,
-}) {
+export function UserPinsList() {
     const { user_pins, setUserPins } = useUserPins();
+    const { setSelectedPin } = useUserSelectedPin();
     const { current_map } = useContext(CurrentMapContext);
     // const [selected_pin, setSelectedPin] = useState<Pin | undefined>(undefined);
 

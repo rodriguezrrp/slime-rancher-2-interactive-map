@@ -3,12 +3,12 @@ import { ClearUserPinsButton, ExportUserPinsButton, ImportUserPinsButton, Sideba
 import { CurrentMapContext, MapType } from "../CurrentMapContext";
 import { ExportUserDataButton, ImportUserDataButton } from "./UserData";
 import { FaChevronRight, FaMoon, FaSun } from "react-icons/fa";
-import React, { useContext, useEffect, useState } from "react";
 import { discord_link, github_link } from "../globals";
+import { useContext, useEffect, useState } from "react";
 import CollectablesTracker from "./CollectablesTracker";
 import IslandInfo from "./IslandInfo";
-import { Pin } from "../types";
 import { useUserPins } from "./UserPinsContext";
+
 
 function getOriginalTheme() {
     const userPreference = localStorage.getItem("darkMode");
@@ -18,17 +18,12 @@ function getOriginalTheme() {
     return userPreference === "true";
 }
 
-export default function Sidebar({
-    selected_pin,
-    setSelectedPin,
-}: {
-    selected_pin: Pin | undefined,
-    setSelectedPin: React.Dispatch<React.SetStateAction<Pin | undefined>>
-}) {
+export default function Sidebar() {
     const [showSidebar, setShowSidebar] = useState(false);
     const [darkMode, setDarkMode] = useState(getOriginalTheme());
     const { user_pins, setUserPins } = useUserPins();
     const { current_map } = useContext(CurrentMapContext);
+    // selected pin is consumed inside `SidebarPins` via context
 
     useEffect(() => {
         if (darkMode) {
@@ -99,7 +94,7 @@ export default function Sidebar({
 
                     <hr />
 
-                    <SidebarPins selected_pin={selected_pin} setSelectedPin={setSelectedPin} />
+                    <SidebarPins />
 
                     <hr />
 
