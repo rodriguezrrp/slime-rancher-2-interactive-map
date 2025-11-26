@@ -2,10 +2,10 @@ import { icon_opacity, icon_template, projector_puzzle_ls_key } from "../globals
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { ProjectorPuzzle } from "../types";
 import { handleChecked } from "../util";
 import { projector_puzzles } from "../data/projector_puzzles";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function ProjectorPuzzleIcon({
     projector_puzzle,
@@ -77,7 +77,7 @@ export function ProjectorPuzzleIcon({
 
 export const ProjectorPuzzleIcons = Object.keys(projector_puzzles).flatMap(key => {
     const projector_puzzle = projector_puzzles[key];
-    let markers: JSX.Element[] = [];
+    const markers: JSX.Element[] = [];
     if(projector_puzzle.startPoint) {
         markers.push(<ProjectorPuzzleIcon
             key={`${key}_start`}

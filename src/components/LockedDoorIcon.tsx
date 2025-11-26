@@ -4,9 +4,9 @@ import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { LockedDoor } from "../types";
 import { MapType } from "../CurrentMapContext";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { handleChecked } from "../util";
 import { locked_doors } from "../data/locked_doors";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function LockedDoorIcon({ locked_door, keyName }: { locked_door: LockedDoor, keyName: string }) {
     const deprecatedKey = `${locked_door.name.toLowerCase().replace(" ", "")}${locked_door.pos.x}${locked_door.pos.y}`;

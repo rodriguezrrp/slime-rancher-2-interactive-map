@@ -1,4 +1,5 @@
 import { CurrentMapContext, MapType } from "./CurrentMapContext";
+import { GigiHologramIcons, gigiExpressionImageUrls } from "./components/GigiHologramIcon";
 import L, { LatLngBoundsExpression, LatLngExpression, LatLngTuple, MapOptions, icon } from "leaflet";
 import { LayerGroup, LayersControl, MapContainer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { LocalStoragePin, Pin } from "./types";
@@ -6,22 +7,21 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { FaCode } from "react-icons/fa6";
 import { GordoIcons } from "./components/GordoIcon";
 import { LockedDoorIcons } from "./components/LockedDoorIcon";
+import { MapMarkersContextProvider } from "./components/popupUtils";
 import { MapNodeIcons } from "./components/MapNodeIcon";
 import { MapUserPins } from "./components/UserPins";
+import { NullifierDoorIcons } from "./components/NullifierDoorIcon";
 import { PlotPlanners } from "./components/planner/PlotPlanner";
+import { ProjectorPuzzleIcons } from "./components/ProjectorPuzzleIcon";
 import { ResearchDroneIcons } from "./components/ResearchDroneIcon";
 import { ShadowDoorIcons } from "./components/ShadowDoorIcon";
 import Sidebar from "./components/Sidebar";
 import { StabilizingGateIcons } from "./components/StabilizingGateIcon";
 import { TeleportLineIcons } from "./components/TeleportLineIcon";
+import { TeleportPadIcons } from "./components/TeleportPadIcon";
 import { TreasurePodIcons } from "./components/TreasurePodIcon";
 import { icon_template } from "./globals";
 import { mapCRSsettings } from "./data/map_crs_settings";
-import { NullifierDoorIcons } from "./components/NullifierDoorIcon";
-import { gigiExpressionImageUrls, GigiHologramIcons } from "./components/GigiHologramIcon";
-import { ProjectorPuzzleIcons } from "./components/ProjectorPuzzleIcon";
-import { TeleportPadIcons } from "./components/TeleportPadIcon";
-import { MapMarkersContextProvider } from "./components/popupUtils";
 
 // TODO: Ideally, we'd have this centered 0,0 and have the tilemap centered as well.
 const map_center: { [key in MapType]: LatLngTuple } = {
@@ -157,7 +157,7 @@ function MapUpdater({
         map.options.zoomSnap = zoomSnap;
     }, [crs, map]);
 
-    let tileLayer = useRef<L.TileLayer>();
+    const tileLayer = useRef<L.TileLayer>();
 
     useEffect(() => {
         if(tileLayer.current)
@@ -190,18 +190,17 @@ function MapUpdater({
  * Adapted for React from https://stackoverflow.com/a/30303898
  * */
 function useWatchForHoverCapability() {
-    let isCancelled = false;
 
     // lastTouchTime is used for ignoring emulated mousemove events
-    let lastTouchTime = 0
+    let lastTouchTime = 0;
 
     function enableHover() {
         if ((new Date()).getTime() - lastTouchTime < 500) return;
-        document.body.classList.add('hasHover');
+        document.body.classList.add("hasHover");
     }
 
     function disableHover() {
-        document.body.classList.remove('hasHover');
+        document.body.classList.remove("hasHover");
     }
 
     function updateLastTouchTime() {
@@ -210,73 +209,73 @@ function useWatchForHoverCapability() {
 
     
     useEffect(() => {
-        console.debug('Added hover capability listeners.')
-        document.addEventListener('touchstart', updateLastTouchTime, true)
-        document.addEventListener('touchstart', disableHover, true)
-        document.addEventListener('mousemove', enableHover, true)
+        console.debug("Added hover capability listeners.");
+        document.addEventListener("touchstart", updateLastTouchTime, true);
+        document.addEventListener("touchstart", disableHover, true);
+        document.addEventListener("mousemove", enableHover, true);
         
         return () => {
-            console.debug('Removed hover capability listeners.')
-            document.removeEventListener('touchstart', updateLastTouchTime, true)
-            document.removeEventListener('touchstart', disableHover, true)
-            document.removeEventListener('mousemove', enableHover, true)
+            console.debug("Removed hover capability listeners.");
+            document.removeEventListener("touchstart", updateLastTouchTime, true);
+            document.removeEventListener("touchstart", disableHover, true);
+            document.removeEventListener("mousemove", enableHover, true);
         };
     }, []);
 
 
-  enableHover();
+    enableHover();
 }
 
 /** https://stackoverflow.com/a/69325090 */
 function preloadImage(src: string) {
     return new Promise((resolve, reject) => {
-        const img = new Image()
+        const img = new Image();
         img.onload = function () {
-            resolve(img)
-        }
+            resolve(img);
+        };
         img.onerror = img.onabort = function () {
-            reject(src)
-        }
-        img.src = src
-    })
+            reject(src);
+        };
+        img.src = src;
+    });
 }
 
 /** https://stackoverflow.com/a/69325090 */
 function useImagePreloader(imageList: string[]) {
-    const [imagesPreloaded, setImagesPreloaded] = useState<boolean>(false)
+    const [imagesPreloaded, setImagesPreloaded] = useState<boolean>(false);
 
     useEffect(() => {
-        let isCancelled = false
+        let isCancelled = false;
 
         async function effect() {
             //   console.log('PRELOAD')
 
             if (isCancelled) {
-                return
+                return;
             }
 
-            const imagesPromiseList: Promise<any>[] = []
+            const imagesPromiseList: Promise<unknown>[] = [];
             for (const i of imageList) {
-                imagesPromiseList.push(preloadImage(i))
+                imagesPromiseList.push(preloadImage(i));
             }
 
-            await Promise.all(imagesPromiseList)
+            await Promise.all(imagesPromiseList);
 
             if (isCancelled) {
-                return
+                return;
             }
 
-            setImagesPreloaded(true)
+            setImagesPreloaded(true);
         }
 
-        effect()
+        effect();
 
         return () => {
-            isCancelled = true
-        }
-    }, [imageList])
+            isCancelled = true;
+        };
+    }, [imageList]);
 
-    return { imagesPreloaded }
+    return { imagesPreloaded };
 }
 
 function App() {
@@ -362,7 +361,7 @@ function App() {
         };
     }, [current_map]);
 
-    console.debug('in App function');
+    console.debug("in App function");
 
     return (
         <div className="relative">

@@ -1,12 +1,12 @@
 import * as helpers from "@turf/helpers";
 import L from "leaflet";
+import { MapType } from "../CurrentMapContext";
 import { Polyline } from "react-leaflet";
 import { TeleportLine } from "../types";
 import { default as bezierSpline } from "@turf/bezier-spline";
 import { teleport_lines } from "../data/teleport_lines";
-import { MapType } from "../CurrentMapContext";
 
-export function TeleportLineIcon({ teleport_line, dimension }: { teleport_line: TeleportLine, dimension: MapType }) {
+export function TeleportLineIcon({ teleport_line }: { teleport_line: TeleportLine, dimension: MapType }) {
     const path_options: L.PathOptions = {
         color: "white",
         weight: 3.5,

@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 
 /*
  * To construct this data, I have gone through Gigi's dialogues,
@@ -725,9 +726,9 @@ export const gigi_manually_noted_conversations = {
             // This is it, Beatrix. With the Harmonizers activated, and with your help, I can attempt to stabilize the Prismacore. Are you ready?
             "528406570288705536": { next: "528371201086222336", changeExpression: "surprised1" },
             // It works like this: the Prismacore is constantly emitting a chaotic array of energy waves that seemingly take the form of color in our world. But it’s totally out of sync with our world, in a way that runs deep, like in an elemental way. That’s how it warps reality around it.
-            "528371201086222336": { next: "528371201086222336", changeExpression: "pointing1" },
+            "528371201086222336": { next: "528371269646315520", changeExpression: "pointing1" },
             // But this is where you come in. The Harmonizers you activated emit a special energy pulse that reverberates through the whole of the Labyrinth. Combined, they form a kind of harmonious energy wave, and when directed at the Prismacore, it attempts to change it, to make it harmonious too.
-            "528371201086222336": { nextOptions: ["528372202270781440"], changeExpression: "happy1" },
+            "528371269646315520": { nextOptions: ["528372202270781440"], changeExpression: "happy1" },
             // [But you said it was attempted before and never worked?]
             "528372202270781440": { next: "528372807345270784" },
             // Yes, that’s true. But I think I have something that the architects of this system did not: my arm. \r
@@ -808,4 +809,4 @@ export const gigi_manually_noted_conversations = {
                 "434189993696194560": { next: null, changeExpression: "pensive1" },
         }
     },
-}
+};

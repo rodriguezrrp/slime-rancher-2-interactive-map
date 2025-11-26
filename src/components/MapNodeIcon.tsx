@@ -4,9 +4,9 @@ import { FoundContext } from "../FoundContext";
 import L from "leaflet";
 import { MapNode } from "../types";
 import { MapType } from "../CurrentMapContext";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { handleChecked } from "../util";
 import { map_nodes } from "../data/map_nodes";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function MapNodeIcon({ map_node, keyName }: { map_node: MapNode, keyName: string }) {
     const deprecatedKey = `${map_node.name.toLowerCase().replace(" ", "")}${map_node.pos.x}${map_node.pos.y}`;

@@ -1,12 +1,11 @@
-import { Marker, Popup } from "react-leaflet";
 import { icon_opacity, icon_template, nullifier_door_ls_key } from "../globals";
 import { useContext, useEffect, useState } from "react";
 import { FoundContext } from "../FoundContext";
 import L from "leaflet";
+import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 import { NullifierDoor } from "../types";
 import { handleChecked } from "../util";
 import { nullifier_doors } from "../data/nullifier_doors";
-import MarkerAndPopupTemplate from "./MarkerAndPopupTemplate";
 
 export function NullifierDoorIcon({
     nullifier_door,

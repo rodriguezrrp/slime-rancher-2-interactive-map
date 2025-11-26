@@ -2114,6 +2114,22 @@ export const gigi_holograms: { [key: string]: GigiHologram } = {
                         ru: "Призма-ядро всё время испускает хаотичные волны энергии, которые в нашем мире, похоже, проявляются как цвет. Но эти волны совершенно не согласуются с нашей реальностью — как будто на самом глубинном, элементарном уровне. Из-за этого и происходит искажение окружающего мира.",
                         de: "Es funktioniert so: Der Prismakern strahlt permanent chaotische Energiewellen aus, die in unserer Welt offenbar wie Farben aussehen. Das Ganze ist aber mit unserer Welt völlig asynchron, und zwar auf ganz grundlegende, elementare Art. So wird die Realität verzerrt."
                     },
+                    expression: "pointing1",
+                    nextTextById: "528371269646315520"
+                },
+                "528371269646315520": {
+                    internalTranslationId: "528371269646315520",
+                    text: {
+                        en: "But this is where you come in. The Harmonizers you activated emit a special energy pulse that reverberates through the whole of the Labyrinth. Combined, they form a kind of harmonious energy wave, and when directed at the Prismacore, it attempts to change it, to make it harmonious too.",
+                        zh: "而你的作用就在这里。你激活的和谐器会发射特殊脉冲，在整个迷宫产生共鸣。它们共同形成和谐能量波，当它们作用于棱镜核心时，也就会试图更改它的频率。",
+                        ja: "ここでカギを握るのが、あなたよ。起動したハーモナイザーが特別な\n波動を放ち、今はその波がラビリンス全体に響いている。波動が\n混ざり合って調和のとれたエネルギーになったら、プリズマコアに\n浴びせるの。そしたらプリズマコアにも調和がもたらされるはず。",
+                        ko: "그런데 여기서 당신이 등장하죠. 하모나이저를 활성화하면 미로 전체에 걸쳐 울리는 특별한 에너지 펄스가 발산되는데, 이를 합치면 일종의 조화로운 에너지 파동을 형성해요. 이 파장을 프리즈마 코어로 보내면 코어를 조화롭게 변화시키려 하죠.",
+                        pt: "Mas é aí que você entra. Os harmonizadores que você ativou emitem um pulso especial de energia que reverbera por todo o Labirinto. Juntos, eles formam um tipo de onda de energia harmoniosa e, quando direcionados ao Núcleo Prismático, tentam transformá-lo, torná-lo harmonioso também.",
+                        es: "Aquí intervienes tú. Los armonizadores que activaste emiten un pulso de energía especial que reverbera por todo el Laberinto. Combinados, forman una onda armoniosa que, cuando se la dirige hacia el Nucleoprisma, intenta transformarlo para que también entre en armonía.",
+                        fr: "C'est là que tu interviens. Les harmoniseurs que tu as activés émettent une impulsion énergétique particulière qui se répercute dans tout le Dédale. Ils forment de concert une sorte de vague d'énergie harmonieuse qui, lorsqu'elle est dirigée vers le Prismacœur, tente de le modifier de la même façon.",
+                        ru: "И вот здесь в дело вступаешь ты. Гармонизаторы, которые ты активировала, излучают особую волну — она проходит сквозь весь лабиринт. Вместе они образуют единый гармоничный импульс, который, будучи направленным на призма-ядро, попытается его тоже привести к гармонии.",
+                        de: "Und hier kommst du in Spiel. Die Harmonisierer, die du aktiviert hast, senden einen speziellen Energiepuls aus, der durch das ganze Labyrinth strahlt. Zusammen bilden sie eine Art harmonische Energiewelle, und wenn die auf den Prismakern gerichtet wird, versucht sie, ihn zu verändern und ihn auch harmonisch zu machen."
+                    },
                     expression: "happy1",
                     nextOptionsById: [ "528372202270781440" ]
                 },

@@ -1,8 +1,8 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { AiFillCaretLeft, AiFillCaretRight } from "react-icons/ai";
-import { useMapEvents } from "react-leaflet";
-import { icon_template } from "../globals";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import L from "leaflet";
+import { icon_template } from "../globals";
+import { useMapEvents } from "react-leaflet";
 
 /*
  * TODO: Known issues remaining: 
@@ -25,20 +25,20 @@ const maxNgbrScreenDistancePx = Math.min(...(
     : [32]
 )) * 2/3;
 
-console.debug('maxNgbrScreenDistancePx: ', maxNgbrScreenDistancePx);
+console.debug("maxNgbrScreenDistancePx: ", maxNgbrScreenDistancePx);
 
 const MapMarkersContext = createContext<MapMarkerSwitchingProps>(null as unknown as MapMarkerSwitchingProps);
 
 function useSelectedContextValue<C, T>(contextToUse: React.Context<C>, selector: (ctxValue: C) => T) {
-  const context = useContext(contextToUse);
-  const selectedValue = selector(context);
-  return selectedValue;
+    const context = useContext(contextToUse);
+    const selectedValue = selector(context);
+    return selectedValue;
 }
 
 // export const useMapMarkersContext = () => useContext(MapMarkersContext);
 export const useMapMarkersContextSetMarkerRef = () => useContext(MapMarkersContext).setMarkerRef;
 export const useMarkerHasSibling = (markerRefKey: string, previous: boolean) => {
-    return useSelectedContextValue(MapMarkersContext, value => value.hasNearbyMarker(markerRefKey, previous))
+    return useSelectedContextValue(MapMarkersContext, value => value.hasNearbyMarker(markerRefKey, previous));
 };
 
 function _makeMapMarkerSwitchingProps(map: L.Map, markerRefsMappingRef: React.MutableRefObject<{ [markerRefKey: string]: L.Marker | null }>): MapMarkerSwitchingProps {
@@ -79,7 +79,7 @@ function _makeMapMarkerSwitchingProps(map: L.Map, markerRefsMappingRef: React.Mu
                 return lngDiff !== 0 ? lngDiff : m1!.getLatLng().lat - m2!.getLatLng().lat;
             });
         return neighbors;
-    }
+    };
 
     const getNearestMarkerInDirection = (markerRefKey: string, previous: boolean): [string, L.Marker] | null => {
         const neighbors = getNearbyMarkers(markerRefKey);
@@ -100,7 +100,7 @@ function _makeMapMarkerSwitchingProps(map: L.Map, markerRefsMappingRef: React.Mu
             ...markerRefsMappingRef.current,
             [markerRefKey]: instance
         };
-    }
+    };
 
     const changeToNearbyPopup = (markerRefKey: string, previous: boolean): L.Marker | null => {
         const neighborResult = getNearestMarkerInDirection(markerRefKey, previous);
@@ -108,12 +108,12 @@ function _makeMapMarkerSwitchingProps(map: L.Map, markerRefsMappingRef: React.Mu
         markerRefsMappingRef.current?.[markerRefKey]?.closePopup();
         neighborResult[1].openPopup();
         return neighborResult[1];
-    }
+    };
 
     const hasNearbyMarker = (markerRefKey: string, previous: boolean): boolean => {
         const neighborResult = getNearestMarkerInDirection(markerRefKey, previous);
         return neighborResult === null ? false : !!neighborResult[1];
-    }
+    };
 
     return {
         setMarkerRef,
@@ -133,20 +133,20 @@ export function MapMarkersContextProvider({ children }: { children: React.ReactN
     const [mapLayers, setMapLayers] = useState<L.Layer[] | null>(null);
 
     const reconstructLayersArr = () => {
-        let arr: L.Layer[] = [];
+        const arr: L.Layer[] = [];
         map.eachLayer(layer => arr.push(layer));
         setMapLayers(arr);
     };
 
     const map = useMapEvents({
-        'zoomend': () => {
+        "zoomend": () => {
             if(map.getZoom() !== mapZoom) {
-                console.debug('in useMapEvent zoomend handler - map zoom ', map.getZoom());
+                console.debug("in useMapEvent zoomend handler - map zoom ", map.getZoom());
                 setMapZoom(map.getZoom());
             }
         },
-        'layeradd': reconstructLayersArr,
-        'layerremove': reconstructLayersArr,
+        "layeradd": reconstructLayersArr,
+        "layerremove": reconstructLayersArr,
     });
     
     const markerRefsMapping = useRef<{ [markerRefKey: string]: L.Marker | null }>({ });
@@ -182,10 +182,10 @@ export function PopupSwitchButton({ previous, onButtonClick, enabled: enabled, p
     >
         {
             previous
-            ? <AiFillCaretLeft aria-hidden="true"/>
-            : <AiFillCaretRight aria-hidden="true"/>
+                ? <AiFillCaretLeft aria-hidden="true"/>
+                : <AiFillCaretRight aria-hidden="true"/>
         }
-    </button>
+    </button>;
 }
 
 export function PopupSwitchButtonsWrapper({
@@ -206,7 +206,7 @@ export function PopupSwitchButtonsWrapper({
 
     const onPopupSwitchButtonClick = (previous: boolean) => {
         changeToNearbyPopup(markerRefKey, previous);
-    }
+    };
 
     return (<>
         {<PopupSwitchButton previous={true} enabled={hasPrev} onButtonClick={onPopupSwitchButtonClick} popupSwitchButtonConditionalStyling={popupSwitchButtonConditionalStyling} popupButtonProps={popupButtonProps} />}

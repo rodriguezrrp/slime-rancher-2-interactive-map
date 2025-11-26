@@ -1,15 +1,15 @@
 import {
+    gigi_hologram_ls_key,
     gordo_ls_key,
     locked_door_ls_key,
     map_node_ls_key,
+    nullifier_door_ls_key,
+    projector_puzzle_ls_key,
     research_drone_ls_key,
     shadow_door_ls_key,
     stabilizing_gate_ls_key,
-    treasure_pod_ls_key,
-    gigi_hologram_ls_key,
-    projector_puzzle_ls_key,
     teleport_pad_ls_key,
-    nullifier_door_ls_key
+    treasure_pod_ls_key
 } from "../globals";
 import { useContext, useEffect } from "react";
 import { FoundContext } from "../FoundContext";
