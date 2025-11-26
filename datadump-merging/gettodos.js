@@ -21,6 +21,8 @@ function filenameToCategory(filename) {
 function recursivelyProcessObj(filename, obj, parentKey = "") {
     for(const [key, value] of Object.entries(obj)) {
         const fullKey = parentKey ? `${parentKey}.${key}` : key;
+        if(fullKey === "gigihologram_x1004_y1415.dialogue.entries.434169717507911680_subsequentvisit.text.es")
+            continue;
         if(
             /research.*\.(archive|log)\.\d+\.[a-z]+\.\d+/i.test(fullKey)
             || /gigihologram.*\.dialogue\.entries\.\d+\.text\.[a-z]+/i.test(fullKey)
@@ -59,6 +61,14 @@ function recursivelyProcessObj(filename, obj, parentKey = "") {
                 if(valueExec)
                     valueOut = `${valueExec[1]} ${beampointtype.charAt(0).toUpperCase() + beampointtype.substring(1).toLowerCase()} ${valueExec[3]}${valueExec[4]}${valueExec[5]}`;
                 markerNum = `${markerNum} ${beampointtype.charAt(0).toUpperCase()}`;
+            }
+            else if(valueOut.includes("puzzlelock")) {
+                const doorName = /** @type {import("../src/types.js").LockedDoor} */ (obj).name;
+                const receptacleIds = /** @type {import("../src/types.js").LockedDoor} */ (obj).receptacleIds;
+                valueOut = valueOut.replace(
+                    /(description for this )(puzzle door)/gi,
+                    receptacleIds.length === 1 && receptacleIds[0].startsWith("plortdepo") ? "$1Shadow Depot Door" : `$1${doorName}`
+                );
             }
             // else continue;
 
