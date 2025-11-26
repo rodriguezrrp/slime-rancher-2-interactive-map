@@ -33,11 +33,11 @@ export function MapNodeIcon({ map_node, keyName }: { map_node: MapNode, keyName:
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconMapNode.png",
         className: `${checked && icon_opacity}`
-    });
+    };
 
     const markerRefKey = `mapnode_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -45,7 +45,7 @@ export function MapNodeIcon({ map_node, keyName }: { map_node: MapNode, keyName:
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[map_node.pos.x, map_node.pos.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(map_node_ls_key, keyName, checked, setChecked, deprecatedKey)}
             headerRowChildren={

@@ -37,11 +37,11 @@ export function StabilizingGateIcon({
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconMapStabilizerGate.png",
         className: `${checked && icon_opacity}`
-    });
+    };
 
     const markerRefKey = `stabilizinggate_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -49,7 +49,7 @@ export function StabilizingGateIcon({
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[stabilizing_gate.position.x, stabilizing_gate.position.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(stabilizing_gate_ls_key, keyName, checked, setChecked)}
             headerRowChildren={

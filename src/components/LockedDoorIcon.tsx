@@ -33,11 +33,11 @@ export function LockedDoorIcon({ locked_door, keyName }: { locked_door: LockedDo
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: `/icons/plorts/${locked_door.image}`,
         className: `${checked && icon_opacity}`
-    });
+    };
 
     const markerRefKey = `lockeddoor_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -45,7 +45,7 @@ export function LockedDoorIcon({ locked_door, keyName }: { locked_door: LockedDo
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[locked_door.pos.x, locked_door.pos.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(locked_door_ls_key, keyName, checked, setChecked, deprecatedKey)}
             headerRowChildren={

@@ -37,11 +37,11 @@ export function NullifierDoorIcon({
         }
     }, [checked]);
 
-    const icon = L.icon({
+    const iconOptions: L.IconOptions = {
         ...icon_template,
         iconUrl: "/icons/iconGadgetHarmonizer.png",
         className: `${checked && icon_opacity} testing-class-on-leaflet-icons`
-    });
+    };
 
     const markerRefKey = `nullifierdoor_${keyName}`;  // add this prefix to make these unique among _all_ markers on the map
 
@@ -49,7 +49,7 @@ export function NullifierDoorIcon({
         <MarkerAndPopupTemplate
             markerRefKey={markerRefKey}
             position={[nullifier_door.position.x, nullifier_door.position.y]}
-            icon={icon}
+            iconOptions={iconOptions}
             popupCheckedState={checked}
             onPopupCheckChange={() => handleChecked(nullifier_door_ls_key, keyName, checked, setChecked)}
             headerRowChildren={

@@ -293,8 +293,7 @@ function App() {
 
     // Todo: are any of these "global" react hooks causing <App> to re-render unnecessarily?
     useWatchForHoverCapability();
-    const { imagesPreloaded: gigiImagesPreloaded } = useImagePreloader(Object.values(gigiExpressionImageUrls));
-    console.debug("gigiImagesPreloaded variable:", gigiImagesPreloaded);
+    useImagePreloader(Object.values(gigiExpressionImageUrls));
 
     let parsed_user_pins = [];
     try {
@@ -360,8 +359,6 @@ function App() {
             document.head.removeChild(styleSheet);
         };
     }, [current_map]);
-
-    console.debug("in App function");
 
     return (
         <div className="relative">
