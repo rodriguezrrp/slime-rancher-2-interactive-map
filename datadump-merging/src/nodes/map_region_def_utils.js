@@ -7,14 +7,14 @@ import { MapType, transformIngameToMapPosition } from "./processing_utils.js";
 
 /** @typedef {{
  *      name: string,
- *      mapPosTransform?: (originalMapPos: Vec2) => Vec2,
  *      priority?: number,
  *      mustAlsoBeInRegions?: string[],
  * }} _SharedRegionProperties */
+
 /** @typedef {(
  *  ({
  *      type: "function",
- *      containsMapPos: (originalMapPos: Vec2) => boolean,
+ *      containsMapPos: (mapPos: Vec2) => boolean,
  *  } & _SharedRegionProperties)
  *  | {
  *      type: "voronoi",
@@ -28,12 +28,6 @@ import { MapType, transformIngameToMapPosition } from "./processing_utils.js";
  *      dimension: MapType,
  *  }
  * )} RegionDefinition */
-
-
-// some constants used for definitions below
-const _realUnstableCoreMeshPosition = transformIngameToMapPosition({ x: 2245.869162606233, y: 97.43239, z: -121.29875198047512 });
-const _approxMapCoreCenterPosition = { x: 256, y: 1456 };
-
 
 /** @type {RegionDefinition[]} */
 const regionDefinitions = [
@@ -52,12 +46,6 @@ const regionDefinitions = [
                 name: "mapVoronoiRainbowIslandFields",
                 centerpoint: { y: 265, x: -298 },
                 priority: 1,
-                mapPosTransform: originalMapPos => ({
-                    // Shift the fields region slightly southwest to better align with the ingame map
-                    // (Uncertain why most - but not all - in Rainbow Fields are misaligned like this. But a little manual adjustment seems okay.)
-                    x: originalMapPos.x - -3,
-                    y: originalMapPos.y - 4.5
-                })
             },
             {
                 name: "mapVoronoiRainbowIslandBluffs",
@@ -79,7 +67,7 @@ const regionDefinitions = [
         dimension: MapType.overworld,
         priority: 3,
         mustAlsoBeInRegions: [ "mapVoronoiRainbowIslandFields" ],
-        containsMapPos: (originalMapPos) => originalMapPos.y > 0.1 * originalMapPos.x + 450,
+        containsMapPos: (mapPos) => mapPos.y > 0.1 * mapPos.x + 450
     },
     {
         type: "voronoi",
@@ -130,14 +118,7 @@ const regionDefinitions = [
         type: "function",
         name: "mapRegionLabyrinthCore",
         dimension: MapType.labyrinth,
-        containsMapPos: originalMapPos => (originalMapPos.x < 229 && originalMapPos.y > 2100),
-        mapPosTransform: originalMapPos => ({
-            // map pos is inside roughly-defined region of the northeast corner of labyrinth map;
-            // Offset appropriately, based on the apparent center of the core versus the real center,
-            // to position it like it's in the core of the ingame map instead.
-            x: originalMapPos.x + (_approxMapCoreCenterPosition.x - _realUnstableCoreMeshPosition.x),
-            y: originalMapPos.y + (_approxMapCoreCenterPosition.y - _realUnstableCoreMeshPosition.y)
-        })
+        containsMapPos: mapPos => (mapPos.x < 229 && mapPos.y > 2100)
     }
 ];
 
@@ -145,8 +126,8 @@ const regionDefinitions = [
 
 const _voronoiRegionFns = Object.fromEntries(regionDefinitions.map(def => {
     if(def.type !== "voronoi") return null;
-    /** @type {[string, (originalMapPos: Vec2) => _VoronoiRegionDef]} */
-    const result = [def.voronoiGroupId, (originalMapPos) => {
+    /** @type {[string, (mapPos: Vec2) => _VoronoiRegionDef]} */
+    const result = [def.voronoiGroupId, (mapPos) => {
         // note: if on edge or point (equidistant from two or more regions),
         //   region tiebreaking decision is not well-defined
         const withSqDists = def.regions.map(voronoiRegionDef => {
@@ -154,7 +135,7 @@ const _voronoiRegionFns = Object.fromEntries(regionDefinitions.map(def => {
             return {
                 baseRegionDef: def,
                 voronoiRegionDef: voronoiRegionDef,
-                sqDist: Math.pow(originalMapPos.x - rcx, 2) + Math.pow(originalMapPos.y - rcy, 2)
+                sqDist: Math.pow(mapPos.x - rcx, 2) + Math.pow(mapPos.y - rcy, 2)
             };
         }).sort((a, b) => a.sqDist - b.sqDist);
         const chosen = withSqDists[0];
@@ -165,18 +146,7 @@ const _voronoiRegionFns = Object.fromEntries(regionDefinitions.map(def => {
 }).filter(e => e !== null));
 
 
-export function applyHighestPriorityRegionPosShift(/** @type {Vec2} */ originalMapPos, /** @type {MapType | undefined} */ dimension = undefined) {
-    const regions = getMapRegionsContaining(originalMapPos, dimension);
-    for(const region of regions) {
-        if(region.mapPosTransform) {
-            // found the highest-priority region that has a mapPosTransform; apply it and return immediately.
-            return region.mapPosTransform(originalMapPos);
-        }
-    }
-    return originalMapPos;
-}
-
-export function getMapRegionsContaining(/** @type {Vec2} */ originalMapPos, /** @type {MapType | undefined} */ dimension = undefined) {
+export function getMapRegionsContaining(/** @type {Vec2} */ mapPos, /** @type {MapType | undefined} */ dimension = undefined) {
     /** @type {(_VoronoiRegionDef | Exclude<RegionDefinition, { type: "voronoi" }>)[]} */
     let results = [];
     const voronoiInclusionCache = { };
@@ -185,13 +155,13 @@ export function getMapRegionsContaining(/** @type {Vec2} */ originalMapPos, /** 
         if(def.type === "voronoi") {
             if(!voronoiInclusionCache[def.voronoiGroupId]) {
                 // get which region of the voronoi this map pos is contained within
-                const voronoiRegion = _voronoiRegionFns[def.voronoiGroupId](originalMapPos);
+                const voronoiRegion = _voronoiRegionFns[def.voronoiGroupId](mapPos);
                 voronoiInclusionCache[def.voronoiGroupId] = voronoiRegion;
                 results.push(voronoiRegion);
             }
         }
         else {
-            if(def.containsMapPos(originalMapPos)) {
+            if(def.containsMapPos(mapPos)) {
                 results.push(def);
             }
         }
@@ -201,8 +171,6 @@ export function getMapRegionsContaining(/** @type {Vec2} */ originalMapPos, /** 
     // keep filtering the results array for required regions until its contents stop changing
     while(prevLength !== results.length) {
         prevLength = results.length;
-        let i = 0;
-        let toRemove = [];
         let premodifArray = [...results];
         results = results.filter(def => {
             if(def.mustAlsoBeInRegions && !def.mustAlsoBeInRegions.every(reqRegionName => premodifArray.some(def => def.name === reqRegionName))) {
@@ -211,7 +179,7 @@ export function getMapRegionsContaining(/** @type {Vec2} */ originalMapPos, /** 
             }
             // otherwise, keep this def.
             return true;
-        })
+        });
     }
 
     // return the regions sorted by priority, highest first

@@ -1,5 +1,5 @@
-import { applyHighestPriorityRegionPosShift } from "./map_region_def_utils.js";
-import { MapType } from "./processing_utils.js";
+import { MapType, transformIngameToMapPosition } from "./processing_utils.js";
+import { getMapRegionsContaining } from "./map_region_def_utils.js";
 
 // For extracted items that are unused / unobtainable / out of bounds,
 // I suspect they came from extra scene files (for testing?) that are
@@ -31,7 +31,7 @@ const keyCannotIncludeAsSubstring = [
 
     "teleporter_LabyrinthHub_B_x1103_y1506",  // ancient teleporter on the ground but seems to only be for decoration, never activated
 ];
-const keyDisallowedSubstringRegex = new RegExp(`(${keyCannotIncludeAsSubstring.join('|')})`);
+const keyDisallowedSubstringRegex = new RegExp(`(${keyCannotIncludeAsSubstring.join("|")})`);
 
 /**
  * In the case that some specific entries get extracted that should not be exported, catch them (or modify them) with this function.
@@ -67,11 +67,11 @@ export function entryExportFilter(targetFileName, key, originalObj) {
     // get all keys of Vec2s or arrays of Vec2s
     const posKeys = Object.keys(obj).filter(k => (
         (typeof obj[k] === "object" && typeof obj[k].x === "number" && typeof obj[k].y === "number" && typeof obj[k].z === "undefined")
-        ? k
-        : (obj[k] && Array.isArray(obj[k])
+            ? k
+            : (obj[k] && Array.isArray(obj[k])
             && Object.values(obj[k]).every(v => (typeof v.x === "number" && typeof v.y === "number" && typeof v.z === "undefined")))
-        ? k
-        : null
+                ? k
+                : null
     ));
 
     let isExclusivelyLabyrinthData = /(shadow|gigi|nullifier|stabiliz|projector)/i.test(targetFileName);
@@ -91,7 +91,7 @@ export function entryExportFilter(targetFileName, key, originalObj) {
                 return newPos;
             }
             else return oldPos;
-        }
+        };
         for(const posKey of posKeys) {
             if(Array.isArray(obj[posKey])) {
                 obj[posKey] = obj[posKey].map(alterPos);
@@ -134,11 +134,8 @@ export function entryExportFilter(targetFileName, key, originalObj) {
                     let _valueBefore = currObj[prop];
                     currObj[prop] = originalCurrObj[prop];
                     console.log(`  Preserved property ${propPath.join(".")} for entry ${key}`);
-                    console.log(`    value before resetting:`, _valueBefore);
-                    console.log(`    value after resetting:`, currObj[prop]);
-                    // console.debug(prop);
-                    // console.debug(currObj);
-                    // console.debug(originalCurrObj);
+                    console.log("    value before resetting:", _valueBefore);
+                    console.log("    value after resetting:", currObj[prop]);
                 }
                 else {
                     // console.debug(`traversing deeper: ${prop}`);
@@ -154,6 +151,39 @@ export function entryExportFilter(targetFileName, key, originalObj) {
         }
     }
     return finalObj;
+}
+
+// some constants used for definitions below
+const _realUnstableCoreMeshPosition = transformIngameToMapPosition({ x: 2245.869162606233, y: 97.43239, z: -121.29875198047512 });
+const _approxMapCoreCenterPosition = { x: 256, y: 1456 };
+
+/** @type {{ [regionName: string]: (mapPos: Vec2) => Vec2 }} */
+const regionPosShifts = {
+    "mapVoronoiRainbowIslandFields": (mapPos) => ({
+        // Shift the fields region slightly southwest to better align with the ingame map
+        // (Uncertain why most - but not all - in Rainbow Fields are misaligned like this. But a little manual adjustment seems okay.)
+        x: mapPos.x - -3,
+        y: mapPos.y - 4.5
+    }),
+    "mapRegionLabyrinthCore": (mapPos) => ({
+        // map pos is inside roughly-defined region of the northeast corner of labyrinth map;
+        // Offset appropriately, based on the apparent center of the core versus the real center,
+        // to position it like it's in the core of the ingame map instead.
+        x: mapPos.x + (_approxMapCoreCenterPosition.x - _realUnstableCoreMeshPosition.x),
+        y: mapPos.y + (_approxMapCoreCenterPosition.y - _realUnstableCoreMeshPosition.y)
+    }),
+};
+
+function applyHighestPriorityRegionPosShift(/** @type {Vec2} */ originalMapPos, /** @type {MapType | undefined} */ dimension = undefined) {
+    const regions = getMapRegionsContaining(originalMapPos, dimension);
+    for(const region of regions) {
+        const mapPosTransform = regionPosShifts[region.name];
+        if(mapPosTransform) {
+            // found the highest-priority region that has a mapPosTransform; apply it and return immediately.
+            return mapPosTransform(originalMapPos);
+        }
+    }
+    return originalMapPos;
 }
 
 function deepCopy(value, _seen = new WeakMap()) {
