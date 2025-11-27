@@ -14,9 +14,6 @@ type PropsIconOptions = { src?: string, iconOptions: L.IconOptions } & React.Img
 type PropsSrcExpectedSize = { src: string, expectedSize: number | [number, number] } & React.ImgHTMLAttributes<HTMLImageElement>;
 
 
-// type Props = (PropsIconOptions | PropsSrcExpectedSize)
-
-
 type UnionToIntersection<U> =
   (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void
     ? I
@@ -31,23 +28,6 @@ type OverloadImpl<T> = Optionalize<UnionToIntersection<T>>;
 type Props = OverloadImpl<(PropsIconOptions | PropsSrcExpectedSize)>;
 
 
-// type AddMissingOptionals<U> =
-//   U extends unknown
-//     ? U & { [K in Exclude<AllKeys<U>, keyof U>]?: undefined }
-//     : never;
-
-// type AllKeys<U> = U extends unknown ? keyof U : never;
-
-// type StripIndex<T> = {
-//   [K in keyof T as string extends K ? never : K]:
-//     T[K]
-// };
-
-// type RawPropsUnion = PropsIconOptions | PropsSrcExpectedSize;
-
-// type Props = AddMissingOptionals<StripIndex<RawPropsUnion>>;
-
-
 function calcCssWidthHeightFromExpected(expectedSizeToUse: number | [number, number] | undefined): { csswidth: string | undefined, cssheight: string | undefined } {
     const csswidth = Array.isArray(expectedSizeToUse) ? `${expectedSizeToUse[0]}px` : expectedSizeToUse ? `${expectedSizeToUse}px` : undefined;
     const cssheight = Array.isArray(expectedSizeToUse) ? `${expectedSizeToUse[1]}px` : expectedSizeToUse ? `${expectedSizeToUse}px` : undefined;
@@ -57,10 +37,6 @@ function calcCssWidthHeightFromExpected(expectedSizeToUse: number | [number, num
 export default function IconWithFallbacks({ src, expectedSize, style, ...props }: PropsSrcExpectedSize): JSX.Element;
 export default function IconWithFallbacks({ iconOptions, src, style, ...props }: PropsIconOptions): JSX.Element;
 export default function IconWithFallbacks({ iconOptions, src, expectedSize, style, ...props }: Props): JSX.Element {
-    
-    // attempt to make image default to filling its parent container
-    // const csswidth = typeof width === "undefined" && typeof height === "undefined" ? "100%" : undefined;
-    // const cssheight = typeof width === "undefined" && typeof height === "undefined" ? "100%" : undefined;
 
     let srcToUse = src;
     let expectedSizeToUse = expectedSize;
@@ -105,8 +81,7 @@ export default function IconWithFallbacks({ iconOptions, src, expectedSize, styl
             expectedSizeToUse = [iconWidth, iconHeight];
         }
     }
-    else {
-        // else !iconOptions.
+    else {  // !iconOptions
         if(!src) {
             console.error("Neither parameters src nor iconOptions were specified. Returning normal img element with falsy src.");
             const { csswidth, cssheight } = calcCssWidthHeightFromExpected(expectedSizeToUse);
