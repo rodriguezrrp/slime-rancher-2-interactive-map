@@ -1,8 +1,8 @@
-import { globSync } from "glob";
-import { readFile } from "node:fs/promises";
-import { basename } from "node:path";
 import { GLOBS_TO_MAP_SPRITE_ASSETS, PATH_TO_LABYRINTH_MAP_PREFAB, PATH_TO_RAINBOW_ISLAND_MAP_PREFAB } from "../../asset_paths.js";
+import { basename } from "node:path";
+import { globSync } from "glob";
 import { parseUnityFileYamlIntoAssetsMapping } from "../nodes/processing_utils.js";
+import { readFile } from "node:fs/promises";
 
 /** @typedef {{ fileKey: string, fileId: number, typeId: number, typeName: string, props: { [objProp: string]: unknown } }} AssetJSONType */
 /** @typedef {{ [fileKeyFileId: string]: AssetJSONType }} AssetsMappingType */
@@ -38,8 +38,6 @@ export async function extractCoordsOfMapTextures() {
             mapSpriteGUIDtoAssetJSONs[guid] = spriteAssetJSON;
         }
     ));
-
-    console.log(mapSpriteShortNameToGUIDs);
 
     const guids = Object.values(mapSpriteShortNameToGUIDs);
 
