@@ -27,17 +27,17 @@ export async function extractCoordsOfMapTextures() {
             const guid = metaFileGuidRegex.exec(metadata)[1];
             
             /** @type {AssetsMappingType} */
-            const spriteAssetsMapping = { }
+            const spriteAssetsMapping = { };
             parseUnityFileYamlIntoAssetsMapping(assetpath, spriteAssetsMapping);
             if(Object.keys(spriteAssetsMapping).length !== 1) {
-                throw new Error("Expected only one asset to be in the sprite asset file")
+                throw new Error("Expected only one asset to be in the sprite asset file");
             }
             const spriteAssetJSON = Object.values(spriteAssetsMapping)[0];
 
             mapSpriteShortNameToGUIDs[filenameNoExt] = guid;
             mapSpriteGUIDtoAssetJSONs[guid] = spriteAssetJSON;
         }
-    ))
+    ));
 
     console.log(mapSpriteShortNameToGUIDs);
 
@@ -75,25 +75,12 @@ export async function extractCoordsOfMapTextures() {
         if(assetJSON.typeName !== "MonoBehaviour")
             throw new Error(`Why was the assetJSON with a m_Sprite ref guid of ${guid} not a MonoBehaviour?`);
 
-        console.log(assetJSON.typeName, assetJSON.fileKey + '&' + assetJSON.fileId);
+        console.log(assetJSON.typeName, assetJSON.fileKey + "&" + assetJSON.fileId);
 
         const shortName = Object.entries(mapSpriteShortNameToGUIDs).find(e => e[1] === guid)[0];
 
         console.log(shortName);
     
-        // const {   transformChainChildToParent, position } = followMonoBehaviourGameObjectTransformChain(sourceAssetMapping, assetJSON, "RectTransform");
-        // targetPartPositionsObj[guid] = position;
-        
-        // transformChainChildToParent.forEach(t => {
-        //     console.log(t.fileId);
-        //     console.log("m_AnchorMin:        ", t.props["m_AnchorMin"]);
-        //     console.log("m_AnchorMax:        ", t.props["m_AnchorMax"]);
-        //     console.log("m_AnchoredPosition: ", t.props["m_AnchoredPosition"]);
-        //     console.log("m_SizeDelta:        ", t.props["m_SizeDelta"]);
-        //     console.log("m_Pivot:            ", t.props["m_Pivot"]);
-        // });  
-        // continue;  
-
         const podGameObj = sourceAssetMapping[assetJSON.fileKey + "&" + assetJSON.props["m_GameObject"]["fileID"]];        
         if(!podGameObj || podGameObj.typeName !== "GameObject") throw new Error(`m_GameObject = ${JSON.stringify(assetJSON.props["m_GameObject"])}, podGameObj = ${JSON.stringify(podGameObj)}`);
 
@@ -112,7 +99,7 @@ export async function extractCoordsOfMapTextures() {
         }
 
         if(!curTransform) {
-            throw new Error(`Why was there no RectTransform for this game object?  map texture short name ${shortName}`)
+            throw new Error(`Why was there no RectTransform for this game object?  map texture short name ${shortName}`);
         }
 
         const anchoredPos = curTransform.props["m_AnchoredPosition"];
@@ -126,9 +113,6 @@ export async function extractCoordsOfMapTextures() {
             x: anchoredPos.x + (size.x / 2),
             y: anchoredPos.y + (size.y / 2)
         };
-
-        const spriteAssetJSON = mapSpriteGUIDtoAssetJSONs[guid];
-        console.log(shortName, guid, offsetMin, offsetMax);
 
         targetPartPositionsObj[shortName] = { sizeInUnits: size, offsetMin, offsetMax };
 

@@ -1,25 +1,27 @@
-import { GLOBS_TO_INTERESTING_SCENES, GLOBS_TO_POD_COUNTER_LIST_ASSETS, L10N_TABLES_GLOBS, PATH_TO_TREASURE_PODS_DATA_FILE } from "../../asset_paths.js";
-
-import { Glob, globSync } from "glob";
-import yaml from "js-yaml";
-import assert from "node:assert";
+import { basename, join } from "node:path";
 import {
-    createWriteStream,
     createReadStream,
-    readFileSync,
-    writeFileSync,
-    readdirSync,
-    mkdirSync,
+    createWriteStream,
     existsSync,
+    mkdirSync,
+    readFileSync,
+    readdirSync,
     rmSync,
+    statSync,
     unlinkSync,
-    statSync
+    writeFileSync
 } from "node:fs";
-import { readFile } from "node:fs/promises";
-import { basename, join, resolve } from "node:path";
+import { L10N_TABLES_GLOBS } from "../../asset_paths.js";
 import { Quaternion } from "quaternion";
+import assert from "node:assert";
+import { globSync } from "glob";
+import { readFile } from "node:fs/promises";
+import yaml from "js-yaml";
+
+// eslint-disable-next-line sort-imports
 import _pkg_streamjson from "stream-json";
 const { parser } = _pkg_streamjson;
+// eslint-disable-next-line sort-imports
 import _pkg2_streamjson_StreamObject from "stream-json/streamers/StreamObject.js";
 const { streamObject } = _pkg2_streamjson_StreamObject;
 
@@ -91,7 +93,7 @@ export function* iterChildGameObjects_DFS(
         if(options.includeTransforms)
             yield transform;
 
-        const gameObjFileKeyFileId = transform.fileKey + "&" + transform.props["m_GameObject"]["fileID"]
+        const gameObjFileKeyFileId = transform.fileKey + "&" + transform.props["m_GameObject"]["fileID"];
         const gameObj = assetsMapping[gameObjFileKeyFileId];
 
         if(!gameObj) {
@@ -259,9 +261,9 @@ export function parseUnityFileYamlIntoAssetsMapping(sceneFilePath, assetsMapping
             typeId: type,
             typeName: typeName,
             props: assetJSON[typeName]
-        }
+        };
 
-    })
+    });
 
     if(Object.hasOwn(assetsMappingToModify, fileKey + "&0")) throw new Error(`Why was there a mapping for fileId 0 from scene ${sceneFilePath}? Found ${JSON.stringify(assetsMappingToModify[fileKey + "&0"], undefined, 4)}`);
 
@@ -306,7 +308,7 @@ export async function fromGlobsMapAssetGUIDsToAssetJSONs(globs, ...parsingFuncti
             const guid = metaFileGuidRegex.exec(metadata)[1];
             
             /** @type {AssetsMappingType} */
-            const singleAssetsMapping = { }
+            const singleAssetsMapping = { };
             // parseUnityFileYamlIntoAssetsMapping(assetpath, singleAssetsMapping);
             parseUnityFileYamlIntoAssetsMapping.apply(null, [assetpath, singleAssetsMapping, ...parsingFunctionOptionalParams]);
             if(Object.keys(singleAssetsMapping).length !== 1) {
@@ -324,20 +326,20 @@ export async function fromGlobsMapAssetGUIDsToAssetJSONs(globs, ...parsingFuncti
 
 /** adapted from https://stackoverflow.com/a/53888894 */
 export function sortStringsWithNumbers (/**@type {string}*/ a, /**@type {string}*/ b) {
-  a = a.toUpperCase().split(/(\d+)/g);
-  b = b.toUpperCase().split(/(\d+)/g);
+    a = a.toUpperCase().split(/(\d+)/g);
+    b = b.toUpperCase().split(/(\d+)/g);
 
-  const length = Math.min(a.length, b.length);
+    const length = Math.min(a.length, b.length);
 
-  for (let i = 0; i < length; i++) {
-    const cmp = (i % 2)
-      ? a[i] - b[i]
-      : -(a[i] < b[i]) || +(a[i] > b[i]);
+    for (let i = 0; i < length; i++) {
+        const cmp = (i % 2)
+            ? a[i] - b[i]
+            : -(a[i] < b[i]) || +(a[i] > b[i]);
 
-    if (cmp) return cmp;
-  }
+        if (cmp) return cmp;
+    }
 
-  return a.length - b.length;
+    return a.length - b.length;
 }
 
 export function dumpMassiveHeckinBigObjectToJSON(
@@ -515,6 +517,7 @@ export const MapType = {
     labyrinth: "map_labyrinth",
     sr1: "map_sr1"
 };
+// eslint-disable-next-line no-undef
 global.MapType = MapType;  // for indirect eval, global scoped
 
 /** @typedef {typeof MapType} _MapTypeType */
@@ -646,7 +649,7 @@ export function looseJsonStringify(
             )
         ) ? `"${k}": ` : `${k}: `;
         str += newlineIndent + _keyStr + looseJsonStringify(retypedObj[k], indent, transformingFns, _curIndent, _curIndent + indent, updatedKeysChain) + comma;
-    })
+    });
     str += (shouldNewline ? "\n" + _prevIndent : " ") + "}";
 
     return str;
@@ -781,6 +784,61 @@ export function setsEqual(a, b) {
         if (!b.has(item)) return false;
     }
     return true;
+}
+
+export function deepCopy(value, _seen = new WeakMap()) {
+    if (value === null || typeof value !== "object") return value;
+
+    // Handle circular references
+    if (_seen.has(value)) return _seen.get(value);
+
+    // Built-in types
+    if (value instanceof Date) return new Date(value.getTime());
+    if (value instanceof RegExp) return new RegExp(value.source, value.flags);
+    if (value instanceof Map) {
+        const m = new Map();
+        _seen.set(value, m);
+        for (const [k, v] of value) m.set(deepCopy(k, _seen), deepCopy(v, _seen));
+        return m;
+    }
+    if (value instanceof Set) {
+        const s = new Set();
+        _seen.set(value, s);
+        for (const v of value) s.add(deepCopy(v, _seen));
+        return s;
+    }
+    if (ArrayBuffer.isView(value)) {
+        // TypedArray or DataView
+        const ctor = value.constructor;
+        const copy = new ctor(value.buffer ? value.buffer.slice(0) : value);
+        _seen.set(value, copy);
+        return copy;
+    }
+    if (value instanceof ArrayBuffer) return value.slice(0);
+
+    // Arrays
+    if (Array.isArray(value)) {
+        const arr = [];
+        _seen.set(value, arr);
+        for (let i = 0; i < value.length; i++) arr[i] = deepCopy(value[i], _seen);
+        return arr;
+    }
+
+    // Generic objects (preserve prototype and property descriptors)
+    const proto = Object.getPrototypeOf(value);
+    const out = Object.create(proto);
+    _seen.set(value, out);
+    for (const key of Reflect.ownKeys(value)) {
+        const desc = Object.getOwnPropertyDescriptor(value, key);
+        if (!desc) continue;
+        if (desc.get || desc.set) {
+            Object.defineProperty(out, key, desc);
+        } else {
+            desc.value = deepCopy(desc.value, _seen);
+            Object.defineProperty(out, key, desc);
+        }
+    }
+    return out;
 }
 
 

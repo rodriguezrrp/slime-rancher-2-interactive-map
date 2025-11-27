@@ -63,7 +63,7 @@ const regionDefinitions = [
     // conservatory expansions  (designed with https://www.desmos.com/calculator/haxsu9jxep)
     {
         type: "function",
-        name: "mapVoronoiRainbowIslandConservatory",
+        name: "mapRegionRainbowIslandConservatory",
         dimension: MapType.overworld,
         priority: 3,
         mustAlsoBeInRegions: [ "mapVoronoiRainbowIslandFields" ],
@@ -78,37 +78,37 @@ const regionDefinitions = [
                 name: "mapVoronoiExpansionConservatory",
                 centerpoint: { y: 564, x: -258 },
                 priority: 5,
-                mustAlsoBeInRegions: [ "mapVoronoiRainbowIslandConservatory" ]
+                mustAlsoBeInRegions: [ "mapRegionRainbowIslandConservatory" ]
             },
             {
                 name: "mapVoronoiExpansionGully",
                 centerpoint: { y: 583.7, x: -566.6 },
                 priority: 5,
-                mustAlsoBeInRegions: [ "mapVoronoiRainbowIslandConservatory" ]
+                mustAlsoBeInRegions: [ "mapRegionRainbowIslandConservatory" ]
             },
             {
                 name: "mapVoronoiExpansionTidepools",
                 centerpoint: { y: 735, x: -569 },
                 priority: 5,
-                mustAlsoBeInRegions: [ "mapVoronoiRainbowIslandConservatory" ]
+                mustAlsoBeInRegions: [ "mapRegionRainbowIslandConservatory" ]
             },
             {
                 name: "mapVoronoiExpansionArchway",
                 centerpoint: { y: 738.5, x: -236.4 },
                 priority: 5,
-                mustAlsoBeInRegions: [ "mapVoronoiRainbowIslandConservatory" ]
+                mustAlsoBeInRegions: [ "mapRegionRainbowIslandConservatory" ]
             },
             {
                 name: "mapVoronoiExpansionDen",
                 centerpoint: { y: 612.3, x: -147.4 },
                 priority: 5,
-                mustAlsoBeInRegions: [ "mapVoronoiRainbowIslandConservatory" ]
+                mustAlsoBeInRegions: [ "mapRegionRainbowIslandConservatory" ]
             },
             {
                 name: "mapVoronoiExpansionDigsite",
                 centerpoint: { y: 555, x: 18 },
                 priority: 5,
-                mustAlsoBeInRegions: [ "mapVoronoiRainbowIslandConservatory" ]
+                mustAlsoBeInRegions: [ "mapRegionRainbowIslandConservatory" ]
             },
         ]
     },
