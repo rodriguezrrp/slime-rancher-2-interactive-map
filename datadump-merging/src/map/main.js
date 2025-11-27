@@ -21,21 +21,21 @@ await stitchMapTextures(mapSpriteGUIDtoAssetJSONs, mapSpriteShortNameToGUIDs, pa
 try {
     if(existsSync("./map_RI")) {
         console.log("  clearing Rainbow Map tilemap location ./map_RI for new gdal tilemap export...");
-        /*await rm*/rmSync("./map_RI", { recursive: true, force: true }, () => { });
+        rmSync("./map_RI", { recursive: true, force: true }, () => { });
     }
 }
 catch(e) {
-    console.log('Encountered error when removing existing tilemap location ./map_RI for gdal; ', e)
+    console.log("Encountered error when removing existing tilemap location ./map_RI for gdal; ", e);
 }
 await convertToTilemap("./data_out/stitchedMapRainbowIsland.png", "./map_RI", pythonCLIname);
 try {
     if(existsSync("./map_Labyrinth")) {
         console.log("  clearing Labyrinth tilemap location ./map_Labyrinth for new gdal tilemap export...");
-        /*await rm*/rmSync("./map_Labyrinth", { recursive: true, force: true }, () => { });
+        rmSync("./map_Labyrinth", { recursive: true, force: true }, () => { });
     }
 }
 catch(e) {
-    console.log('Encountered error when removing existing tilemap location ./map_Labyrinth for gdal; ', e)
+    console.log("Encountered error when removing existing tilemap location ./map_Labyrinth for gdal; ", e);
 }
 await convertToTilemap("./data_out/stitchedMapLabyrinth.png", "./map_Labyrinth", pythonCLIname);
 
@@ -45,11 +45,11 @@ if(!(dontCopyTilemap && dontCopyTilemap.toLowerCase?.() !== "false")) {
     try {
         if(existsSync(PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER)) {
             console.log("  removing existing...");
-            /*await rm*/rmSync(PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER, { recursive: true, force: true }, () => { });
+            rmSync(PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER, { recursive: true, force: true }, () => { });
         }
         
         console.log("  copying new...");
-        /*await cp*/cpSync("./map_RI", PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER, { recursive: true }, (err) => { if(err) throw err; });
+        cpSync("./map_RI", PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER, { recursive: true }, (err) => { if(err) throw err; });
 
         console.log(`Copied new Rainbow Island tilemap to "${PATH_TO_RAINBOW_ISLAND_TILEMAP_FOLDER}".`);
     }
@@ -65,11 +65,11 @@ if(!(dontCopyTilemap && dontCopyTilemap.toLowerCase?.() !== "false")) {
     try {
         if(existsSync(PATH_TO_LABYRINTH_TILEMAP_FOLDER)) {
             console.log("  removing existing...");
-            /*await rm*/rmSync(PATH_TO_LABYRINTH_TILEMAP_FOLDER, { recursive: true, force: true }, () => { });
+            rmSync(PATH_TO_LABYRINTH_TILEMAP_FOLDER, { recursive: true, force: true }, () => { });
         }
         
         console.log("  copying new...");
-        /*await cp*/cpSync("./map_Labyrinth", PATH_TO_LABYRINTH_TILEMAP_FOLDER, { recursive: true }, (err) => { if(err) throw err; });
+        cpSync("./map_Labyrinth", PATH_TO_LABYRINTH_TILEMAP_FOLDER, { recursive: true }, (err) => { if(err) throw err; });
 
         console.log(`Copied new Labyrinth tilemap to "${PATH_TO_LABYRINTH_TILEMAP_FOLDER}".`);
     }
